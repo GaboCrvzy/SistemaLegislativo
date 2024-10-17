@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 struct Politico {
     char *nombrePolitico; 
@@ -8,24 +9,13 @@ struct Politico {
     int cantProyectos;
 };
 
-struct Ciudadano {
-    char *nombreCiudadano;              
-    char *rutCiudadano;                     
-    struct ProyectoLey **proyectosIniciados;  
-    int cantidadProyectos;
-};
-
 struct NodoParlamentario {
     struct Politico *parlamentario;  
     struct NodoParlamentario *ant, *sig; 
 };
 
-struct NodoCiudadano {
-    struct Ciudadano *ciudadano;
-    struct NodoCiudadano *sig;
-};
-
 struct TribunalConstitucional {
+    struct NodoABB *abbProyectos;     
     int esRevisado;          // 0 NO REVISADO, 1 REVISADO
     int esConstitucional;    // 0 INCONSTITUCIONAL, 1 CONSTITUCIONAL
 };
@@ -86,8 +76,9 @@ struct Veto {
     char *motivo;                     
 };
 
-struct Presidente {
+struct Presidencia {
     char *nombrePresidente;              
     struct Veto *veto;           // NULL si no ha vetado
     struct SistemaLegislativo *sistema;
+    struct TribunalConstitucional *TC;
 };
