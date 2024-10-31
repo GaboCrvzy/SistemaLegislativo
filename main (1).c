@@ -35,7 +35,7 @@ struct Votacion {
     int resultado;            // 0 = Rechazado, 1 = Aprobado
 };
 
-struct ComisionMixta {
+struct Comision {
     char *estadoActual;    
     struct NodoParlamentario *miembros; 
     struct Votacion votacion; 
@@ -52,10 +52,8 @@ struct ProyectoLey {
     int id;                         // Identificador UNICO del proyecto
     char *tituloProyecto;  
     char *iniciativaLegislativa; 
-    struct Camara camaraOrigen; 
-    struct Camara camaraRevisora;  
-    struct ComisionMixta *comisionMixta; 
-    struct TribunalConstitucional *controlConstitucional; 
+    int urgenciaProyecto;
+    char *estadoProyecto;
 };
 
 struct NodoABB {
@@ -65,10 +63,13 @@ struct NodoABB {
 };
 
 struct SistemaLegislativo {
+    struct TribunalConstitucional *TC;
     struct NodoABB *abbProyectos;          // ABB de proyectos de ley por ID
     struct NodoParlamentario *diputados; 
-    struct NodoParlamentario *senadores; 
-    struct NodoCiudadano *ciudadanos;
+    struct NodoParlamentario *senadores;
+    struct Camara *camaraDiputados;
+    struct Camara *camaraSenadores;
+    struct Comision *comisionMixta;
 };
 
 struct Veto {
@@ -80,5 +81,4 @@ struct Presidencia {
     char *nombrePresidente;              
     struct Veto *veto;           // NULL si no ha vetado
     struct SistemaLegislativo *sistema;
-    struct TribunalConstitucional *TC;
 };
