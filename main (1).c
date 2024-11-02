@@ -156,3 +156,33 @@ int enlazarPolitico(struct NodoParlamentario **headLista, struct Politico *nuevo
 }
 
 
+int eliminarPolitico(struct NodoParlamentario **headLista, char *rut)
+{
+    struct NodoParlamentario *rec;
+    
+    if(strcmp(*headLista->rut,rut) == 0)
+    {
+        
+        
+        
+        
+    }
+    
+    rec = *headLista;
+    else
+    {
+        while(rec->sig != NULL)
+        {
+            
+            
+        }
+        
+        
+        
+    }
+
+
+
+}
+
+
