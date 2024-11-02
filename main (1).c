@@ -14,8 +14,7 @@ struct NodoParlamentario {
     struct NodoParlamentario *ant, *sig; 
 };
 
-struct TribunalConstitucional {
-    struct NodoABB *abbProyectos;     
+struct TribunalConstitucional {    
     int esRevisado;          // 0 NO REVISADO, 1 REVISADO
     int esConstitucional;    // 0 INCONSTITUCIONAL, 1 CONSTITUCIONAL
 };
