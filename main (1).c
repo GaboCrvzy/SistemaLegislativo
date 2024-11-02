@@ -130,8 +130,10 @@ int enlazarPoliticoAlNodo(struct NodoParlamentario **headLista, struct Politico 
         nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
 
         nuevoNodo->parlamentario = nuevoPolitico;
-        nuevoNodo->ant = rec->sig;
+        nuevoNodo->ant = rec;
         nuevoNodo->sig = NULL;
+        
+        rec->sig = nuevoNodo;
         return 1;
     }
     return 0
