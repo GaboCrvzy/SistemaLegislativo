@@ -81,3 +81,60 @@ struct Presidencia {
     struct Veto *veto;           // NULL si no ha vetado
     struct SistemaLegislativo *sistema;
 };
+
+struct Politico *crearPolitico(char *nombre, char *rut, char *partidoPolitico)
+{
+    struct Politico *nuevoPolitico;
+
+    nuevoPolitico = (struct Politico *)malloc(sizeof(struct Politico));
+
+    if(nuevoPolitico == NULL) return NULL;
+
+    nuevoPolitico->nombrePolitico = (char *)malloc((strlen(nombre) + 1) * sizeof(char));
+    strcpy(nuevoPolitico->nombrePolitico, nombre);
+
+    nuevoPolitico->rut = (char *)malloc((strlen(rut) + 1) * sizeof(char));
+    strcpy(nuevoPolitico->rut, rut);
+
+    nuevoPolitico->partido = (char *)malloc((strlen(partidoPolitico) + 1) * sizeof(char));
+    strcpy(nuevoPolitico->partido, partidoPolitico);
+
+    nuevoPolitico->proyectos = NULL;
+    nuevoPolitico->cantProyectos = 0;
+
+    return nuevoPolitico;
+}
+
+int enlazarPoliticoAlNodo(struct NodoParlamentario **headLista, struct Politico *nuevoPolitico)
+{
+
+    struct NodoParlamentario *nuevoNodo , *rec;
+
+    if(*headLista == NULL && buscarPolitico(*headLista, nuevoPolitico->rut) == NULL)
+    {
+        nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
+        nuevoNodo->parlamentario = nuevoPolitico;
+        nuevoNodo->ant = NULL;
+        nuevoNodo->sig = NULL;
+        
+        *headLista = nuevoNodo;
+        return 1;
+    }
+    
+    else
+    {
+        rec = *headLista;
+        while(rec->sig != NULL)
+            rec = rec->sig;
+        
+        nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
+
+        nuevoNodo->parlamentario = nuevoPolitico;
+        nuevoNodo->ant = rec->sig;
+        nuevoNodo->sig = NULL;
+        return 1;
+    }
+    return 0
+}
+
+
