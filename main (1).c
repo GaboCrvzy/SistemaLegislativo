@@ -105,12 +105,28 @@ struct Politico *crearPolitico(char *nombre, char *rut, char *partidoPolitico)
     return nuevoPolitico;
 }
 
-int enlazarPoliticoAlNodo(struct NodoParlamentario **headLista, struct Politico *nuevoPolitico)
+
+int buscarPolitico(struct NodoParlamentario *headLista, char * rutPolitico)
+{
+    struct NodoParlamentario *rec = NULL;
+    
+    rec = headLista;
+    
+    while(rec!= NULL)
+    {
+        if(strcmp(rec->rut,rutPolitico) == 0 ) return 1;
+        rec = rec->sig;
+    }
+    
+    return 0;
+}
+
+int enlazarPolitico(struct NodoParlamentario **headLista, struct Politico *nuevoPolitico)
 {
 
     struct NodoParlamentario *nuevoNodo , *rec;
 
-    if(*headLista == NULL && buscarPolitico(*headLista, nuevoPolitico->rut) == NULL)
+    if(*headLista == NULL && buscarPolitico(*headLista, nuevoPolitico->rut) == 0)
     {
         nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
         nuevoNodo->parlamentario = nuevoPolitico;
