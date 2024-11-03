@@ -36,9 +36,14 @@ struct Votacion {
 };
 
 struct Comision {
-    char *estadoActual;    
+    char *nombreDeComision;    
     struct NodoParlamentario *miembros; 
     struct Votacion *votacion;
+};
+
+struct NodoComision {
+    struct Comision *comision;
+    struct NodoComision *sig; 
 };
 
 struct Camara {
@@ -280,27 +285,115 @@ int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes)
     return 1;
 }
 
-struct Comision *crearComision(char *estadoActual) {
+struct Comision *crearComision(char *nombreDeComision) 
+{
+    if (nombreDeComision == NULL) return NULL;
+
     struct Comision *nuevaComision = (struct Comision *)malloc(sizeof(struct Comision));
     if (nuevaComision == NULL) return NULL;
 
-    nuevaComision->estadoActual = (char *)malloc((strlen(estadoActual) + 1) * sizeof(char));
-    if (nuevaComision->estadoActual == NULL) {
-        free(nuevaComision);
-        return NULL;
-    }
-    strcpy(nuevaComision->estadoActual, estadoActual);
+    nuevaComision->nombreDeComision = (char *)malloc((strlen(nombreDeComision) + 1) * sizeof(char));
+    strcpy(nuevaComision->nombreDeComision, nombreDeComision);
 
-    nuevaComision->miembros = NULL;  // Lista vacía de miembros
-    inicializarVotacion(&nuevaComision->votacion, 10);  // Inicializamos la votación con una capacidad inicial
+    nuevaComision->miembros = NULL;
+    nuevaComision->votacion = NULL;
 
     return nuevaComision;
 }
 
-int agregarMiembroComision(struct Comision *comision, struct Politico *nuevoMiembro) {
-    if (comision == NULL || nuevoMiembro == NULL) return 0;
+int buscarComision(struct NodoComision *head, char *nombreComision)
+{
+    struct NodoComision *rec = head;
 
-    return enlazarPolitico(&comision->miembros, nuevoMiembro);  // Utiliza la función enlazarPolitico
+    while(rec != NULL)
+    {
+        if(strcmp(rec->comision->nombreDeComision, nombreComision) == 0)
+            return 1;
+        
+        rec = rec->sig;
+    }
+    return 0;
+}
+
+int enlazarComision(struct NodoComision **headLista, struct Comision *nuevaComision) 
+{
+    struct NodoComision *nuevoNodo, *rec;
+
+    if (*headLista == NULL) 
+    {
+        nuevoNodo = (struct NodoComision *)malloc(sizeof(struct NodoComision));
+        if (nuevoNodo == NULL) return 0; 
+        
+        nuevoNodo->comision = nuevaComision;
+        nuevoNodo->sig = NULL; 
+
+        *headLista = nuevoNodo;
+        return 1;
+    } 
+    else 
+    {
+        if(buscarComision(*headLista, nuevaComision->nombreDeComision) == 0)
+        {
+            rec = *headLista;
+            
+            while (rec->sig != NULL) {
+                rec = rec->sig;
+            }
+
+            nuevoNodo = (struct NodoComision *)malloc(sizeof(struct NodoComision));
+            if (nuevoNodo == NULL) return 0; 
+
+            nuevoNodo->comision = nuevaComision; 
+            nuevoNodo->sig = NULL; 
+            rec->sig = nuevoNodo; 
+            return 1;
+        }
+    }
+    return 0; 
+}
+
+int eliminarComision(struct NodoComision **headComision, char *nombreComisionBorrar)
+{
+    struct NodoComision *rec = NULL;
+
+    if (*headComision != NULL && strcmp((*headComision)->comision->nombreDeComision, nombreComisionBorrar) == 0)
+    {
+        *headComision = (*headComision)->sig;            
+        return 1; 
+    }
+    
+    rec = *headComision;
+    while (rec->sig != NULL)
+    {
+        if (strcmp(rec->sig->comision->nombreDeComision, nombreComisionBorrar) == 0)
+        {
+            rec->sig = rec->sig->sig;
+            return 1;
+        }
+        rec = rec->sig;
+    }
+    return 0; 
+}
+
+
+
+int agregarMiembroComision(struct Comision *comision, struct Politico *nuevoMiembro) 
+{
+    if (comision == NULL || nuevoMiembro == NULL) return 0;
+}
+    struct NodoParlamentario *nuevoNodo = (struct NodoParlamentario *)malloc(sizeof(struct NodoParlamentario));
+    if (nuevoNodo == NULL) return 0;
+
+    nuevoNodo->parlamentario = nuevoMiembro; // Referencia al político ya existente
+    nuevoNodo->sig = comision->miembros; 
+    nuevoNodo->ant = NULL; 
+
+    if (comision->miembros != NULL) {
+        comision->miembros->ant = nuevoNodo; 
+    }
+
+    comision->miembros = nuevoNodo; 
+    return 1;
 }
 
 struct Politico *buscarMiembroComision(struct Comision *comision, char *rut) {
@@ -322,17 +415,6 @@ int eliminarMiembroComision(struct Comision *comision, char *rut) {
 
     return eliminarPolitico(&comision->miembros, rut);  // Utiliza la función eliminarPolitico
 }
-
-int modificarEstadoComision(struct Comision *comision, char *nuevoEstado) {
-    if (comision == NULL || nuevoEstado == NULL) return 0;
-
-    comision->estadoActual = (char *)malloc((strlen(nuevoEstado) + 1) * sizeof(char));
-    if (comision->estadoActual == NULL) return 0;
-
-    strcpy(comision->estadoActual, nuevoEstado);
-    return 1;
-}
-
 
 void listarMiembrosComision(struct Comision *comision) {
     if (comision == NULL) {
