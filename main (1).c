@@ -31,7 +31,6 @@ struct Votacion {
     int votosEnContra;    
     int abstenciones; 
     struct Voto **votos;
-    int totalVotos;
     int resultado;            // 0 = Rechazado, 1 = Aprobado
 };
 
