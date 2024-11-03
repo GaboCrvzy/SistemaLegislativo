@@ -54,10 +54,10 @@ struct Camara {
 };
 
 struct ProyectoLey {
-    int id;                         // Identificador UNICO del proyecto
+    int idProyecto;                         // Identificador UNICO del proyecto
     char *tituloProyecto;  
     char *iniciativaLegislativa; 
-    int urgenciaProyecto;
+    int urgenciaProyecto;                  //  1:Simple - 2:Suma Urgencia - 3:Discusion Inmediata
     char *estadoProyecto;
 };
 
@@ -416,6 +416,113 @@ int eliminarMiembroComision(struct Comision *comision, char *rut)
 
     return eliminarPolitico(&comision->miembros, rut);
 }
+
+struct Camara *crearCamara(char *nombreCamara)
+{
+    struct Camara *nuevaCamara;
+    nuevaCamara = (struct Camara *)malloc(sizeof(struct Camara));
+    if(nuevaCamara == NULL) return NULL;
+
+    nuevaCamara->nombreDeCamara = (char *)malloc((strlen(nombreCamara) + 1) * sizeof(char));
+    strcpy(nuevaCamara->nombreDeCamara, nombreCamara);
+
+    nuevaCamara->comisiones = NULL;
+    nuevaCamara->votacionGeneral = NULL;
+    nuevaCamara->votacionEspecifica = NULL;
+
+    return nuevaCamara;
+}
+
+int buscarCamara(struct SistemaLegislativo *sistema, char *nombreCamara)
+{
+    if (sistema == NULL) return 0; 
+
+    if (sistema->camaraDiputados != NULL && strcmp(sistema->camaraDiputados->nombreDeCamara, nombreCamara) == 0) {
+        return 1;
+    }
+    
+    if (sistema->camaraSenadores != NULL && strcmp(sistema->camaraSenadores->nombreDeCamara, nombreCamara) == 0) {
+        return 1;
+    }
+    return 0;
+}
+
+struct Proyecto *crearProyecto(int id, char *titulo, char *iniciativa, int urgencia, char *estadoDelProyecto)
+{
+    struct Proyecto *nuevoProyecto;
+    nuevoProyecto = (struct Proyecto *)malloc(sizeof(struct Proyecto));
+    if(nuevoProyecto == NULL) return NULL;
+
+    nuevoProyecto->idProyecto = id;
+
+    nuevoProyecto->tituloProyecto = (char *)malloc((strlen(titulo) + 1) * sizeof(char));
+    strcpy(nuevoProyecto->tituloProyecto, titulo);
+
+    nuevoProyecto->iniciativaLegislativa = (char *)malloc((strlen(iniciativa) + 1) * sizeof(char));
+    strcpy(nuevoProyecto->iniciativaLegislativa, iniciativa);
+
+    nuevoProyecto->urgencia = urgencia;
+
+    nuevoProyecto->estadoProyecto = (char *)malloc((strlen(estadoDelProyecto) + 1) * sizeof(char));
+    strcpy(nuevoProyecto->estadoProyecto, estadoDelProyecto);
+
+    return nuevoProyecto;
+}
+
+struct NodoABB *insertarProyecto(struct NodoABB *nodoActual, struct ProyectoLey *nuevoProyecto) 
+{
+    if (nodoActual == NULL) 
+    {
+        struct NodoABB *nuevoNodo = (struct NodoABB *)malloc(sizeof(struct NodoABB));
+        nuevoNodo->proyecto = nuevoProyecto;
+        nuevoNodo->izq = NULL;
+        nuevoNodo->der = NULL;
+        return nuevoNodo;
+    }
+
+    if (nuevoProyecto->idProyecto < nodoActual->proyecto->idProyecto)
+    {
+        nodoActual->izq = insertarProyecto(nodoActual->izq, nuevoProyecto);
+    } 
+    else 
+    { 
+        nodoActual->der = insertarProyecto(nodoActual->der, nuevoProyecto);
+    }
+
+    return nodoActual; 
+}
+
+struct ProyectoLey *buscarProyecto(struct NodoABB *nodo, int idProyecto)
+{
+    if (nodo == NULL) return NULL; 
+
+    if (nodo->proyecto->idProyecto == idProyecto)
+    {
+        return nodo->proyecto;
+    } 
+    else if (idProyecto < nodo->proyecto->idProyecto)
+    {
+        return buscarProyecto(nodo->izq, idProyecto); 
+    }
+    else 
+    {
+        return buscarProyecto(nodo->der, idProyecto);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
