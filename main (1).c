@@ -48,6 +48,7 @@ struct NodoComision {
 
 struct Camara {
     char *nombreDeCamara;                    
+    struct NodoParlamentario *listaParlamentarios;
     struct Comision *comisiones;     
     struct Votacion *votacionGeneral;
     struct Votacion *votacionEspecifica;
