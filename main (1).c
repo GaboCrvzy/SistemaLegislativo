@@ -511,6 +511,65 @@ struct ProyectoLey *buscarProyecto(struct NodoABB *nodo, int idProyecto)
 }
 
 
+struct TribunalConstitucional* crearTribunalConstitucional() 
+{
+    struct TribunalConstitucional* tribunal = (struct TribunalConstitucional*)malloc(sizeof(struct TribunalConstitucional));
+    if (tribunal != NULL)
+    {
+        tribunal->esRevisado = 0;
+        tribunal->esConstitucional = 0; 
+    }
+    return tribunal;
+}
+
+void inicializarTribunalConstitucional(struct TribunalConstitucional* tribunal, int esRevisado, int esConstitucional) 
+{
+    if (tribunal != NULL) 
+    {
+        tribunal->esRevisado = esRevisado;
+        tribunal->esConstitucional = esConstitucional;
+    }
+}
+
+
+struct SistemaLegislativo* crearSistemaLegislativo() 
+{
+    struct SistemaLegislativo* sistema = (struct SistemaLegislativo*)malloc(sizeof(struct SistemaLegislativo));
+    sistema->TC = crearTribunalConstitucional(); 
+    sistema->abbProyectos = NULL; // Inicializar como un ABB vacío
+    sistema->diputados = NULL; // Inicializar según tu implementación
+    sistema->senadores = NULL; // Inicializar según tu implementación
+    sistema->camaraDiputados = NULL; // Inicializar según tu implementación
+    sistema->camaraSenadores = NULL; // Inicializar según tu implementación
+    sistema->comisionMixta = NULL; // Inicializar según tu implementación
+    return sistema;
+}
+
+struct Veto *crearVeto(int tipo, char *motivo)
+{
+    struct Veto *nuevoVeto;
+    nuevoVeto = (struct Veto *)malloc(sizeof(struct Veto));
+    nuevoVeto->tipoVeto = tipo;
+
+    nuevoVeto->motivo = (char *)malloc((strlen(motivo) + 1) * sizeof(char));
+    strcpy(nuevoVeto->motivo, motivo);
+
+    return nuevoVeto;
+}
+
+struct Presidencia *crearPresidencia(char *nombre, struct SistemaLegislativo *sistema) 
+{
+    struct Presidencia *nuevaPresidencia = (struct Presidencia *)malloc(sizeof(struct Presidencia));
+    if (nuevaPresidencia == NULL) return NULL;
+
+    nuevaPresidencia->nombrePresidente = (char *)malloc((strlen(nombre) + 1) * sizeof(char));
+    strcpy(nuevaPresidencia->nombrePresidente, nombre);
+
+    nuevaPresidencia->veto = NULL;
+    nuevaPresidencia->sistema = sistema; 
+    return nuevaPresidencia;
+}
+
 
 
 
