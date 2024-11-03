@@ -661,8 +661,12 @@ int main()
     sistemaLegislativoChileno->camaraDiputados = crearCamara("Cámara de Diputados");
     sistemaLegislativoChileno->camaraSenadores = crearCamara("Cámara de Senadores");
 
-    mostrarParlamentario(listaDiputados, "Diputados");
-    mostrarParlamentario(listaSenadores, "Senadores");
+    sistemaLegislativoChileno->camaraDiputados->listaParlamentarios = listaDiputados;
+    sistemaLegislativoChileno->camaraSenadores->listaParlamentarios = listaSenadores;
+
+    mostrarParlamentario(sistemaLegislativoChileno->camaraDiputados->listaParlamentarios, "Diputados");
+    mostrarParlamentario(sistemaLegislativoChileno->camaraSenadores->listaParlamentarios, "Senadores");
+
     
     comisionFinanzas = crearComision("Comisión de Finanzas");
     enlazarComision(&(sistemaLegislativoChileno->comisionMixta), comisionFinanzas);
