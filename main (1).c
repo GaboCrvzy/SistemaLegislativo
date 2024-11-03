@@ -126,85 +126,96 @@ int enlazarPolitico(struct NodoParlamentario **headLista, struct Politico *nuevo
 
     struct NodoParlamentario *nuevoNodo , *rec;
 
-    if(*headLista == NULL && buscarPolitico(*headLista, nuevoPolitico->rut) == 0) {
+    if(*headLista == NULL) 
+    {
         nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
         nuevoNodo->parlamentario = nuevoPolitico;
         nuevoNodo->ant = NULL;
         nuevoNodo->sig = NULL;
-        
+    
         *headLista = nuevoNodo;
         return 1;
-    }else{
+    }
+    else 
+    {   
+        if (buscarPolitico(*headLista, nuevoPolitico->rut) == 0) 
+        {
+            rec = *headLista;
 
-        rec = *headLista;
-        while(rec->sig != NULL)
-            rec = rec->sig;
-        
-        nuevoNodo = (struct NodoParlamentario*)malloc(sizeof(struct NodoParlamentario));
+            while (rec->sig != NULL) {
+                rec = rec->sig;
+            }
 
-        nuevoNodo->parlamentario = nuevoPolitico;
-        nuevoNodo->ant = rec;
-        nuevoNodo->sig = NULL;
-        
-        rec->sig = nuevoNodo;
-        return 1;
+            nuevoNodo = (struct NodoParlamentario *)malloc(sizeof(struct NodoParlamentario));
+
+            nuevoNodo->parlamentario = nuevoPolitico;
+            nuevoNodo->ant = rec;
+            nuevoNodo->sig = NULL;
+            rec->sig = nuevoNodo;
+
+            return 1;
+        }
     }
     return 0;
 }
 
-
-int eliminarPolitico(struct NodoParlamentario **headLista, char *rut) {
-    struct NodoParlamentario *rec = *headLista;
-
-    // Caso 1: La lista está vacía
-    if (rec == NULL) {
-        return 0; // No hay nada que eliminar
-    }
-
-    // Caso 2: El primer nodo es el que queremos eliminar
-
-    if (strcmp(rec->parlamentario->rut, rut) == 0) {
-        *headLista = rec->sig; // Actualizar la cabeza de la lista
-        if (*headLista != NULL) {
-            (*headLista)->ant = NULL; // El nuevo primer nodo no tiene anterior
+int eliminarPolitico(struct NodoParlamentario **headLista, char *rut) 
+{
+    struct NodoParlamentario *rec = NULL;
+    
+    if(*headLista != NULL && strcmp((*headLista)->parlamentario->rut, rut) == 0)
+    {
+        *headLista = (*headLista)->sig;
+        
+        if (*headLista != NULL){
+            (*headLista)->ant = NULL; 
         }
-
         return 1;
     }
 
-    // Caso 3: Buscar en el resto de la lista
-    while (rec != NULL && strcmp(rec->parlamentario->rut, rut) != 0) {
+    rec = (*headLista)->sig;
+    while (rec != NULL)
+    {
+        if(strcmp(rec->parlamentario->rut, rut) == 0)
+        {
+            if (rec->ant != NULL) {
+                rec->ant->sig = rec->sig;
+            }
+
+            if (rec->sig != NULL) {
+                rec->sig->ant = rec->ant;
+            }
+            return 1;
+        }
         rec = rec->sig;
     }
-
-    // Si no se encontró el político
-    if (rec == NULL) {
-        return 0;
-    }
-
-    // Caso 4: El nodo a eliminar está en el medio o al final de la lista
-    if (rec->ant != NULL) {
-        rec->ant->sig = rec->sig; // Ajustar el enlace del nodo anterior
-    }
-    if (rec->sig != NULL) {
-        rec->sig->ant = rec->ant; // Ajustar el enlace del nodo siguiente
-    }
-
-
-    return 1; // Eliminación exitosa
+    return 0;
 }
 
-struct Voto *crearVoto(struct Politico *parlamentario, int tipoVoto) {
+struct Voto *crearVoto(struct Politico *parlamentario, int tipoVoto)
+{
     struct Voto *nuevoVoto = (struct Voto *)malloc(sizeof(struct Voto));
     if (nuevoVoto == NULL) return NULL;
 
     nuevoVoto->parlamentario = parlamentario;
     nuevoVoto->tipoVoto = tipoVoto;
-
     return nuevoVoto;
 }
 
-int inicializarVotacion(struct Votacion *votacion, int capacidadInicial) {
+struct Votacion *crearVotacion(char *fechaInicio)
+{
+    struct Votacion *votacionNueva;
+    votacionNueva = (struct Votacion *)malloc(sizeof(struct Votacion));
+    if(votacionNueva == NULL) return NULL;
+
+    votacionNueva->fechaVotacion = (char *)malloc((strlen(fechaInicio) + 1) * sizeof(char));
+    votacionNueva->fechaVotacion = fechaInicio;
+
+    return votacionNueva;
+}
+
+int inicializarVotacion(struct Votacion *votacion, int capacidadInicial) 
+{
     votacion->votos = (struct Voto **)malloc(capacidadInicial * sizeof(struct Voto *));
     if (votacion->votos == NULL) return 0;
 
@@ -215,6 +226,8 @@ int inicializarVotacion(struct Votacion *votacion, int capacidadInicial) {
 
     return 1;
 }
+
+
 
 
 
