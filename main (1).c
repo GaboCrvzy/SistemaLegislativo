@@ -522,15 +522,15 @@ struct TribunalConstitucional* crearTribunalConstitucional()
     return tribunal;
 }
 
-void inicializarTribunalConstitucional(struct TribunalConstitucional* tribunal, int esRevisado, int esConstitucional) 
+int controlConstitucional(struct TribunalConstitucional* tribunal, int esRevisado, int esConstitucional) 
 {
-    if (tribunal != NULL) 
-    {
-        tribunal->esRevisado = esRevisado;
-        tribunal->esConstitucional = esConstitucional;
-    }
-}
+    if (tribunal == NULL) return 0; 
+    
+    tribunal->esRevisado = esRevisado;
+    tribunal->esConstitucional = esConstitucional;
+    return 1;
 
+}
 
 struct SistemaLegislativo* crearSistemaLegislativo() 
 {
@@ -570,12 +570,119 @@ struct Presidencia *crearPresidencia(char *nombre, struct SistemaLegislativo *si
     return nuevaPresidencia;
 }
 
+void mostrarPresidencia(struct Presidencia *presidencia) 
+{
+    if (presidencia != NULL) 
+    {
+        printf("Presidente: %s\n", presidencia->nombrePresidente);
+        if (presidencia->veto != NULL)
+        {
+            printf("Veto: Tipo %d, Motivo: %s\n", presidencia->veto->tipoVeto, presidencia->veto->motivo);
+        } else 
+        {
+            printf("No hay veto asignado.\n");
+        }
+    }
+}
+
+void mostrarParlamentario(struct NodoParlamentario *lista, char *tipoParlamentario)
+{
+    struct NodoParlamentario *actual = lista;
+    if (lista == NULL) 
+    {
+        printf("No hay %s en el sistema.\n", tipoParlamentario);
+        return;
+    }
+    
+    printf("Lista de %s:\n", tipoParlamentario);
+    
+    while (actual != NULL) {
+        printf("- %s (%s, %s)\n", actual->parlamentario->nombrePolitico, actual->parlamentario->rut, actual->parlamentario->partido);
+        actual = actual->sig;
+    }
+}
+
+void mostrarComisiones(struct NodoComision *listaComisiones)
+{
+    struct NodoComision *actual = listaComisiones;
+
+    if (listaComisiones == NULL) 
+    {
+        printf("No hay comisiones en el sistema.\n");
+        return;
+    }
+
+    printf("Lista de Comisiones:\n");
+    while (actual != NULL) 
+    {
+        printf("- %s (Área: %s, Presidente: %s)\n", actual->comision->nombreComision, actual->comision->area, 
+            actual->comision->presidente);
+        actual = actual->siguiente;
+    }
+}
+
+void mostrarProyectos(struct NodoProyecto *raiz)
+{
+    if (raiz == NULL) 
+    {
+        printf("No hay proyectos de ley en el sistema.\n");
+        return;
+    }
+    mostrarProyectos(raiz->izquierda);
+    printf("- Proyecto %d: %s (Estado: %s)\n", raiz->proyecto->id, raiz->proyecto->nombre, raiz->proyecto->estado);
+    mostrarProyectos(raiz->derecha);
+}
+
+int main()
+{
+    struct SistemaLegislativo *sistemaLegislativoChileno;
+    struct Presidencia *presidencia;
+    struct Politico *diputado1, *diputado2, *senador1, *senador2;
+    struct NodoParlamentario *listaDiputados = NULL; // Lista de diputados
+    struct NodoParlamentario *listaSenadores = NULL; // Lista de senadores
+    struct Comision *comisionFinanzas;
+    struct Votacion *votacionFinanzas;
+    
+    sistemaLegislativoChileno = crearSistemaLegislativo();
+    presidencia = crearPresidencia("Gabriel Boric", sistemaLegislativoChileno);
+    mostrarPresidencia(presidencia);
+
+    diputado1 = crearPolitico("Juan Perez", "21710449-1", "Independiente");
+    diputado2 = crearPolitico("Maria Flores", "55555555-7", "Republicano");
+    senador1 = crearPolitico("Pedro Quiroz", "22719338-9", "Derecha");
+    senador2 = crearPolitico("Roberto Montemar", "99999999-8", "Izquierda");
+
+    enlazarPolitico(&listaDiputados, diputado1);
+    enlazarPolitico(&listaDiputados, diputado2);
+    enlazarPolitico(&listaSenadores, senador1);
+    enlazarPolitico(&listaSenadores, senador2);
+    
+    sistemaLegislativoChileno->camaraDiputados = crearCamara("Cámara de Diputados");
+    sistemaLegislativoChileno->camaraSenadores = crearCamara("Cámara de Senadores");
+
+    mostrarParlamentario(listaDiputados, "Diputados");
+    mostrarParlamentario(listaSenadores, "Senadores");
+    
+    comisionFinanzas = crearComision("Comisión de Finanzas");
+    enlazarComision(&(sistemaLegislativoChileno->comisionMixta), comisionFinanzas);
+
+    agregarMiembroComision(comisionFinanzas, diputado1);
+    agregarMiembroComision(comisionFinanzas, senador1);
+
+    printf("\nMiembros de la %s:\n", comisionFinanzas->nombreDeComision);
+    mostrarParlamentario(comisionFinanzas->miembros, "Miembros de la Comisión");
+
+    votacionFinanzas = crearVotacion("2024-11-03");
+    inicializarVotacion(votacionFinanzas, 4); 
+
+    agregarVoto(votacionFinanzas->votos, 4, crearVoto(diputado1, 1)); 
+    agregarVoto(votacionFinanzas->votos, 4, crearVoto(diputado2, 2)); 
+    agregarVoto(votacionFinanzas->votos, 4, crearVoto(senador1, 1)); 
+    agregarVoto(votacionFinanzas->votos, 4, crearVoto(senador2, 3)); 
 
 
-
-
-
-
+    return 0;
+}
 
 
 
