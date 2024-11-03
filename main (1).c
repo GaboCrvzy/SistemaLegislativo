@@ -31,6 +31,7 @@ struct Votacion {
     int votosEnContra;    
     int abstenciones; 
     struct Voto **votos;
+    int totalVotos;
     int resultado;            // 0 = Rechazado, 1 = Aprobado
 };
 
@@ -202,65 +203,81 @@ struct Voto *crearVoto(struct Politico *parlamentario, int tipoVoto)
     return nuevoVoto;
 }
 
+int buscarVoto(struct Voto **votos, int tam, char *rut)
+{
+    int i;
+    for (i = 0; i < tam; i++)
+    {
+        if (votos[i] != NULL && strcmp(votos[i]->parlamentario->rut, rut) == 0){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int agregarVoto(struct Voto **votos, int tam, struct Voto *nuevoVoto)
+{
+    int i;
+
+    if(buscarVoto(votos, tam, nuevoVoto->parlamentario->rut) == 0)
+    {
+        for(i = 0; i < tam; i++)
+        {
+            if(votos[i] == NULL)
+            {
+                votos[i] = nuevoVoto;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int eliminarVoto(struct Voto **votos, int tam, char *rut) 
+{
+    int i;
+    
+    for (i = 0; i < tam; i++) 
+    {
+        if (votos[i] != NULL && strcmp(votos[i]->parlamentario->rut, rut) == 0) 
+        {
+            votos[i] = NULL;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 struct Votacion *crearVotacion(char *fechaInicio)
 {
+    if(fechaInicio == NULL) return NULL; 
+    
     struct Votacion *votacionNueva;
+    
     votacionNueva = (struct Votacion *)malloc(sizeof(struct Votacion));
     if(votacionNueva == NULL) return NULL;
 
     votacionNueva->fechaVotacion = (char *)malloc((strlen(fechaInicio) + 1) * sizeof(char));
-    votacionNueva->fechaVotacion = fechaInicio;
+    strcpy(votacionNueva->fechaVotacion, fechaInicio);
+
+    votacionNueva->votos = NULL;
 
     return votacionNueva;
 }
 
-int inicializarVotacion(struct Votacion *votacion, int capacidadInicial) 
+int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes) 
 {
-    votacion->votos = (struct Voto **)malloc(capacidadInicial * sizeof(struct Voto *));
+    if(votacion == NULL) return 0;
+    
+    votacion->votos = (struct Voto **)malloc(cantidadParticipantes * sizeof(struct Voto *));
     if (votacion->votos == NULL) return 0;
 
-    votacion->totalVotos = 0;
     votacion->votosAFavor = 0;
     votacion->votosEnContra = 0;
     votacion->abstenciones = 0;
+    votacion->totalVotos = 0;
 
     return 1;
-}
-
-
-
-
-
-
-
-int eliminarVoto(struct Votacion *votacion, char *rut) {
-    for (int i = 0; i < votacion->totalVotos; i++) {
-        if (strcmp(votacion->votos[i]->parlamentario->rut, rut) == 0) {
-            struct Voto *votoAEliminar = votacion->votos[i];
-
-            if (votoAEliminar->tipoVoto == 1) votacion->votosAFavor--;
-            else if (votoAEliminar->tipoVoto == 2) votacion->votosEnContra--;
-            else if (votoAEliminar->tipoVoto == 3) votacion->abstenciones--;
-
-            free(votoAEliminar);
-
-            votacion->votos[i] = votacion->votos[votacion->totalVotos - 1];
-            votacion->totalVotos--;
-
-            return 1; // Eliminación exitosa
-        }
-    }
-
-    return 0; // No se encontró el voto
-}
-
-struct Voto *buscarVoto(struct Votacion *votacion, char *rut) {
-    for (int i = 0; i < votacion->totalVotos; i++) {
-        if (strcmp(votacion->votos[i]->parlamentario->rut, rut) == 0) {
-            return votacion->votos[i];
-        }
-    }
-    return NULL; // No se encontró el voto
 }
 
 struct Comision *crearComision(char *estadoActual) {
