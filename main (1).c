@@ -286,6 +286,15 @@ int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes)
     return 1;
 }
 
+float calcularPorcentajeAprobacion(struct Votacion *votacion)
+{
+    if (votacion == NULL || votacion->totalVotos == 0) 
+    {
+        return 0.0; 
+    }
+    return ((float)votacion->votosAFavor / votacion->totalVotos) * 100;
+}
+
 struct Comision *crearComision(char *nombreDeComision) 
 {
     if (nombreDeComision == NULL) return NULL;
@@ -634,11 +643,24 @@ void mostrarProyectos(struct NodoProyecto *raiz)
     mostrarProyectos(raiz->derecha);
 }
 
+void generarReporteActividades(struct NodoParlamentario *lista)
+{
+    struct NodoParlamentario *actual = lista;
+    printf("=== Reporte de Actividades de los Parlamentarios ===\n");
+    
+    while (actual != NULL) 
+    {
+        struct Politico *politico = actual->parlamentario;
+        printf("Político: %s (RUT: %s, Partido: %s)\n", politico->nombrePolitico, politico->rut, politico->partido);
+        printf("Proyectos en los que participa: %d\n", politico->cantProyectos);
+        actual = actual->sig;
+    }
+}
+
 int main()
 {
     struct SistemaLegislativo *sistemaLegislativoChileno;
     struct Presidencia *presidencia;
-    struct Politico *diputado1, *diputado2, *senador1, *senador2;
     struct NodoParlamentario *listaDiputados = NULL; // Lista de diputados
     struct NodoParlamentario *listaSenadores = NULL; // Lista de senadores
     struct Comision *comisionFinanzas;
