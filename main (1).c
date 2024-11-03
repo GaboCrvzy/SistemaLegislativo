@@ -375,63 +375,47 @@ int eliminarComision(struct NodoComision **headComision, char *nombreComisionBor
     return 0; 
 }
 
+int buscarMiembroEnComision(struct NodoParlamentario *miembros, char *rutPolitico)
+{
+    struct NodoParlamentario *rec = miembros;
 
+    while (rec != NULL) 
+    {
+        if (strcmp(rec->parlamentario->rut, rutPolitico) == 0) {
+            return 1; 
+        }
+        rec = rec->sig;
+    }
+    return 0; 
+}
 
 int agregarMiembroComision(struct Comision *comision, struct Politico *nuevoMiembro) 
 {
     if (comision == NULL || nuevoMiembro == NULL) return 0;
-}
+
+    if (buscarMiembroEnComision(comision->miembros, nuevoMiembro->rut) == 1)
+        return 0;
+    
     struct NodoParlamentario *nuevoNodo = (struct NodoParlamentario *)malloc(sizeof(struct NodoParlamentario));
     if (nuevoNodo == NULL) return 0;
 
-    nuevoNodo->parlamentario = nuevoMiembro; // Referencia al político ya existente
+    nuevoNodo->parlamentario = nuevoMiembro;
     nuevoNodo->sig = comision->miembros; 
     nuevoNodo->ant = NULL; 
 
-    if (comision->miembros != NULL) {
+    if (comision->miembros != NULL)
         comision->miembros->ant = nuevoNodo; 
-    }
 
     comision->miembros = nuevoNodo; 
-    return 1;
+    return 1; 
 }
 
-struct Politico *buscarMiembroComision(struct Comision *comision, char *rut) {
-    if (comision == NULL || rut == NULL) return NULL;
-
-    struct NodoParlamentario *nodoEncontrado = comision->miembros;
-    while (nodoEncontrado != NULL) {
-        if (strcmp(nodoEncontrado->parlamentario->rut, rut) == 0) {
-            return nodoEncontrado->parlamentario;
-        }
-        nodoEncontrado = nodoEncontrado->sig;
-    }
-
-    return NULL;  // Miembro no encontrado
-}
-
-int eliminarMiembroComision(struct Comision *comision, char *rut) {
+int eliminarMiembroComision(struct Comision *comision, char *rut) 
+{
     if (comision == NULL || rut == NULL) return 0;
 
-    return eliminarPolitico(&comision->miembros, rut);  // Utiliza la función eliminarPolitico
+    return eliminarPolitico(&comision->miembros, rut);
 }
 
-void listarMiembrosComision(struct Comision *comision) {
-    if (comision == NULL) {
-        printf("La comisión no existe.\n");
-        return;
-    }
-
-    struct NodoParlamentario *actual = comision->miembros;
-    printf("Miembros de la Comisión (Estado: %s):\n", comision->estadoActual);
-
-    while (actual != NULL) {
-        printf("Nombre: %s, RUT: %s, Partido: %s\n",
-               actual->parlamentario->nombrePolitico,
-               actual->parlamentario->rut,
-               actual->parlamentario->partido);
-        actual = actual->sig;
-    }
-}
 
 
