@@ -292,7 +292,7 @@ float calcularPorcentajeAprobacion(struct Votacion *votacion)
     {
         return 0.0;
     }
-    return ((float)votacion->votosAFavor / votacion->totalVotos) * 100;
+    return ((float)votacion->votosAFavor / (float)votacion->totalVotos) * 100;
 }
 
 struct Comision *crearComision(char *nombreDeComision)
@@ -427,16 +427,16 @@ int eliminarMiembroComision(struct Comision *comision, char *rut)
     return eliminarPolitico(&comision->miembros, rut);
 }
 
-struct Comision *buscarComisionPorNombre(struct NodoComision *head, char *nombreComision) {
-    struct NodoComision *rec = head;
+struct Comision *buscarComisionPorNombre(struct NodoComision *listaComisiones,char *nombreComision) {
+    struct NodoComision *actual = listaComisiones;
 
-    while (rec != NULL) {
-        if (strcmp(rec->comision->nombreDeComision, nombreComision) == 0) {
-            return rec->comision; // Retorna la comisión encontrada
+    while (actual != NULL) {
+        if (strcmp(actual->comision->nombreDeComision, nombreComision) == 0) {
+            return actual->comision; // Retorna la comisión si se encuentra
         }
-        rec = rec->sig; // Avanza al siguiente nodo
+        actual = actual->sig; // Avanza al siguiente nodo
     }
-    return NULL; // Si no se encontró, retorna NULL
+    return NULL; // Retorna NULL si no se encuentra la comisión
 }
 
 struct Politico *buscarPoliticoPorRut(struct NodoParlamentario *head, char *rut) {
@@ -871,7 +871,6 @@ void menuComisiones(struct NodoComision **listaComisiones, struct NodoParlamenta
     int opcion;
     char nombreComisionBorrar[100];
     char nombreComisionBuscar[100];
-    struct Comision *comisionEncontrada;
     char rutPolitico[20];
     struct Comision *comisionSeleccionada = NULL;
 
@@ -957,7 +956,281 @@ void menuComisiones(struct NodoComision **listaComisiones, struct NodoParlamenta
     }
 }
 
-int menuPrincipal(struct SistemaLegislativo *sistema) {
+void mostrarResultadosVotacionesComisiones(struct NodoComision *listaComisiones) {
+    struct NodoComision *actual = listaComisiones;
+
+    while (actual != NULL) {
+        struct Comision *comisionActual = actual->comision;
+
+        if (comisionActual->votacion != NULL) {
+            printf("Resultados de la votación en la comisión '%s':\n", comisionActual->nombreDeComision);
+            printf("Fecha de la votación: %s\n", comisionActual->votacion->fechaVotacion);
+            printf("Votos a favor: %d\n", comisionActual->votacion->votosAFavor);
+            printf("Votos en contra: %d\n", comisionActual->votacion->votosEnContra);
+            printf("Abstenciones: %d\n", comisionActual->votacion->abstenciones);
+            printf("Total de votos: %d\n", comisionActual->votacion->totalVotos);
+            printf("Resultado: %s\n", comisionActual->votacion->resultado == 1 ? "Aprobado" : "Rechazado");
+        } else {
+            printf("No hay votación registrada en la comisión '%s'.\n", comisionActual->nombreDeComision);
+        }
+
+        actual = actual->sig; // Avanza al siguiente nodo
+    }
+}
+
+void mostrarResultadosVotacionesCamara(struct Camara *camara, char *nombreCamara) {
+    if (camara == NULL) {
+        printf("Error: Cámara no inicializada.\n");
+        return;
+    }
+    struct Votacion *votacionGeneral = camara->votacionGeneral;
+
+    printf("\n--- Resultados de Votación para %s ---\n", nombreCamara);
+
+    if (votacionGeneral != NULL) {
+        printf("Fecha de votación: %s\n", camara->votacionGeneral->fechaVotacion);
+        printf("Votos a favor: %d\n", camara->votacionGeneral->votosAFavor);
+        printf("Votos en contra: %d\n", camara->votacionGeneral->votosEnContra);
+        printf("Abstenciones: %d\n", camara->votacionGeneral->abstenciones);
+        printf("Total de votos: %d\n", camara->votacionGeneral->totalVotos);
+
+        float porcentajeAprobacion = calcularPorcentajeAprobacion(camara->votacionGeneral);
+        printf("Porcentaje de aprobación: %.2f%%\n", porcentajeAprobacion);
+        printf("Resultado: %s\n", (camara->votacionGeneral->resultado == 1) ? "Aprobado" : "Rechazado");
+    } else {
+        printf("No hay votación registrada para esta cámara.\n");
+    }
+}
+
+void menuVotaciones(struct NodoComision *comisiones, struct Camara *camaraDiputados, struct Camara *camaraSenadores) {
+    int opcion;
+    char nombreComision[100];
+    char fechaVotacion[50];
+    struct Comision *comisionSeleccionada = NULL;
+    struct Votacion *nuevaVotacion = NULL;
+    char rutPolitico[20];
+    int tipoVoto;
+    struct Politico *parlamentarioSeleccionado = NULL;
+    struct Voto *nuevoVoto = NULL;
+
+    while (1) {
+        printf("\n--- Menu Votaciones ---\n");
+        printf("1. Crear Votación para una Comisión\n");
+        printf("2. Crear Votación para la Cámara de Diputados\n");
+        printf("3. Crear Votación para la Cámara de Senadores\n");
+        printf("4. Agregar Voto a una Votación\n");
+        printf("5. Eliminar Voto de una Votación\n");
+        printf("6. Mostrar Resultados de Votaciones de Comisiones\n");
+        printf("7. Mostrar Resultados de Votaciones de las Cámaras\n");
+        printf("8. Volver al Menu Principal\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                printf("Ingrese el nombre de la comisión: ");
+                scanf("%s", nombreComision);
+                comisionSeleccionada = buscarComisionPorNombre(comisiones, nombreComision);
+
+                if (comisionSeleccionada) {
+                    printf("Ingrese la fecha de la votación (DD/MM/AAAA): ");
+                    scanf("%s", fechaVotacion);
+                    nuevaVotacion = crearVotacion(fechaVotacion);
+                    if (nuevaVotacion != NULL) {
+                        comisionSeleccionada->votacion = nuevaVotacion;
+                        inicializarVotacion(comisionSeleccionada->votacion, 100); // Número de participantes estimado
+                        printf("Votación creada con éxito para la comisión '%s'.\n", nombreComision);
+                    } else {
+                        printf("Error al crear la votación.\n");
+                    }
+                } else {
+                    printf("No se encontró la comisión '%s'.\n", nombreComision);
+                }
+                break;
+
+            case 2:
+                printf("Ingrese la fecha de la votación para la Cámara de Diputados (DD/MM/AAAA): ");
+                scanf("%s", fechaVotacion);
+                camaraDiputados->votacionGeneral = crearVotacion(fechaVotacion);
+                if (camaraDiputados->votacionGeneral != NULL) {
+                    inicializarVotacion(camaraDiputados->votacionGeneral, 155);  // Ejemplo de 155 diputados
+                    printf("Votación creada con éxito para la Cámara de Diputados.\n");
+                } else {
+                    printf("Error al crear la votación.\n");
+                }
+                break;
+
+            case 3:
+                printf("Ingrese la fecha de la votación para la Cámara de Senadores (DD/MM/AAAA): ");
+                scanf("%s", fechaVotacion);
+                camaraSenadores->votacionGeneral = crearVotacion(fechaVotacion);
+                if (camaraSenadores->votacionGeneral != NULL) {
+                    inicializarVotacion(camaraSenadores->votacionGeneral, 50);  // Ejemplo de 50 senadores
+                    printf("Votación creada con éxito para la Cámara de Senadores.\n");
+                } else {
+                    printf("Error al crear la votación.\n");
+                }
+                break;
+
+            case 4:
+                printf("Ingrese el RUT del parlamentario para agregar el voto: ");
+                scanf("%s", rutPolitico);
+                parlamentarioSeleccionado = buscarPoliticoPorRut(comisiones->comision->miembros, rutPolitico);  // O buscar en ambas cámaras según contexto
+                if (parlamentarioSeleccionado != NULL) {
+                    printf("Ingrese el tipo de voto (1 = a favor, 2 = en contra, 3 = abstención): ");
+                    scanf("%d", &tipoVoto);
+                    nuevoVoto = crearVoto(parlamentarioSeleccionado, tipoVoto);
+
+                    if (agregarVoto(comisionSeleccionada->votacion->votos, 100, nuevoVoto)) {  // 100 como número de votantes
+                        printf("Voto agregado con éxito.\n");
+                    } else {
+                        printf("No se pudo agregar el voto o ya existe.\n");
+                    }
+                } else {
+                    printf("No se encontró al parlamentario con RUT '%s'.\n", rutPolitico);
+                }
+                break;
+
+            case 5:
+                printf("Ingrese el RUT del parlamentario para eliminar el voto: ");
+                scanf("%s", rutPolitico);
+                if (eliminarVoto(comisionSeleccionada->votacion->votos, 100, rutPolitico)) {
+                    printf("Voto eliminado con éxito.\n");
+                } else {
+                    printf("No se encontró el voto para el RUT proporcionado.\n");
+                }
+                break;
+
+            case 6:
+                mostrarResultadosVotacionesComisiones(comisiones);
+                break;
+
+            case 7:
+                mostrarResultadosVotacionesCamara(camaraDiputados, "Cámara de Diputados");
+                mostrarResultadosVotacionesCamara(camaraSenadores, "Cámara de Senadores");
+                break;
+
+            case 8:
+                printf("Volviendo al Menu Principal...\n");
+                return;
+
+            default:
+                printf("Opción no válida. Intente nuevamente.\n");
+                break;
+        }
+    }
+}
+
+void menuTribunalConstitucional(struct TribunalConstitucional *tribunal) {
+    int opcion;
+    int esRevisado, esConstitucional;
+
+    while (1) {
+        printf("\n--- Menú Tribunal Constitucional ---\n");
+        printf("1. Crear Tribunal Constitucional\n");
+        printf("2. Controlar Constitucionalidad\n");
+        printf("3. Mostrar Estado del Tribunal Constitucional\n");
+        printf("4. Volver al Menú Principal\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                if (tribunal == NULL) {
+                    tribunal = crearTribunalConstitucional();
+                    if (tribunal != NULL) {
+                        printf("Tribunal Constitucional creado con éxito.\n");
+                    } else {
+                        printf("Error al crear el Tribunal Constitucional.\n");
+                    }
+                } else {
+                    printf("El Tribunal Constitucional ya ha sido creado.\n");
+                }
+                break;
+
+            case 2:
+                if (tribunal != NULL) {
+                    printf("Ingrese 1 si es revisado y 0 si no: ");
+                    scanf("%d", &esRevisado);
+                    printf("Ingrese 1 si es constitucional y 0 si no: ");
+                    scanf("%d", &esConstitucional);
+                    if (controlConstitucional(tribunal, esRevisado, esConstitucional)) {
+                        printf("Estado del Tribunal Constitucional actualizado.\n");
+                    } else {
+                        printf("Error al actualizar el estado del Tribunal Constitucional.\n");
+                    }
+                } else {
+                    printf("Primero debe crear el Tribunal Constitucional.\n");
+                }
+                break;
+
+            case 3:
+                if (tribunal != NULL) {
+                    printf("Estado del Tribunal Constitucional:\n");
+                    printf("Revisado: %s\n", tribunal->esRevisado ? "Sí" : "No");
+                    printf("Constitucional: %s\n", tribunal->esConstitucional ? "Sí" : "No");
+                } else {
+                    printf("No hay Tribunal Constitucional creado.\n");
+                }
+                break;
+
+            case 4:
+                printf("Volviendo al Menú Principal...\n");
+                return;
+
+            default:
+                printf("Opción no válida. Intente nuevamente.\n");
+                break;
+        }
+    }
+}
+
+void menuPresidencia(struct Presidencia *presidencia) {
+    int opcion;
+    char motivo[256];
+    int tipoVeto;
+
+    while (1) {
+        printf("\n--- Menu de Presidencia ---\n");
+        printf("1. Asignar Veto\n");
+        printf("2. Mostrar Información de la Presidencia\n");
+        printf("3. Volver al Menu Principal\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                printf("Ingrese el tipo de veto (1 = Veto parcial, 2 = Veto total): ");
+            scanf("%d", &tipoVeto);
+            printf("Ingrese el motivo del veto: ");
+            scanf(" %[^\n]", motivo); // Leer cadena con espacios
+
+            // Crear y asignar el veto
+            if (presidencia->veto != NULL) {
+                // Si ya existe un veto, se podría liberar antes de crear uno nuevo
+                free(presidencia->veto->motivo);
+                free(presidencia->veto);
+            }
+            presidencia->veto = crearVeto(tipoVeto, motivo);
+            printf("Veto asignado con éxito.\n");
+            break;
+
+            case 2:
+                mostrarPresidencia(presidencia);
+            break;
+
+            case 3:
+                printf("Volviendo al Menu Principal...\n");
+            return;
+
+            default:
+                printf("Opción no válida. Intente nuevamente.\n");
+            break;
+        }
+    }
+}
+
+int menuPrincipal(struct SistemaLegislativo *sistema, struct Presidencia *presidencia) {
     int opcion;
 
     while (1) {
@@ -975,37 +1248,40 @@ int menuPrincipal(struct SistemaLegislativo *sistema) {
         switch (opcion) {
             case 1:
                 mostrarMenuPoliticos(&sistema->diputados,&sistema->senadores);
-            break;
+                break;
             case 2:
                 mostrarMenuProyectos(&sistema->abbProyectos);
+                break;
             case 3:
                 menuComisiones(&sistema->comisionMixta,sistema->diputados);
-
+                break;
+            case 4:
+                menuVotaciones(sistema->comisionMixta,sistema->camaraDiputados,sistema->camaraSenadores);
+                break;
+            case 5:
+                menuTribunalConstitucional(sistema->TC);
+                break;
+            case 6:
+                menuPresidencia(presidencia);
+                break;
             case 7:
                 printf("Saliendo...\n");
-            return 0;
+                return 0;
             default:
                 printf("Opción no válida. Intente nuevamente.\n");
-            break;
+                break;
         }
     }
 }
+
+
 int main() {
     struct SistemaLegislativo *sistema = (struct SistemaLegislativo *)malloc(sizeof(struct SistemaLegislativo));
+    struct Presidencia *presidencia = crearPresidencia("Nombre del Presidente", sistema);
     sistema->senadores = NULL;
     sistema->diputados = NULL;
     sistema->abbProyectos = NULL;
 
-    menuPrincipal(sistema);
-
-
+    menuPrincipal(sistema,presidencia);
     return 0;
 }
-
-
-
-
-
-
-
-
