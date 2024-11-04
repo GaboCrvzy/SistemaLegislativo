@@ -112,8 +112,7 @@ struct Politico *crearPolitico(char *nombre, char *rut, char *partidoPolitico)
     return nuevoPolitico;
 }
 
-
-int buscarPolitico(struct NodoParlamentario *headLista, char * rutPolitico)
+struct Politico *buscarPolitico(struct NodoParlamentario *headLista, char *rutPolitico)
 {
     struct NodoParlamentario *rec = NULL;
 
@@ -121,7 +120,10 @@ int buscarPolitico(struct NodoParlamentario *headLista, char * rutPolitico)
 
     while(rec!= NULL)
     {
-        if(strcmp(rec->parlamentario->rut,rutPolitico) == 0 ) return 1;
+         if (strcmp(rec->parlamentario->rut, rut) == 0) 
+         {
+            return rec->parlamentario; 
+        }
         rec = rec->sig;
     }
 
@@ -145,11 +147,12 @@ int enlazarPolitico(struct NodoParlamentario **headLista, struct Politico *nuevo
     }
     else
     {
-        if (buscarPolitico(*headLista, nuevoPolitico->rut) == 0)
+        if (buscarPolitico(*headLista, nuevoPolitico->rut) == NULL)
         {
             rec = *headLista;
 
-            while (rec->sig != NULL) {
+            while (rec->sig != NULL) 
+            {
                 rec = rec->sig;
             }
 
@@ -311,18 +314,17 @@ struct Comision *crearComision(char *nombreDeComision)
     return nuevaComision;
 }
 
-int buscarComision(struct NodoComision *head, char *nombreComision)
+struct Comision *buscarComision(struct NodoComision *head, char *nombreComision)
 {
     struct NodoComision *rec = head;
 
     while(rec != NULL)
     {
-        if(strcmp(rec->comision->nombreDeComision, nombreComision) == 0)
-            return 1;
-
+        if (strcmp(actual->comision->nombreDeComision, nombreComision) == 0)
+            return actual->comision; 
         rec = rec->sig;
     }
-    return 0;
+    return NULL;
 }
 
 int enlazarComision(struct NodoComision **headLista, struct Comision *nuevaComision)
@@ -342,11 +344,12 @@ int enlazarComision(struct NodoComision **headLista, struct Comision *nuevaComis
     }
     else
     {
-        if(buscarComision(*headLista, nuevaComision->nombreDeComision) == 0)
+        if(buscarComision(*headLista, nuevaComision->nombreDeComision) == NULL)
         {
             rec = *headLista;
 
-            while (rec->sig != NULL) {
+            while (rec->sig != NULL) 
+            {
                 rec = rec->sig;
             }
 
@@ -427,31 +430,6 @@ int eliminarMiembroComision(struct Comision *comision, char *rut)
     return eliminarPolitico(&comision->miembros, rut);
 }
 
-struct Comision *buscarComisionPorNombre(struct NodoComision *listaComisiones,char *nombreComision) {
-    struct NodoComision *actual = listaComisiones;
-
-    while (actual != NULL) {
-        if (strcmp(actual->comision->nombreDeComision, nombreComision) == 0) {
-            return actual->comision; // Retorna la comisión si se encuentra
-        }
-        actual = actual->sig; // Avanza al siguiente nodo
-    }
-    return NULL; // Retorna NULL si no se encuentra la comisión
-}
-
-struct Politico *buscarPoliticoPorRut(struct NodoParlamentario *head, char *rut) {
-    struct NodoParlamentario *rec = head;
-
-    while (rec != NULL) {
-        if (strcmp(rec->parlamentario->rut, rut) == 0) {
-            return rec->parlamentario; // Retorna el político encontrado
-        }
-        rec = rec->sig; // Avanza al siguiente nodo
-    }
-    return NULL; // Si no se encontró, retorna NULL
-}
-
-
 struct Camara *crearCamara(char *nombreCamara)
 {
     struct Camara *nuevaCamara;
@@ -472,13 +450,10 @@ int buscarCamara(struct SistemaLegislativo *sistema, char *nombreCamara)
 {
     if (sistema == NULL) return 0;
 
-    if (sistema->camaraDiputados != NULL && strcmp(sistema->camaraDiputados->nombreDeCamara, nombreCamara) == 0) {
-        return 1;
-    }
-
-    if (sistema->camaraSenadores != NULL && strcmp(sistema->camaraSenadores->nombreDeCamara, nombreCamara) == 0) {
-        return 1;
-    }
+    if (sistema->camaraDiputados != NULL && strcmp(sistema->camaraDiputados->nombreDeCamara, nombreCamara) == 0) return 1;
+    
+    if (sistema->camaraSenadores != NULL && strcmp(sistema->camaraSenadores->nombreDeCamara, nombreCamara) == 0) return 1;
+    
     return 0;
 }
 
@@ -567,16 +542,16 @@ int controlConstitucional(struct TribunalConstitucional* tribunal, int esRevisad
 
 }
 
-struct SistemaLegislativo* crearSistemaLegislativo()
+struct SistemaLegislativo *crearSistemaLegislativo()
 {
     struct SistemaLegislativo* sistema = (struct SistemaLegislativo*)malloc(sizeof(struct SistemaLegislativo));
     sistema->TC = crearTribunalConstitucional();
-    sistema->abbProyectos = NULL; // Inicializar como un ABB vacío
-    sistema->diputados = NULL; // Inicializar según tu implementación
-    sistema->senadores = NULL; // Inicializar según tu implementación
-    sistema->camaraDiputados = NULL; // Inicializar según tu implementación
-    sistema->camaraSenadores = NULL; // Inicializar según tu implementación
-    sistema->comisionMixta = NULL; // Inicializar según tu implementación
+    sistema->abbProyectos = NULL;
+    sistema->diputados = NULL;
+    sistema->senadores = NULL; 
+    sistema->camaraDiputados = NULL; 
+    sistema->camaraSenadores = NULL; 
+    sistema->comisionMixta = NULL; 
     return sistema;
 }
 
@@ -823,7 +798,8 @@ void agregarProyecto(struct NodoABB **proyectos)
     printf("Proyecto agregado correctamente.\n");
 }
 
-void mostrarMenuProyectos(struct NodoABB **proyectos) {
+void mostrarMenuProyectos(struct NodoABB **proyectos)
+{
     int opcion,idProyecto;
     struct ProyectoLey *proyectoEncontrado;
 
@@ -1216,8 +1192,6 @@ void eliminarVotoDeComision(struct Comision *comisionSeleccionada)
     }
 }
 
-
-
 void menuVotaciones(struct NodoComision *comisiones, struct Camara *camaraDiputados, struct Camara *camaraSenadores)
 {
     int opcion;
@@ -1443,12 +1417,12 @@ int menuPrincipal(struct SistemaLegislativo *sistema, struct Presidencia *presid
 
 
 int main() {
-    struct SistemaLegislativo *sistema = (struct SistemaLegislativo *)malloc(sizeof(struct SistemaLegislativo));
-    struct Presidencia *presidencia = crearPresidencia("Nombre del Presidente", sistema);
-    sistema->senadores = NULL;
-    sistema->diputados = NULL;
-    sistema->abbProyectos = NULL;
-
+    struct SistemaLegislativo *sistema;
+    struct Presidencia *presidencia;
+    
+    sistema =crearSistemaLegislativo();
+    presidencia = crearPresidencia("Gabriel Boric", sistema);
+   
     menuPrincipal(sistema,presidencia);
     return 0;
 }
