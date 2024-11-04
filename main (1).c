@@ -120,7 +120,7 @@ struct Politico *buscarPolitico(struct NodoParlamentario *headLista, char *rutPo
 
     while(rec!= NULL)
     {
-         if (strcmp(rec->parlamentario->rut, rut) == 0) 
+         if (strcmp(rec->parlamentario->rut, rutPolitico) == 0) 
          {
             return rec->parlamentario; 
         }
@@ -257,23 +257,6 @@ int eliminarVoto(struct Voto **votos, int tam, char *rut)
     return 0;
 }
 
-struct Votacion *crearVotacion(char *fechaInicio)
-{
-    if(fechaInicio == NULL) return NULL;
-
-    struct Votacion *votacionNueva;
-
-    votacionNueva = (struct Votacion *)malloc(sizeof(struct Votacion));
-    if(votacionNueva == NULL) return NULL;
-
-    votacionNueva->fechaVotacion = (char *)malloc((strlen(fechaInicio) + 1) * sizeof(char));
-    strcpy(votacionNueva->fechaVotacion, fechaInicio);
-
-    votacionNueva->votos = NULL;
-
-    return votacionNueva;
-}
-
 int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes)
 {
     if(votacion == NULL) return 0;
@@ -287,6 +270,24 @@ int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes)
     votacion->totalVotos = 0;
 
     return 1;
+}
+
+struct Votacion *crearVotacion(char *fechaInicio)
+{
+    if(fechaInicio == NULL) return NULL;
+
+    struct Votacion *votacionNueva;
+
+    votacionNueva = (struct Votacion *)malloc(sizeof(struct Votacion));
+    if(votacionNueva == NULL) return NULL;
+
+    votacionNueva->fechaVotacion = (char *)malloc((strlen(fechaInicio) + 1) * sizeof(char));
+    strcpy(votacionNueva->fechaVotacion, fechaInicio);
+
+    votacionNueva->votos = NULL;
+    inicializarVotacion(inicializarVotacion);
+
+    return votacionNueva;
 }
 
 float calcularPorcentajeAprobacion(struct Votacion *votacion)
@@ -320,7 +321,7 @@ struct Comision *buscarComision(struct NodoComision *head, char *nombreComision)
 
     while(rec != NULL)
     {
-        if (strcmp(actual->comision->nombreDeComision, nombreComision) == 0)
+        if (strcmp(rec->comision->nombreDeComision, nombreComision) == 0)
             return actual->comision; 
         rec = rec->sig;
     }
@@ -502,13 +503,13 @@ struct NodoABB *insertarProyecto(struct NodoABB *nodoActual, struct ProyectoLey 
     return nodoActual;
 }
 
-struct ProyectoLey *buscarProyecto(struct NodoABB *nodo, int idProyecto)
+int buscarProyecto(struct NodoABB *nodo, int idProyecto)
 {
-    if (nodo == NULL) return NULL;
+    if (nodo == NULL) return 0;
 
     if (nodo->proyecto->idProyecto == idProyecto)
     {
-        return nodo->proyecto;
+        return 1;
     }
     else if (idProyecto < nodo->proyecto->idProyecto)
     {
@@ -627,7 +628,7 @@ void mostrarComisiones(struct NodoComision *listaComisiones)
     {
         printf("- %s ", actual->comision->nombreDeComision);
 
-        if (actual->comision->miembros != NULL) 
+        if (actual->comision->miembros != NULL && actual->comision->miembros->parlamentario != NULL) 
         {
             printf("(Nombre del Parlamentario: %s, Rut del Parlamentario: %s)\n",
                    actual->comision->miembros->parlamentario->nombrePolitico,
@@ -641,6 +642,7 @@ void mostrarComisiones(struct NodoComision *listaComisiones)
         actual = actual->sig;
     }
 }
+
 
 void mostrarProyectos(struct NodoABB *raiz)
 {
@@ -698,7 +700,8 @@ void agregarPoliticoMenu(struct NodoParlamentario **listaParlamentarios)
     }
 }
 
-void eliminarPoliticoMenu(struct NodoParlamentario **listaParlamentarios) {
+void eliminarPoliticoMenu(struct NodoParlamentario **listaParlamentarios)
+{
     char rut[20];
 
     printf("Ingrese el RUT del político a eliminar: ");
@@ -715,7 +718,8 @@ void mostrarListaPoliticos(struct NodoParlamentario *lista, char *tipo) {
     mostrarParlamentario(lista, tipo);
 }
 
-void mostrarMenuPoliticos(struct NodoParlamentario **diputados, struct NodoParlamentario **senadores) {
+void mostrarMenuPoliticos(struct NodoParlamentario **diputados, struct NodoParlamentario **senadores) 
+{
     int opcion;
     do {
         printf("\n=== Menú de Políticos ===\n");
@@ -757,18 +761,17 @@ void mostrarMenuPoliticos(struct NodoParlamentario **diputados, struct NodoParla
     } while(opcion != 7);
 }
 
-void agregarProyecto(struct NodoABB **proyectos) 
+struct ProyectoLey *leerCrearProyecto(struct NodoABB **proyectos) 
 {
     int id, urgencia;
     char titulo[100], iniciativa[100], estado[100];
-    struct ProyectoLey *nuevoProyecto ;
+    struct ProyectoLey *nuevoProyecto;
 
     printf("Ingrese ID del proyecto: ");
-    
     if (scanf("%d", &id) != 1) 
     { 
         printf("Entrada inválida para el ID del proyecto.\n");
-        return;
+        return NULL; 
     }
 
     printf("Ingrese título del proyecto: ");
@@ -781,7 +784,7 @@ void agregarProyecto(struct NodoABB **proyectos)
     if (scanf("%d", &urgencia) != 1 || urgencia < 1 || urgencia > 3) 
     { 
         printf("Entrada inválida para la urgencia del proyecto.\n");
-        return;
+        return NULL; 
     }
 
     printf("Ingrese estado del proyecto: ");
@@ -791,52 +794,58 @@ void agregarProyecto(struct NodoABB **proyectos)
     if (nuevoProyecto == NULL)
     {
         printf("Error al crear el proyecto.\n");
-        return;
+        return NULL; 
     }
-
-    insertarProyecto(proyectos, nuevoProyecto);
-    printf("Proyecto agregado correctamente.\n");
+    return nuevoProyecto;
 }
 
-void mostrarMenuProyectos(struct NodoABB **proyectos)
+void mostrarMenuProyectos(struct NodoABB **proyectos) 
 {
-    int opcion,idProyecto;
-    struct ProyectoLey *proyectoEncontrado;
+    int opcion, idProyecto;
+    struct ProyectoLey *proyectoNuevo = NULL;
 
     while (1) {
         printf("\n------ Menu de Proyectos -----\n");
-        printf("1. Agregar Proyecto\n");
-        printf("2. Mostrar Proyectos\n");
-        printf("3. Buscar Proyectos\n");
-        printf("4. Volver al Menu Principal\n");
+        printf("1. Crear Proyecto\n");
+        printf("2. Agregar Proyecto\n");
+        printf("3. Mostrar Proyectos\n");
+        printf("4. Buscar Proyecto\n");
+        printf("5. Volver al Menu Principal\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
         switch (opcion) {
             case 1:
-                agregarProyecto(proyectos);
+                proyectoNuevo = leerCrearProyecto(proyectos); 
+                if (proyectoNuevo != NULL) {
+                    printf("Proyecto creado exitosamente.\n");
+                } else {
+                    printf("No se pudo crear el proyecto debido a un error en la entrada.\n");
+                }
                 break;
             case 2:
-                mostrarProyectos(*proyectos);
+                if (proyectoNuevo != NULL) {
+                    *proyectos = insertarProyecto(*proyectos, proyectoNuevo); 
+                    printf("Proyecto agregado exitosamente.\n");
+                } else {
+                    printf("Primero debe crear un proyecto antes de agregarlo.\n");
+                }
                 break;
             case 3:
-                printf("Ingrese el ID del proyecto a buscar: ");
+                mostrarProyectos(*proyectos); 
+                break;
+            case 4:
+                printf("Ingrese el ID del proyecto a buscar: "); 
                 scanf("%d", &idProyecto);
-                proyectoEncontrado = buscarProyecto(*proyectos, idProyecto);
-                if (proyectoEncontrado != NULL) {
-                    printf("Proyecto encontrado:\n");
-                    printf("ID: %d\n", proyectoEncontrado->idProyecto);
-                    printf("Título: %s\n", proyectoEncontrado->tituloProyecto);
-                    printf("Iniciativa Legislativa: %s\n", proyectoEncontrado->iniciativaLegislativa);
-                    printf("Urgencia: %d\n", proyectoEncontrado->urgenciaProyecto);
-                    printf("Estado: %s\n", proyectoEncontrado->estadoProyecto);
+                if (buscarProyecto(*proyectos, idProyecto)) {
+                    printf("Proyecto encontrado.\n");
                 } else {
                     printf("Proyecto con ID %d no encontrado.\n", idProyecto);
                 }
                 break;
-            case 4:
+            case 5:
                 printf("Volviendo al Menu Principal...\n");
-                return; 
+                return;
             default:
                 printf("Opción no válida. Intente nuevamente.\n");
                 break;
