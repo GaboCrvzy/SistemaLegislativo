@@ -221,7 +221,8 @@ void BuscarPoliticoPorRut(struct NodoParlamentario *listaParlamentarios,  char *
     printf("Político con RUT %s no encontrado.\n", rut);
 }
 
-void agregarPoliticoACamara(struct Camara *camara, struct Politico *politico, struct Comision *comision) {
+void agregarPoliticoACamara(struct Camara *camara, struct Politico *politico, struct Comision *comision) 
+{
     if (camara == NULL || politico == NULL) return;
     struct NodoParlamentario *nuevoNodo;
     struct NodoParlamentario *nuevoNodoComision;
@@ -295,19 +296,27 @@ int buscarVoto(struct Voto **votos, int tam, char *rut)
 }
 
 
-int agregarVoto(struct Voto **votos, struct Voto *nuevoVoto, int capacidad) {
-    for (int i = 0; i < capacidad; i++) {
-        if (votos[i] == NULL && buscarVoto(votos, capacidad, nuevoVoto->rutPolitico) == 0) {
+int agregarVoto(struct Voto **votos, struct Voto *nuevoVoto, int capacidad) 
+{
+    int i;
+    for (i = 0; i < capacidad; i++)
+    {
+        if (votos[i] == NULL && buscarVoto(votos, capacidad, nuevoVoto->rutPolitico) == 0) 
+        {
             votos[i] = nuevoVoto;
             return 1;
         }
+    }
 
     return 0;
 }
 
 
-int eliminarVoto(struct Votacion *votacion, char *rut) {
-    for (int i = 0; i < votacion->totalVotos; i++) {
+int eliminarVoto(struct Votacion *votacion, char *rut)
+{
+    int i;
+    for (i = 0; i < votacion->totalVotos; i++) 
+    {
         if (votacion->votos[i] != NULL && strcmp(votacion->votos[i]->rutPolitico, rut) == 0) 
         {
             votacion->votos[i] = NULL;
@@ -319,7 +328,8 @@ int eliminarVoto(struct Votacion *votacion, char *rut) {
 }
 
 
-int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes) {
+int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes) 
+{
     if (votacion == NULL || cantidadParticipantes <= 0) return 0;
 
     votacion->votos = (struct Voto **)malloc(cantidadParticipantes * sizeof(struct Voto *));
@@ -334,7 +344,8 @@ int inicializarVotacion(struct Votacion *votacion, int cantidadParticipantes) {
     return 1;
 }
 
-struct Votacion *crearVotacion(char *fechaInicio, int cantidadParticipantes) {
+struct Votacion *crearVotacion(char *fechaInicio, int cantidadParticipantes) 
+{
     if (fechaInicio == NULL) return NULL;
 
     struct Votacion *votacionNueva = (struct Votacion *)malloc(sizeof(struct Votacion));
@@ -473,11 +484,12 @@ int buscarMiembroEnComision(struct NodoParlamentario *miembros, char *rutPolitic
 int agregarMiembroComision(struct Comision *comision, struct Politico *nuevoMiembro)
 {
     if (comision == NULL || nuevoMiembro == NULL) return 0;
+    struct NodoParlamentario *nuevoNodo;
 
     if (buscarMiembroEnComision(comision->miembros, nuevoMiembro->rut) == 1)
         return 0;
 
-    struct NodoParlamentario *nuevoNodo = (struct NodoParlamentario *)malloc(sizeof(struct NodoParlamentario));
+    nuevoNodo = (struct NodoParlamentario *)malloc(sizeof(struct NodoParlamentario));
     if (nuevoNodo == NULL) return 0;
 
     nuevoNodo->parlamentario = nuevoMiembro;
@@ -510,7 +522,6 @@ struct Camara *crearCamara(char *nombreCamara)
     nuevaCamara->comisiones = NULL;
     nuevaCamara->votacionGeneral = NULL;
     nuevaCamara->votacionEspecifica = NULL;
-
     return nuevaCamara;
 }
 
@@ -525,21 +536,22 @@ int buscarCamara(struct SistemaLegislativo *sistema, char *nombreCamara)
     return 0;
 }
 
-int idProyectoExiste(struct NodoABB *raiz, int id) {
-    if (raiz == NULL) {
-        return 0; 
-    }
+int idProyectoExiste(struct NodoABB *raiz, int id)
+{
+    if (raiz == NULL) return 0; 
 
     if (raiz->proyecto->idProyecto == id) {
         return 1;
     } else if (id < raiz->proyecto->idProyecto) {
-        return idProyectoExiste(raiz->izquierda, id);  // Buscar en el subárbol izquierdo
+        return idProyectoExiste(raiz->izquierda, id); 
     } else {
-        return idProyectoExiste(raiz->derecha, id);  // Buscar en el subárbol derecho
+        return idProyectoExiste(raiz->derecha, id); 
     }
 }
 
-struct ProyectoLey *crearProyecto(struct NodoABB *abbProyectos, int id, char *titulo, char *iniciativa, int urgencia, char *estadoDelProyecto) {
+struct ProyectoLey *crearProyecto(struct NodoABB *abbProyectos, int id, char *titulo, char *iniciativa, int urgencia, 
+char *estadoDelProyecto)
+{
 
     struct ProyectoLey *nuevoProyecto = (struct ProyectoLey *)malloc(sizeof(struct ProyectoLey));
     if (nuevoProyecto == NULL) return NULL;
@@ -560,32 +572,42 @@ struct ProyectoLey *crearProyecto(struct NodoABB *abbProyectos, int id, char *ti
     return nuevoProyecto;
 }
 
-void agregarProyectoLey(struct SistemaLegislativo *sistema, struct ProyectoLey *proyecto) {
+void agregarProyectoLey(struct SistemaLegislativo *sistema, struct ProyectoLey *proyecto) 
+{
     if (sistema == NULL || proyecto == NULL) return;
+    struct NodoABB *nuevoNodo;
 
-    struct NodoABB *nuevoNodo = (struct NodoABB *)malloc(sizeof(struct NodoABB));
+    nuevoNodo = (struct NodoABB *)malloc(sizeof(struct NodoABB));
     nuevoNodo->proyecto = proyecto;
     nuevoNodo->izquierda = NULL;
     nuevoNodo->derecha = NULL;
 
     if (sistema->abbProyectos == NULL) {
         sistema->abbProyectos = nuevoNodo;
-    } else {
+    } 
+    else 
+    {
         struct NodoABB *actual = sistema->abbProyectos;
         struct NodoABB *anterior = NULL;
 
-        while (actual != NULL) {
+        while (actual != NULL) 
+        {
             anterior = actual;
-            if (proyecto->idProyecto < actual->proyecto->idProyecto) {
+            if (proyecto->idProyecto < actual->proyecto->idProyecto) 
+            {
                 actual = actual->izquierda;
-            } else {
+            } 
+            else 
+            {
                 actual = actual->derecha;
             }
         }
 
         if (proyecto->idProyecto < anterior->proyecto->idProyecto) {
             anterior->izquierda = nuevoNodo;
-        } else {
+        }
+        else
+        {
             anterior->derecha = nuevoNodo;
         }
     }
@@ -800,7 +822,8 @@ void mostrarProyectos(struct NodoABB *raiz)
         return;
     }
     mostrarProyectos(raiz->izquierda);
-    printf("- Proyecto %d: %s (Estado: %s)\n", raiz->proyecto->idProyecto, raiz->proyecto->tituloProyecto, raiz->proyecto->estadoProyecto);
+    printf("- Proyecto %d: %s (Estado: %s)\n", raiz->proyecto->idProyecto, raiz->proyecto->tituloProyecto,
+        raiz->proyecto->estadoProyecto);
     mostrarProyectos(raiz->derecha);
 }
 
@@ -844,13 +867,17 @@ void agregarPoliticoMenu(struct NodoParlamentario **listaParlamentarios)
     scanf(" %[^\n]s", partido);
 
     nuevoPolitico = crearPolitico(nombre, rut, partido);
-    if (nuevoPolitico == NULL) {
+    if (nuevoPolitico == NULL)
+    {
         printf("Error al crear el politico.\n");
         return;
     }
-    if (enlazarPolitico(listaParlamentarios, nuevoPolitico)) {
+    
+    if (enlazarPolitico(listaParlamentarios, nuevoPolitico))
+    {
         printf("\nPolitico agregado exitosamente.\n");
-    } else {
+    } 
+    else {
         printf("No se pudo agregar el politico (puede que ya este en la lista).\n");
     }
 }
@@ -859,13 +886,15 @@ void eliminarPoliticoMenu(struct NodoParlamentario **listaParlamentarios)
 {
     char rut[20];
 
-    while (1) {
+    while (1)
+    {
         printf("Ingrese el RUT del politico a eliminar (sin puntos ni guion, con digito verificador): ");
         scanf("%s", rut);
 
         if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9) {
             break; 
-        } else {
+        } 
+        else {
             printf("Rut no valido. Intente nuevamente.\n");
         }
     }
@@ -909,15 +938,18 @@ void buscarPoliticoPorRUTMenu(struct NodoParlamentario **lista)
 {
     char rut[20];
 
-    while (1) {
+    while (1)
+    {
         printf("Ingrese RUT del politico (sin puntos ni guion, con digito verificador): ");
         scanf("%s", rut);
 
-        if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9) {
+        if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9)
+        {
             struct Politico *politico = buscarPolitico(*lista, rut);
             mostrarInformacionPolitico(politico);
             break;
-        } else {
+        }
+        else {
             printf("RUT no valido. Intente nuevamente.\n");
         }
     }
@@ -989,6 +1021,7 @@ void mostrarMenuPoliticos(struct NodoParlamentario **diputados, struct NodoParla
         }
     } while(opcion != 7);
 }
+
 void mostrarDetallesProyecto(struct ProyectoLey *proyecto)
 {
     if (proyecto != NULL) {
@@ -998,7 +1031,8 @@ void mostrarDetallesProyecto(struct ProyectoLey *proyecto)
         printf("Iniciativa: %s\n", proyecto->iniciativaLegislativa);
         printf("Urgencia: %d\n", proyecto->urgenciaProyecto);
         printf("Estado: %s\n", proyecto->estadoProyecto);
-    } else {
+    } 
+    else {
         printf("El proyecto no existe.\n");
     }
 }
@@ -1031,11 +1065,12 @@ struct ProyectoLey *leerCrearProyecto(struct NodoABB **proyectos)
     scanf(" %[^\n]", iniciativa);
 
     printf("Ingrese urgencia del proyecto (1: Simple, 2: Suma Urgencia, 3: Discusion Inmediata): ");
-    if (scanf("%d", &urgencia) != 1 || urgencia < 1 || urgencia > 3) {
+    
+    if (scanf("%d", &urgencia) != 1 || urgencia < 1 || urgencia > 3) 
+    {
         printf("Entrada invalida para la urgencia del proyecto.\n");
         return NULL;
     }
-
     printf("Ingrese estado del proyecto: ");
     scanf(" %[^\n]", estado);
 
@@ -1046,7 +1081,6 @@ struct ProyectoLey *leerCrearProyecto(struct NodoABB **proyectos)
     }
     return nuevoProyecto;
 }
-
 
 void mostrarMenuProyectos(struct NodoABB **proyectos) 
 {
@@ -1061,13 +1095,16 @@ void mostrarMenuProyectos(struct NodoABB **proyectos)
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
-        switch (opcion) {
+        switch (opcion) 
+        {
             case 1: {
                 struct ProyectoLey *proyectoNuevo = leerCrearProyecto(proyectos);
                 if (proyectoNuevo != NULL) {
                     *proyectos = insertarProyecto(*proyectos, proyectoNuevo);
                     printf("Proyecto creado y agregado exitosamente.\n");
-                } else {
+                } 
+                else 
+                {
                     printf("No se pudo crear el proyecto debido a un error en la entrada o ID duplicado.\n");
                 }
                 break;
@@ -1348,11 +1385,11 @@ void crearVotacionParaComision(struct NodoComision *comisiones)
     }
 }
 
-int validarFecha(char *fecha) {
+int validarFecha(char *fecha)
+{
     int dia, mes, anio;
-    if (sscanf(fecha, "%d-%d-%d", &dia, &mes, &anio) != 3) {
-        return 0; 
-    }
+    
+    if (sscanf(fecha, "%d-%d-%d", &dia, &mes, &anio) != 3) return 0; 
 
     if (anio < 1900 || anio > 2100) {
         return 0; 
@@ -1371,7 +1408,6 @@ int validarFecha(char *fecha) {
     {
         return 0; 
     }
-
     return 1;
 }
 
@@ -1445,7 +1481,8 @@ void crearVotacionCamaraSenadores(struct Camara *camaraSenadores)
     }
 }
 
-void agregarVotoAComision(struct NodoComision *comisiones) {
+void agregarVotoAComision(struct NodoComision *comisiones)
+{
     char rutPolitico[20];
     int tipoVoto;
     struct Politico *parlamentarioSeleccionado = NULL;
@@ -1467,20 +1504,25 @@ void agregarVotoAComision(struct NodoComision *comisiones) {
         return;
     }
 
-    if (comisiones != NULL && comisiones->comision != NULL && comisiones->comision->votacion != NULL) {
-        if (comisiones->comision->votacion->votos == NULL) {
+    if (comisiones != NULL && comisiones->comision != NULL && comisiones->comision->votacion != NULL)
+    {
+        if (comisiones->comision->votacion->votos == NULL) 
+        {
             comisiones->comision->votacion->votos = (struct Voto **)malloc(sizeof(struct Voto *));
-            if (comisiones->comision->votacion->votos == NULL) {
+            if (comisiones->comision->votacion->votos == NULL)
+            {
                 printf("Error: No se pudo asignar memoria para la lista de votos.\n");
                 return;
             }
             comisiones->comision->votacion->totalVotos = 0; 
-        } else {
+        }
+        else 
+        {
             comisiones->comision->votacion->votos = (struct Voto **)realloc(
-                comisiones->comision->votacion->votos, 
-                (comisiones->comision->votacion->totalVotos + 1) * sizeof(struct Voto *)
-            );
-            if (comisiones->comision->votacion->votos == NULL) {
+                comisiones->comision->votacion->votos, (comisiones->comision->votacion->totalVotos + 1) * sizeof(struct Voto *));
+            
+            if (comisiones->comision->votacion->votos == NULL) 
+            {
                 printf("Error: No se pudo reasignar memoria para la lista de votos.\n");
                 return;
             }
@@ -1502,14 +1544,16 @@ void agregarVotoAComision(struct NodoComision *comisiones) {
         } else if (tipoVoto == 3) {
             comisiones->comision->votacion->abstenciones++;
         }
-
+        
         printf("Voto agregado con éxito.\n");
-    } else {
+    }
+    else {
         printf("Error: La comisión o la votación no están inicializadas.\n");
     }
 }
 
-void eliminarVotoDeComision(struct Comision *comisionSeleccionada) {
+void eliminarVotoDeComision(struct Comision *comisionSeleccionada)
+{
     char rutPolitico[20];
     if (comisionSeleccionada == NULL) {
         printf("No se ha seleccionado ninguna comisión.\n");
@@ -1576,7 +1620,8 @@ void menuVotaciones(struct NodoComision *comisiones, struct Camara *camaraDiputa
     }
 }
 
-void menuTribunalConstitucional(struct TribunalConstitucional *tribunal) {
+void menuTribunalConstitucional(struct TribunalConstitucional *tribunal) 
+{
     int opcion;
     int esRevisado, esConstitucional;
 
@@ -1640,7 +1685,8 @@ void menuTribunalConstitucional(struct TribunalConstitucional *tribunal) {
     }
 }
 
-void menuPresidencia(struct Presidencia *presidencia) {
+void menuPresidencia(struct Presidencia *presidencia)
+{
     int opcion;
     char motivo[256];
     int tipoVeto;
@@ -1658,7 +1704,7 @@ void menuPresidencia(struct Presidencia *presidencia) {
                 printf("Ingrese el tipo de veto (1 = Veto parcial, 2 = Veto total): ");
                 scanf("%d", &tipoVeto);
                 printf("Ingrese el motivo del veto: ");
-                scanf(" %[^\n]", motivo); // Leer cadena con espacios
+                scanf(" %[^\n]", motivo);
 
                 presidencia->veto = crearVeto(tipoVeto, motivo);
                 printf("\nVeto asignado con exito.\n");
@@ -1677,7 +1723,8 @@ void menuPresidencia(struct Presidencia *presidencia) {
     }
 }
 
-int menuPrincipal(struct SistemaLegislativo *sistema, struct Presidencia *presidencia) {
+int menuPrincipal(struct SistemaLegislativo *sistema, struct Presidencia *presidencia) 
+{
     int opcion;
 
     while (1) {
