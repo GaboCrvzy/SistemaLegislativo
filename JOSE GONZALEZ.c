@@ -626,13 +626,15 @@ void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *con
 
         switch (opcionAgregar) {
             case 1: // Agregar congresista
-                printf("¿Qué congresista añadiremos a la lista? Ingrese el RUT: ");
-                fgets(rut, sizeof(rut), stdin);
-                size_t len = strlen(rut);
-                if (len > 0 && rut[len - 1] == '\n') {
-                    rut[len - 1] = '\0'; // Elimina el salto de línea al final del RUT
+                while(1){
+                    printf("¿Qué congresista añadiremos a la lista? Ingrese el RUT(sin puntos ni guion, con digito verificador): ");
+                    scanf(" %s", rut);
+                    if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9) {
+                        break;  // Si es válido, salir del bucle
+                    }else {
+                        printf("RUT no válido. Debe tener 9 dígitos numéricos. Intente nuevamente.\n");
+                    }
                 }
-
                 // Buscar el congresista en el congreso
                 congresista = comprobarCongresistaEnCongreso(congreso, rut);
                 if (congresista == NULL) {
