@@ -305,21 +305,16 @@ struct nodoProyectoLey *crearNodoProyectoLey(struct proyectoLey *datos) {
 }
 
 struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
-    // Asignar memoria para el proyecto de ley
-    struct proyectoLey *nuevoProyecto = malloc(sizeof(struct proyectoLey));
-    if (!nuevoProyecto) {
-        printf("Error: No se pudo asignar memoria para el proyecto de ley.\n");
-        return NULL;
-    }
 
+    struct proyectoLey *nuevoProyecto;
     char nombre[100], tipo[50];
     int idProyecto, urgencia, fase;
-
-    // Capturar datos de texto con espacios
+    
+    nuevoProyecto= malloc(sizeof(struct proyectoLey));
+    
     printf("Ingrese el nombre del proyecto de ley: ");
     if (fgets(nombre, sizeof(nombre), stdin) == NULL) {
         printf("Error al leer el nombre del proyecto de ley.\n");
-        free(nuevoProyecto);
         return NULL;
     }
     if (nombre[strlen(nombre) - 1] != '\n') {
@@ -331,7 +326,6 @@ struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
     printf("Ingrese el tipo del proyecto de ley: ");
     if (fgets(tipo, sizeof(tipo), stdin) == NULL) {
         printf("Error al leer el tipo del proyecto de ley.\n");
-        free(nuevoProyecto);
         return NULL;
     }
     if (tipo[strlen(tipo) - 1] != '\n') {
@@ -351,25 +345,14 @@ struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
     urgencia = leerEnteroConLimite("Ingrese la urgencia del proyecto", 1, 5);
     fase = leerEnteroConLimite("Ingrese la fase del proyecto", 1, 8);
 
-    // Asignar memoria para campos de texto y verificar
     nuevoProyecto->nombre = malloc(strlen(nombre) + 1);
     nuevoProyecto->tipo = malloc(strlen(tipo) + 1);
-    if (!nuevoProyecto->nombre || !nuevoProyecto->tipo) {
-        printf("Error: No se pudo asignar memoria para los datos del proyecto de ley.\n");
-        free(nuevoProyecto->nombre);
-        free(nuevoProyecto->tipo);
-        free(nuevoProyecto);
-        return NULL;
-    }
-
-    // Copiar datos y completar estructura
+    
     strcpy(nuevoProyecto->nombre, nombre);
     strcpy(nuevoProyecto->tipo, tipo);
     nuevoProyecto->idProyecto = idProyecto;
     nuevoProyecto->urgencia = urgencia;
     nuevoProyecto->fase = fase;
-
-    // Inicializar punteros a NULL
     nuevoProyecto->articulo = NULL;
     nuevoProyecto->votacion = NULL;
     nuevoProyecto->comision = NULL;
@@ -378,42 +361,36 @@ struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
 }
 
 
-// Función para añadir un nodo al árbol binario de búsqueda
 void agregarNodoProyectoLey(struct congreso *congreso) {
-    struct proyectoLey *datos = crearProyectoLey(congreso); // Crear proyecto de ley
-    if (datos == NULL) {
-        printf("Error: No se pudo crear el proyecto de ley.\n");
-        return;
-    }
-
-    struct nodoProyectoLey *nuevoNodo = crearNodoProyectoLey(datos); // Crear nodo para el proyecto de ley
-    if (nuevoNodo == NULL) {
-        printf("Error: No se pudo crear el nodo del proyecto de ley.\n");
-        free(datos); // Liberar datos si no se pudo crear el nodo
-        return;
-    }
+    struct proyectoLey *datos;
+    struct nodoProyectoLey *nuevoNodo, *actual, *padre;
+    
+    datos = crearProyectoLey(congreso); // Crear proyecto de ley
+    nuevoNodo = crearNodoProyectoLey(datos); // Crear nodo para el proyecto de ley
 
     if (congreso->raiz == NULL) {
-        // El árbol binario de búsqueda no existe, entonces el nuevo nodo será la raíz
         congreso->raiz = nuevoNodo;
-    } else {
-        struct nodoProyectoLey *actual = congreso->raiz;
-        struct nodoProyectoLey *padre = NULL;
+    } 
+    else
+    {
+        actual = congreso->raiz;
+        padre = NULL;
 
-        // Procedimiento estándar para añadir nodos a un árbol binario de búsqueda
-        while (actual != NULL) {
+        while (actual != NULL) 
+        {
             padre = actual;
             if (datos->idProyecto < actual->datos->idProyecto) {
                 actual = actual->izq;
-            } else {
+            } 
+            else {
                 actual = actual->der;
             }
         }
 
-        // Añadir el nuevo nodo como hijo del nodo padre adecuado
         if (datos->idProyecto < padre->datos->idProyecto) {
             padre->izq = nuevoNodo;
-        } else {
+        } 
+        else {
             padre->der = nuevoNodo;
         }
     }
@@ -616,14 +593,14 @@ void limpiarBufferEntrada() {
 }
 
 // Función para añadir congresistas a las listas de votos (a favor o en contra) en un nodo de votación
-void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *congreso) {
+void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *congreso) 
+{
     int opcionLista, opcionAgregar;
     char rut[20];
     struct congresista *congresista;
     struct nodoCongresista *nuevoNodo;
     struct nodoCongresista *actual;
 
-    // Elegir la lista de votación a la que se desea agregar congresistas
     printf("Seleccione la lista de votación:\n");
     printf("1. A favor\n");
     printf("2. En contra\n");
@@ -1582,13 +1559,11 @@ struct comision *buscarComision(struct congreso *congreso, char *nombre) {
 }
 
 struct comision *crearComision(struct congreso *congreso) {
-    struct comision *nuevaComision = (struct comision*)malloc(sizeof(struct comision));
-    if (nuevaComision == NULL) {
-        printf("Error al asignar memoria\n");
-        return NULL;
-    }
-
+    struct comision *nuevaComision;
+    struct nodoCongresista *fantasma;
     char nombre[100], tipo[50], descripcion[256];
+    
+    nuevaComision = (struct comision*)malloc(sizeof(struct comision));
 
     printf("Ingresa el nombre de la comision:\n");
     scanf("%99[^\n]", nombre);
@@ -1609,56 +1584,30 @@ struct comision *crearComision(struct congreso *congreso) {
     limpiarBuffer();
 
     convertirMinusculas(tipo);
-
-    // Asignar memoria para los campos de la nueva comisión
     nuevaComision->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
     nuevaComision->descripcion = (char*)malloc(sizeof(char) * (strlen(descripcion) + 1));
     nuevaComision->tipo = (char*)malloc(sizeof(char) * (strlen(tipo) + 1));
-
-    if (nuevaComision->nombre == NULL || nuevaComision->descripcion == NULL || nuevaComision->tipo == NULL) {
-        printf("Error al asignar memoria de uno de los campos\n");
-        free(nuevaComision->nombre);
-        free(nuevaComision->descripcion);
-        free(nuevaComision->tipo);
-        free(nuevaComision);
-        return NULL;
-    }
-
-    // Copiar los datos a la nueva comisión
     strcpy(nuevaComision->nombre, nombre);
     strcpy(nuevaComision->descripcion, descripcion);
     strcpy(nuevaComision->tipo, tipo);
 
     // Crear el nodo fantasma
-    struct nodoCongresista *fantasma = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
-    if (fantasma == NULL) {
-        printf("Error al crear el nodo fantasma\n");
-        free(nuevaComision->nombre);
-        free(nuevaComision->descripcion);
-        free(nuevaComision->tipo);
-        free(nuevaComision);
-        return NULL;
-    }
+    fantasma = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
     fantasma->datos = NULL;
     fantasma->sig = fantasma; // Apunta a sí mismo, indicando que es un nodo fantasma
     nuevaComision->headIntegrantes = fantasma;
 
-    return nuevaComision; // Retorna la nueva comisión creada
+    return nuevaComision;
 }
-
 
 void agregarComision(struct congreso *congreso) {
     struct comision *nuevaComision = crearComision(congreso);
     struct nodoComision *nuevoNodo = NULL;
-
-    if (nuevaComision == NULL) {
-        printf("Error al crear la nueva comision\n");
-        return;
-    }
+    int i;
 
     if (strcmp(nuevaComision->tipo, "senadores") == 0 || strcmp(nuevaComision->tipo, "diputados") == 0) {
         // Intentar agregar al arreglo de comisiones
-        for (int i = 0; i < MAX_COMISIONES; i++) {
+        for (i = 0; i < MAX_COMISIONES; i++) {
             if (congreso->comisiones[i] == NULL) {
                 congreso->comisiones[i] = nuevaComision;
                 printf("Comision agregada al arreglo de comisiones\n");
@@ -1667,14 +1616,11 @@ void agregarComision(struct congreso *congreso) {
         }
         // Si se alcanza el límite del arreglo
         printf("Error al asignar en el arreglo: se ha alcanzado el máximo de comisiones\n");
-    } else {
+    } 
+    else 
+    {
         // Agregar como comisión mixta
         nuevoNodo = crearNodoComision(nuevaComision);
-        if (nuevoNodo == NULL) {
-            printf("Error al asignar memoria al nodo\n");
-            return;
-        }
-
         nuevoNodo->sig = congreso->comisionesMixtas;
         congreso->comisionesMixtas = nuevoNodo;
         printf("Comision agregada como mixta\n");
@@ -1684,44 +1630,36 @@ void agregarComision(struct congreso *congreso) {
 void eliminarComision(struct congreso *congreso, char *nombre) {
     struct comision *buscada = buscarComision(congreso, nombre);
     struct nodoComision *rec, *ant;
+    int i;
 
     if (buscada == NULL) {
         printf("Error al eliminar la comision: no existe en el sistema\n");
         return;
     }
 
-    // Intentar eliminar del arreglo de comisiones
-    for (int i = 0; i < MAX_COMISIONES; i++) {
-        if (congreso->comisiones[i] == buscada) {
-            free(congreso->comisiones[i]->nombre);
-            free(congreso->comisiones[i]->descripcion);
-            free(congreso->comisiones[i]->tipo);
-            free(congreso->comisiones[i]->headIntegrantes);
-            free(congreso->comisiones[i]); // Liberar la estructura de la comisión
+    for (i = 0; i < MAX_COMISIONES; i++) {
+        if (congreso->comisiones[i] == buscada) 
+        {
             congreso->comisiones[i] = NULL; // Marcar como vacío
             printf("Comision eliminada correctamente del arreglo\n");
             return;
         }
     }
 
-    // Si no está en el arreglo, buscar en la lista de comisiones mixtas
     rec = congreso->comisionesMixtas;
     ant = NULL;
 
     while (rec != NULL) {
-        if (rec->datos == buscada) {
+        if (rec->datos == buscada)
+        {
             // Caso del primer nodo
             if (ant == NULL) {
-                congreso->comisionesMixtas = rec->sig; // Mover la cabeza de la lista
-            } else {
+                congreso->comisionesMixtas = rec->sig; 
+            } 
+            else {
                 ant->sig = rec->sig; // Desvincular el nodo
             }
-            // Liberar memoria de la comisión
-            free(rec->datos->nombre);
-            free(rec->datos->descripcion);
-            free(rec->datos->tipo);
-            free(rec->datos); // Liberar la estructura de la comisión
-            free(rec); // Liberar el nodo de la lista
+
             printf("Comisión eliminada correctamente de la lista\n");
             return;
         }
@@ -1793,7 +1731,6 @@ void modificarComision(struct congreso *congreso, char *nombre) {
             scanf("%255[^\n]", nuevaDescripcion);
             limpiarBuffer();
 
-            free(comisionAModificar->descripcion);  // Liberar memoria de la descripción anterior
             comisionAModificar->descripcion = (char*)malloc(strlen(nuevaDescripcion) + 1);
             if (comisionAModificar->descripcion == NULL) {
                 printf("Error al asignar memoria para la nueva descripción.\n");
@@ -1932,10 +1869,6 @@ void copiarCambioATexto(struct nodoArticulo *articulos) {
         if (rec->datos != NULL && rec->datos->seccion == seccionBuscada) {
             // Verificar que "cambio" no sea NULL antes de copiar
             if (rec->datos->cambio != NULL) {
-                // Liberar memoria previa si existe
-                if (rec->datos->texto != NULL) {
-                    free(rec->datos->texto);
-                }
 
                 // Asignar memoria para "texto" y copiar el contenido de "cambio"
                 rec->datos->texto = malloc(strlen(rec->datos->cambio) + 1); // +1 para el terminador nulo
@@ -1956,28 +1889,17 @@ void copiarCambioATexto(struct nodoArticulo *articulos) {
 }
 
 struct nodoArticulo *crearNodoArticulo(struct articulo *datos) {
-    // Verificar que los datos recibidos no sean NULL
-    if (datos == NULL) {
-        return NULL; // Retornar NULL si no hay datos
-    }
 
-    // Asignar memoria para el nuevo nodo
-    struct nodoArticulo *nodo = (struct nodoArticulo *)malloc(sizeof(struct nodoArticulo));
-    if (nodo == NULL) {
-        // Manejo de error en caso de que malloc falle
-        return NULL;
-    }
+    struct nodoArticulo *nodo;
+    if (datos == NULL) return NULL; 
 
-    // Asignar los datos al nuevo nodo
+    nodo = (struct nodoArticulo *)malloc(sizeof(struct nodoArticulo));
     nodo->datos = datos;
-
-    // Inicializar los punteros siguiente y anterior
     nodo->sig = NULL;
     nodo->ant = NULL;
 
-    return nodo; // Retornar el nuevo nodo creado
+    return nodo; 
 }
-
 /*
 
 comprobar que exista articulo, lo haré de manera que retorne 0 si NO existe el articulo, o que retorne 1 si existe
@@ -2058,10 +1980,6 @@ struct articulo *crearArticulo(struct nodoArticulo *lista) {
     // Verificar si la asignación de memoria fue exitosa
     if (nuevoArticulo->nombre == NULL || nuevoArticulo->texto == NULL || nuevoArticulo->cambio == NULL) {
         printf("Error al asignar memoria para uno de los campos del artículo.\n");
-        free(nuevoArticulo->nombre); // Liberar memoria en caso de error
-        free(nuevoArticulo->texto);
-        free(nuevoArticulo->cambio);
-        free(nuevoArticulo);
         return NULL; // Retornar NULL en caso de error
     }
 
@@ -2074,24 +1992,26 @@ struct articulo *crearArticulo(struct nodoArticulo *lista) {
 }
 
 void agregarArticulo(struct congreso *congreso, struct nodoArticulo **lista) {
-    printf("Depuración: Valor de *lista al entrar en agregarArticulo: %p\n", (void *)*lista);
     struct nodoArticulo *NuevoArticulo;
     struct nodoArticulo *rec;
     struct articulo *datos;
 
-    datos = crearArticulo(*lista);
-    if (datos == NULL) {
-        printf("Error al asignar datos\n");
-        return;
-    }
+    printf("Depuración: Valor de *lista al entrar en agregarArticulo: %p\n", (void *)*lista);
 
+    datos = crearArticulo(*lista);
     NuevoArticulo = crearNodoArticulo(datos);
-    if (NuevoArticulo != NULL) {
-        if (*lista == NULL) {
+    
+    if (NuevoArticulo != NULL)
+    {
+        if (*lista == NULL)
+        {
             (*lista) = NuevoArticulo; // La lista estaba vacía, se agrega sin problemas
             return;
-        } else {
-            if (comprobarArticulo(*lista, datos->seccion) == 0) {
+        } 
+        else 
+        {
+            if (comprobarArticulo(*lista, datos->seccion) == 0)
+            {
                 rec = *lista;
                 printf("se cae antes de llegar a la ultima pos");
                 // Llego a la última posición de la lista
@@ -2102,12 +2022,12 @@ void agregarArticulo(struct congreso *congreso, struct nodoArticulo **lista) {
                 NuevoArticulo->ant = rec;
                 printf("Agregado correctamente.\n");
                 return; // Agregado correctamente
-            } else {
+            } 
+            else {
                 printf("El artículo ya existe en la lista.\n");
             }
         }
     }
-    // No se cumplen los requisitos, no se agrega
 }
 
 /*
@@ -2153,8 +2073,6 @@ int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada) {
     return 0; // No se encontró el artículo
 }
 
-//return 1: modificado de forma correcta return 0: no se pudo modificar
-
 int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
     struct nodoArticulo *rec;
     struct articulo *articuloBuscado = NULL;
@@ -2187,7 +2105,6 @@ int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
                 articuloBuscado = rec->datos; // Se copia la info del artículo encontrado
 
                 // Asignar nueva memoria para los campos
-                free(articuloBuscado->nombre); // Liberar memoria existente
                 articuloBuscado->nombre = (char *)malloc(sizeof(char) * (strlen(nombre) + 1));
                 if (articuloBuscado->nombre == NULL) {
                     printf("Error al asignar memoria para el nombre.\n");
@@ -2195,14 +2112,12 @@ int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
                 }
 
                 // Asignar memoria para texto y cambio
-                free(articuloBuscado->texto); // Liberar memoria existente
                 articuloBuscado->texto = (char *)malloc(sizeof(char) * 4096);
                 if (articuloBuscado->texto == NULL) {
                     printf("Error al asignar memoria para el texto.\n");
                     return 0;
                 }
 
-                free(articuloBuscado->cambio); // Liberar memoria existente
                 articuloBuscado->cambio = (char *)malloc(sizeof(char) * 4096);
                 if (articuloBuscado->cambio == NULL) {
                     printf("Error al asignar memoria para el cambio.\n");
@@ -2376,6 +2291,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
     char opcionVoto;
     char rut[20]; // RUT en formato 12.345.678-K
     struct nodoArticulo *rec = articulos;
+    struct congresista *congresista;
 
     // Pedir al usuario la sección del artículo para agregar la votación
     printf("Ingrese la sección del artículo para añadir una votación: ");
@@ -2407,7 +2323,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
                 limpiarBuffer();
 
                 // Buscar al congresista en el congreso usando el RUT
-                struct congresista *congresista = comprobarCongresistaEnCongreso(congreso, rut);
+                congresista = comprobarCongresistaEnCongreso(congreso, rut);
                 if (congresista == NULL) {
                     printf("Error: Congresista con RUT %s no encontrado.\n", rut);
                     return;
@@ -2682,7 +2598,5 @@ int main(void) {
         }
     }
 
-    // Liberar recursos antes de salir
-    liberarCongreso(congreso);
     return 0;
 }
