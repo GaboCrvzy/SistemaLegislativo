@@ -1407,13 +1407,12 @@ void agregarComision(struct congreso* congreso) {
     }
     // Si se alcanza el límite del arreglo
     printf("Error al asignar en el arreglo: se ha alcanzado el máximo de comisiones\n");
-    }
+
     // Agregar como comisión mixta
     nuevoNodo = crearNodoComision(nuevaComision);
     nuevoNodo->sig = congreso->comisionesMixtas;
     congreso->comisionesMixtas = nuevoNodo;
     printf("Comision agregada como mixta\n");
-    }
 }
 
 void eliminarComision(struct congreso* congreso, char* nombre) {
@@ -1725,7 +1724,7 @@ void menuProyectosLey(struct congreso* congreso) {
 void menuCongresistas(struct congreso* congreso) {
     char opcion[2];
     char rut[20];
-    struct nodoCongresista*actual = NULL;
+    struct nodoCongresista* actual = NULL;
 
     while (1) {
         printf("Menu Congresistas.\n"
