@@ -38,7 +38,6 @@ struct proyectoLey {
     int idProyecto;
     int urgencia;
     struct nodoVotacion* votacion;
-    struct comision* comision;
     int fase;
 };
 
@@ -272,7 +271,6 @@ struct proyectoLey* crearProyectoLey(struct congreso* congreso) {
     nuevoProyecto->urgencia = urgencia;
     nuevoProyecto->fase = fase;
     nuevoProyecto->votacion = NULL;
-    nuevoProyecto->comision = NULL;
 
     return nuevoProyecto;
 }
@@ -650,13 +648,6 @@ void imprimirProyectoLey(struct proyectoLey* proyecto) {
         printf("Votación: N/A\n");
     }
 
-    if (proyecto->comision != NULL) {
-        printf("Comisión: (existe comisión)\n"); // Detallar según la estructura
-    }
-    else {
-        printf("Comisión: N/A\n");
-    }
-
     printf("----\n");
 }
 
@@ -765,8 +756,6 @@ void mostrarProyectosOrdenDeUrgencia(struct congreso* congreso) {
 
 void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
     struct proyectoLey* proyecto;
-    char nombreComision[100]; // Para el nombre de la comisión
-    struct comision* comisionEncontrada = NULL; // Para el puntero de comisión
     char opcion;
 
     // Buscar el proyecto de ley por ID
@@ -784,8 +773,7 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
         printf("d. Urgencia\n");
         printf("e. Fase\n");
         printf("f. Agregar votación\n");
-        printf("g. Asignar Comisión\n");
-        printf("h. Salir\n");
+        printf("g. Salir\n");
         printf("Opción: ");
 
         // Leer opción y limpiar buffer de entrada
@@ -850,23 +838,6 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
             agregarVotacion(congreso, idProyecto);
             break;
         case 'g':
-            printf("Ingrese el nombre de la comisión a asignar: ");
-            if (fgets(nombreComision, sizeof(nombreComision), stdin) == NULL) {
-                printf("Error al leer el nombre de la comisión.\n");
-                break;
-            }
-            nombreComision[strcspn(nombreComision, "\n")] = '\0'; // Remover salto de línea
-            comisionEncontrada = buscarComision(congreso, nombreComision); // IMPORTANTE INICIALIZAR FUNCION BUSCARCOMISION
-            if (comisionEncontrada) {
-                proyecto->comision = comisionEncontrada;
-                printf("Comisión asignada correctamente\n");
-            }
-            else {
-                printf("Error: Comisión no asignada\n");
-            }
-            break;
-        
-        case 'h':
             printf("Saliendo de la modificación del proyecto de ley.\n");
             break;
         default:
