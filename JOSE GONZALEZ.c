@@ -208,7 +208,8 @@ char leerOpcion() {
 //TODO: ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 /*Esta función almacena memoria para todos los datos que debe almacenar "congreso"*/
 struct congreso *inicializarCongreso() {
-    struct congreso *nuevoCongreso = malloc(sizeof(struct congreso));
+    struct congreso *nuevoCongreso;
+    nuevoCongreso = malloc(sizeof(struct congreso));
 
     if (nuevoCongreso == NULL) {
         return NULL;
@@ -358,7 +359,9 @@ struct proyectoLey *buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id)
 
 // Encuentra el nodo mínimo en el árbol (usado para encontrar el sucesor en caso de eliminación)
 struct nodoProyectoLey *minValorNodo(struct nodoProyectoLey *nodo) {
-    struct nodoProyectoLey *actual = nodo;
+    struct nodoProyectoLey *actual;
+    
+    actual= nodo;
 
     /* Recorre el subárbol hacia la izquierda para encontrar el nodo mínimo */
     while (actual != NULL && actual->izq != NULL) {
@@ -424,7 +427,9 @@ void borrarProyectoLey(struct congreso *congreso, int id) {
 // Función auxiliar para contar y mostrar los congresistas en una lista de votación
 void mostrarCongresistasVotacion(struct nodoCongresista *lista, const char *categoria) {
     int contador = 0;
-    struct nodoCongresista *actual = lista;
+    struct nodoCongresista *actual;
+    
+    actual = lista;
 
     printf("Votos %s:\n", categoria);
     while (actual != NULL) {
@@ -437,8 +442,11 @@ void mostrarCongresistasVotacion(struct nodoCongresista *lista, const char *cate
 
 // Función para buscar y mostrar un proyecto de ley por ID en el árbol binario de búsqueda
 void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
-    struct proyectoLey *proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
+    struct proyectoLey *proyecto;
     struct nodoArticulo *rec;
+    struct nodoVotacion *nodoVot;
+
+    proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
 
     if (proyecto != NULL) {
         printf("Nombre: %s\n", proyecto->nombre);
@@ -498,7 +506,7 @@ void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
 
         // Verificar si hay votaciones y mostrarlas
         if (proyecto->votacion != NULL) {
-            struct nodoVotacion *nodoVot = proyecto->votacion;
+            nodoVot = proyecto->votacion;
 
             // Recorre la lista de votaciones
             while (nodoVot != NULL) {
@@ -614,8 +622,8 @@ void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *con
 
 void agregarVotacion(struct congreso *congreso, int idProyecto) {
     struct proyectoLey *proyecto;
-    int fase;
     struct nodoVotacion *nuevoNodoVotacion, *actual;
+    int fase;
 
     // Buscar el proyecto de ley por ID
     proyecto = buscarProyectoLeyPorID(congreso->raiz, idProyecto);
@@ -760,8 +768,10 @@ void recorrerArbolEnOrden(struct nodoProyectoLey *nodo, struct proyectoLey ***pr
 
 // Función de comparación para ordenar los proyectos por urgencia (mayor a menor)
 int compararPorUrgencia(const void *a, const void *b) {
-    struct proyectoLey *proyectoA = *(struct proyectoLey **)a; // Convertir el primer argumento
-    struct proyectoLey *proyectoB = *(struct proyectoLey **)b; // Convertir el segundo argumento
+    struct proyectoLey *proyectoA, *proyectoB;
+    
+    proyectoA = *(struct proyectoLey **)a; // Convertir el primer argumento
+    proyectoB = *(struct proyectoLey **)b; // Convertir el segundo argumento
     return proyectoB->urgencia - proyectoA->urgencia; // Comparar por urgencia
 }
 
@@ -944,10 +954,6 @@ recordar que es circular con fantasma, por lo tanto tengo que iniciar el head->s
 int comprobarCongresistaEnComision(struct nodoCongresista *head, char *rutBuscado) {
     struct nodoCongresista *rec = head; // Iniciamos en el nodo fantasma
 
-    if (head == NULL || head->sig == NULL) {
-        return 0; // Si la lista está vacía, retorna 0
-    }
-
     rec = head->sig; // Saltar el nodo fantasma
     do {
         // Verificamos que rec->datos no sea NULL y comparamos el RUT
@@ -962,9 +968,9 @@ int comprobarCongresistaEnComision(struct nodoCongresista *head, char *rutBuscad
 
 //funcion para recorrer los arreglos, el de diputados o el de senadores correspondientemente
 struct congresista* comprobarCongresistaEnCongreso(struct congreso *congreso, char *rutBuscado) {
-    int i;
     struct nodoCongresista *head = congreso->congresistasMixtos;
     struct nodoCongresista *rec = NULL;
+    int i;
 
     if (rutBuscado != NULL) {
         // Buscar en diputados
@@ -1072,10 +1078,10 @@ era esta solución o configurar el struct congreso para agregar un plibre de cad
 
 //este agrega un NUEVO congresista al arreglo correspondiente
 void agregarCongresistaEnCongreso(struct congreso *congreso) {
-    int i = 0;
     struct congresista *nuevoCongresista = crearCongresista(congreso); // Se crea el congresista para insertarlo
     struct nodoCongresista *nuevoNodoCongresista = NULL; // Nodo para congresistas mixtos
     struct congresista **arreglo = NULL; // Decidirá a qué arreglo pertenece
+    int i = 0;
 
     // Preguntar si el congresista es válido
     if (nuevoCongresista != NULL) {
@@ -1283,9 +1289,9 @@ ya que al cambiar la ocupacion es mejor eliminarlo del arreglo y agregarlo al ot
 */
 
 void modificarCongresista(struct congreso *congreso, char *rutBuscado) {
+    char nombre[100], especializacion[100], rut[20];
     struct congresista *congresista = comprobarCongresistaEnCongreso(congreso, rutBuscado);
 
-    char nombre[100], especializacion[100], rut[20];
     if (congresista != NULL) {
         // Escaneo los datos nuevos
         printf("Ingrese nuevo Nombre: ");
@@ -1794,9 +1800,12 @@ PD: todos los prints serán eliminados posterior a la creacion del main
 */
 
 struct articulo *crearArticulo(struct nodoArticulo *lista) {
-    struct articulo *nuevoArticulo = (struct articulo *)malloc(sizeof(struct articulo));
+    struct articulo *nuevoArticulo;
     char nombre[100], texto[4096], cambio[4096];
     int seccion;
+    
+    nuevoArticulo = (struct articulo *)malloc(sizeof(struct articulo));
+
 
     // Verificar si la asignación de memoria fue exitosa
     if (nuevoArticulo == NULL) {
@@ -1894,6 +1903,7 @@ la funcion recibe la lista de articulos, la idea es que se seleccione la ley y a
 
 int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada) {
     struct nodoArticulo *rec;
+    struct nodoArticulo *nodoAEliminar;
 
     // Verificamos si la lista existe
     if (*lista != NULL) {
@@ -1911,7 +1921,7 @@ int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada) {
         // Caso 2: Se encuentra en cualquier otra posición de la lista
         while (rec->sig != NULL) {
             if (seccionEliminada == rec->sig->datos->seccion) {
-                struct nodoArticulo *nodoAEliminar = rec->sig; // Nodo a eliminar
+                nodoAEliminar = rec->sig; // Nodo a eliminar
                 rec->sig = nodoAEliminar->sig; // Saltar el nodo a eliminar
                 if (nodoAEliminar->sig != NULL) {
                     nodoAEliminar->sig->ant = rec; // Actualizar el puntero anterior del siguiente nodo
@@ -2082,6 +2092,7 @@ void menuProyectosLey(struct congreso *congreso) {
 void menuCongresistas(struct congreso *congreso) {
     char opcion[2];
     char rut[20];
+    struct nodoCongresista *actual;
 
     while (1) {
         printf("Menu Congresistas.\n"
@@ -2181,7 +2192,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
 
                 // Añadir el nodo a la lista correspondiente (favor o contra)
                 if (opcionVoto == 'F' || opcionVoto == 'f') {
-                    struct nodoCongresista *actual = rec->datos->voto->favor;
+                    actual = rec->datos->voto->favor;
                     if (actual == NULL) {
                         rec->datos->voto->favor = nuevoNodo;
                     } else {
@@ -2192,7 +2203,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
                     }
                     printf("Congresista añadido a la lista de votos a favor.\n");
                 } else {
-                    struct nodoCongresista *actual = rec->datos->voto->contra;
+                    actual = rec->datos->voto->contra;
                     if (actual == NULL) {
                         rec->datos->voto->contra = nuevoNodo;
                     } else {
@@ -2214,11 +2225,15 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
 }
 
 void mostrarVotacionArticulos(struct proyectoLey *ley) {
-    struct nodoArticulo *articuloActual = ley->articulo;
+    struct nodoArticulo *articuloActual;
+    struct articulo *art;
+    struct nodoCongresista *votante;
     int contadorFavor, contadorContra;
 
+    articuloActual = ley->articulo;
+
     while (articuloActual != NULL) {
-        struct articulo *art = articuloActual->datos;
+        art = articuloActual->datos;
         printf("\nSección del Artículo: %d\n", art->seccion);
         printf("Texto del Artículo: %s\n", art->texto);
         printf("Cambios Pendientes: %s\n", art->cambio);
@@ -2227,7 +2242,7 @@ void mostrarVotacionArticulos(struct proyectoLey *ley) {
         contadorFavor = 0;
         printf("Votos a Favor:\n");
         if (art->voto != NULL && art->voto->favor != NULL) {
-            struct nodoCongresista *votante = art->voto->favor;
+            votante = art->voto->favor;
             while (votante != NULL) {
                 printf("  - RUT: %s\n", votante->datos->rut);
                 contadorFavor++;
@@ -2241,7 +2256,7 @@ void mostrarVotacionArticulos(struct proyectoLey *ley) {
         contadorContra = 0;
         printf("Votos en Contra:\n");
         if (art->voto != NULL && art->voto->contra != NULL) {
-            struct nodoCongresista *votante = art->voto->contra;
+            votante = art->voto->contra;
             while (votante != NULL) {
                 printf("  - RUT: %s\n", votante->datos->rut);
                 contadorContra++;
@@ -2397,9 +2412,10 @@ void mostrarLeyesPorFase(struct nodoProyectoLey *leyes, int faseRequerida) {
 int main(void) {
     int flag = 1; // Variable de control del bucle principal
     char opcion;
+    struct congreso *congreso;
 
     // Inicialización del congreso
-    struct congreso *congreso = inicializarCongreso();
+    congreso = inicializarCongreso();
 
     // Bucle principal del menú
     while (flag == 1) {
