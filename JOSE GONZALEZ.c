@@ -7,145 +7,145 @@
 #define MAX_COMISIONES 10
 
 struct congresista {
-    char *nombre;
-    char *rut;
-    char *ocupacion;
-    char *especializacion;
+    char* nombre;
+    char* rut;
+    char* ocupacion;
+    char* especializacion;
 };
 
 struct nodoCongresista {
-    struct congresista *datos;
-    struct nodoCongresista *sig;
+    struct congresista* datos;
+    struct nodoCongresista* sig;
 };
 
 struct congreso {
-    struct congresista **senadores;
-    struct congresista **diputados;
-    struct nodoCongresista *congresistasMixtos;
-    struct nodoComision *comisionesMixtas;
-    struct comision **comisiones;
-    struct nodoProyectoLey *raiz;
+    struct congresista** senadores;
+    struct congresista** diputados;
+    struct nodoCongresista* congresistasMixtos;
+    struct nodoComision* comisionesMixtas;
+    struct comision** comisiones;
+    struct nodoProyectoLey* raiz;
 };
 
 struct nodoProyectoLey {
-    struct proyectoLey *datos;
-    struct nodoProyectoLey *izq, *der;
+    struct proyectoLey* datos;
+    struct nodoProyectoLey* izq, * der;
 };
 
 struct proyectoLey {
-    char *nombre;
-    char *tipo;
+    char* nombre;
+    char* tipo;
     int idProyecto;
     int urgencia;
-    struct nodoArticulo *articulo;
-    struct nodoVotacion *votacion;
-    struct comision *comision;
+    struct nodoArticulo* articulo;
+    struct nodoVotacion* votacion;
+    struct comision* comision;
     int fase;
 };
 
 struct nodoComision {
-    struct comision *datos;
-    struct nodoComision *sig;
+    struct comision* datos;
+    struct nodoComision* sig;
 };
 
 struct comision {
-    struct nodoCongresista *headIntegrantes;
-    char *nombre;
-    char *tipo;
-    char *descripcion;
+    struct nodoCongresista* headIntegrantes;
+    char* nombre;
+    char* tipo;
+    char* descripcion;
 };
 
 
 struct nodoArticulo {
-    struct articulo *datos;
-    struct nodoArticulo *sig, *ant;
+    struct articulo* datos;
+    struct nodoArticulo* sig, * ant;
 };
 
 struct articulo {
-    char *nombre;
+    char* nombre;
     int seccion;
-    char *texto;
-    char *cambio;
-    struct votacion *voto;
+    char* texto;
+    char* cambio;
+    struct votacion* voto;
 };
 
 
 struct nodoVotacion {
-    struct votacion *datos;
-    struct nodoVotacion *sig;
+    struct votacion* datos;
+    struct nodoVotacion* sig;
 };
 
 struct votacion {
-    struct nodoCongresista *favor;
-    struct nodoCongresista *contra;
+    struct nodoCongresista* favor;
+    struct nodoCongresista* contra;
     int fase;
 };
 
 // Function prototype
-void convertirMinusculas(char *cadena);
-int leerEnteroConLimite(char *mensaje, int min, int max);
-struct congresista *buscarCongresistaPorRUT(struct congreso *congreso, char *rut);
+void convertirMinusculas(char* cadena);
+int leerEnteroConLimite(char* mensaje, int min, int max);
+struct congresista* buscarCongresistaPorRUT(struct congreso* congreso, char* rut);
 char leerOpcion();
-struct congreso *inicializarCongreso();
-struct nodoProyectoLey *crearNodoProyectoLey(struct proyectoLey *datos);
-void agregarNodoProyectoLey(struct congreso *congreso);
-struct proyectoLey *buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id);
-struct nodoProyectoLey *minValorNodo(struct nodoProyectoLey *nodo);
-struct nodoProyectoLey *borrarNodoProyectoLey(struct congreso *congreso, struct nodoProyectoLey *raiz, int id);
-void borrarProyectoLey(struct congreso *congreso, int id);
-void mostrarCongresistasVotacion(struct nodoCongresista *lista, const char *categoria);
-void buscarYMostrarProyectoLey(struct congreso *congreso, int id);
-void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *congreso) ;
-void agregarVotacion(struct congreso *congreso, int idProyecto);
-void imprimirProyectoLey(struct proyectoLey *proyecto);
-void recorrerYImprimirProyectos(struct nodoProyectoLey *nodo);
-void imprimirProyectosLey(struct congreso *congreso);
-void agregarProyecto(struct proyectoLey *proyecto, struct proyectoLey ***proyectosArray, int *proyectosCount, int *proyectosCapacidad);
-void recorrerArbolEnOrden(struct nodoProyectoLey *nodo, struct proyectoLey ***proyectosArray, int *proyectosCount, int *proyectosCapacidad);
-int compararPorUrgencia(const void *a, const void *b);
-void mostrarProyectosOrdenDeUrgencia(struct congreso *congreso);
-void modificarProyectoLey(struct congreso *congreso, int idProyecto);
-struct nodoCongresista *crearNodoCongresista(struct nodoCongresista *head, struct congresista *datos);
-int comprobarCongresistaEnComision(struct nodoCongresista *head, char *rutBuscado);
-struct congresista* comprobarCongresistaEnCongreso(struct congreso *congreso, char *rutBuscado);
-struct congresista *crearCongresista(struct congreso *congreso);
-void agregarCongresistaEnCongreso(struct congreso *congreso);
-void agregarCongresistaEnComision(struct comision *comision, char *rut, struct congresista *congresista);
-void eliminarCongresistaDeComision(struct comision *comision, char *rutQuitado);
-void eliminarCongresistaDeCongreso(struct congreso *congreso, char *rutQuitado);
-void modificarCongresista(struct congreso *congreso, char *rutBuscado);
-void mostrarCongresista(struct congreso *congreso, char *rutBuscado);
-void listarCongresistas(struct congreso *congreso);
-struct nodoComision* crearNodoComision(struct comision *datos);
-struct comision *buscarComision(struct congreso *congreso, char *nombre);
-struct comision *crearComision(struct congreso *congreso);
-void agregarComision(struct congreso *congreso);
-void eliminarComision(struct congreso *congreso, char *nombre);
-void modificarComision(struct congreso *congreso, char *nombre);
-void mostrarComisionPorNombre(struct congreso *congreso, char *nombre);
-void listarComisiones(struct congreso *congreso);
-void copiarCambioATexto(struct nodoArticulo *articulos);
-struct nodoArticulo *crearNodoArticulo(struct articulo *datos);
-int comprobarArticulo(struct nodoArticulo *head, int buscado);
-struct articulo *crearArticulo(struct nodoArticulo *lista);
-void agregarArticulo(struct congreso *congreso, struct nodoArticulo **lista);
-int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada);
-int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada);
-void funcionSwitch(char opcion, struct congreso *congreso, void (*submenu)(struct congreso *));
-void menuProyectosLey(struct congreso *congreso);
-void menuCongresistas(struct congreso *congreso);
-void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *articulos);
-void mostrarVotacionArticulos(struct proyectoLey *ley);
-void menuArticulos(struct congreso *congreso, struct proyectoLey *ley);
-void menuComisiones(struct congreso *congreso);
-void mostrarLeyesPorFase(struct nodoProyectoLey *leyes, int faseRequerida);
+struct congreso* inicializarCongreso();
+struct nodoProyectoLey* crearNodoProyectoLey(struct proyectoLey* datos);
+void agregarNodoProyectoLey(struct congreso* congreso);
+struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey* raiz, int id);
+struct nodoProyectoLey* minValorNodo(struct nodoProyectoLey* nodo);
+struct nodoProyectoLey* borrarNodoProyectoLey(struct congreso* congreso, struct nodoProyectoLey* raiz, int id);
+void borrarProyectoLey(struct congreso* congreso, int id);
+void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* categoria);
+void buscarYMostrarProyectoLey(struct congreso* congreso, int id);
+void agregarCongresistaAVotacion(struct votacion* votacion, struct congreso* congreso);
+void agregarVotacion(struct congreso* congreso, int idProyecto);
+void imprimirProyectoLey(struct proyectoLey* proyecto);
+void recorrerYImprimirProyectos(struct nodoProyectoLey* nodo);
+void imprimirProyectosLey(struct congreso* congreso);
+void agregarProyecto(struct proyectoLey* proyecto, struct proyectoLey*** proyectosArray, int* proyectosCount, int* proyectosCapacidad);
+void recorrerArbolEnOrden(struct nodoProyectoLey* nodo, struct proyectoLey*** proyectosArray, int* proyectosCount, int* proyectosCapacidad);
+int compararPorUrgencia(const void* a, const void* b);
+void mostrarProyectosOrdenDeUrgencia(struct congreso* congreso);
+void modificarProyectoLey(struct congreso* congreso, int idProyecto);
+struct nodoCongresista* crearNodoCongresista(struct nodoCongresista* head, struct congresista* datos);
+int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado);
+struct congresista* comprobarCongresistaEnCongreso(struct congreso* congreso, char* rutBuscado);
+struct congresista* crearCongresista(struct congreso* congreso);
+void agregarCongresistaEnCongreso(struct congreso* congreso);
+void agregarCongresistaEnComision(struct comision* comision, char* rut, struct congresista* congresista);
+void eliminarCongresistaDeComision(struct comision* comision, char* rutQuitado);
+void eliminarCongresistaDeCongreso(struct congreso* congreso, char* rutQuitado);
+void modificarCongresista(struct congreso* congreso, char* rutBuscado);
+void mostrarCongresista(struct congreso* congreso, char* rutBuscado);
+void listarCongresistas(struct congreso* congreso);
+struct nodoComision* crearNodoComision(struct comision* datos);
+struct comision* buscarComision(struct congreso* congreso, char* nombre);
+struct comision* crearComision(struct congreso* congreso);
+void agregarComision(struct congreso* congreso);
+void eliminarComision(struct congreso* congreso, char* nombre);
+void modificarComision(struct congreso* congreso, char* nombre);
+void mostrarComisionPorNombre(struct congreso* congreso, char* nombre);
+void listarComisiones(struct congreso* congreso);
+void copiarCambioATexto(struct nodoArticulo* articulos);
+struct nodoArticulo* crearNodoArticulo(struct articulo* datos);
+int comprobarArticulo(struct nodoArticulo* head, int buscado);
+struct articulo* crearArticulo(struct nodoArticulo* lista);
+void agregarArticulo(struct congreso* congreso, struct nodoArticulo** lista);
+int eliminarArticulo(struct nodoArticulo** lista, int seccionEliminada);
+int modificarArticulo(struct nodoArticulo* articulos, int seccionModificada);
+void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struct congreso*));
+void menuProyectosLey(struct congreso* congreso);
+void menuCongresistas(struct congreso* congreso);
+void gestionarVotacionArticulo(struct congreso* congreso, struct nodoArticulo* articulos);
+void mostrarVotacionArticulos(struct proyectoLey* ley);
+void menuArticulos(struct congreso* congreso, struct proyectoLey* ley);
+void menuComisiones(struct congreso* congreso);
+void mostrarLeyesPorFase(struct nodoProyectoLey* leyes, int faseRequerida);
 /*NOTA: LAS FUNCIONES DE VOTACIÓN SE ENCUENTRAN EN EL APARTADO DE LAS FUNCIONES DE PROYECTO DE LEY.*/
 
 
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void convertirMinusculas(char *cadena) {
+void convertirMinusculas(char* cadena) {
     int i;
     for (i = 0; cadena[i]; i++) {
         if (cadena[i] >= 'A' && cadena[i] <= 'Z') {
@@ -155,7 +155,7 @@ void convertirMinusculas(char *cadena) {
 }
 
 
-int leerEnteroConLimite(char *mensaje, int min, int max) {
+int leerEnteroConLimite(char* mensaje, int min, int max) {
     int valor;
     char input[10];
     while (1) {
@@ -171,7 +171,7 @@ int leerEnteroConLimite(char *mensaje, int min, int max) {
 }
 
 // Función auxiliar para buscar un congresista por RUT en el congreso
-struct congresista *buscarCongresistaPorRUT(struct congreso *congreso, char *rut) {
+struct congresista* buscarCongresistaPorRUT(struct congreso* congreso, char* rut) {
     int i;
 
     // Buscar en el arreglo de senadores
@@ -207,8 +207,8 @@ char leerOpcion() {
 //TODO: FUNCIÓN DE INICIALIZACIÓN DEL CONGRESO----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO: ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 /*Esta función almacena memoria para todos los datos que debe almacenar "congreso"*/
-struct congreso *inicializarCongreso() {
-    struct congreso *nuevoCongreso;
+struct congreso* inicializarCongreso() {
+    struct congreso* nuevoCongreso;
     nuevoCongreso = malloc(sizeof(struct congreso));
 
     if (nuevoCongreso == NULL) {
@@ -216,13 +216,13 @@ struct congreso *inicializarCongreso() {
     }
 
     // Inicializa los arreglos para los senadores y diputados
-    nuevoCongreso->senadores = calloc(MAX_SENADORES, sizeof(struct congresista *));
-    nuevoCongreso->diputados = calloc(MAX_DIPUTADOS, sizeof(struct congresista *));
+    nuevoCongreso->senadores = calloc(MAX_SENADORES, sizeof(struct congresista*));
+    nuevoCongreso->diputados = calloc(MAX_DIPUTADOS, sizeof(struct congresista*));
     nuevoCongreso->congresistasMixtos = NULL;
     nuevoCongreso->comisionesMixtas = NULL;
 
     // Inicializa los arreglos para las comisiones
-    nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision *));
+    nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision*));
 
     // Inicializa la raíz de proyectos de ley
     nuevoCongreso->raiz = NULL;
@@ -232,8 +232,8 @@ struct congreso *inicializarCongreso() {
 
 //TODO: FUNCIÓNES DEL PROYECTO DE LEY----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-struct nodoProyectoLey *crearNodoProyectoLey(struct proyectoLey *datos) {
-    struct nodoProyectoLey *nodo = NULL;
+struct nodoProyectoLey* crearNodoProyectoLey(struct proyectoLey* datos) {
+    struct nodoProyectoLey* nodo = NULL;
 
     // Validar que los datos no sean NULL
     if (datos != NULL) {
@@ -252,14 +252,14 @@ struct nodoProyectoLey *crearNodoProyectoLey(struct proyectoLey *datos) {
     return nodo;
 }
 
-struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
+struct proyectoLey* crearProyectoLey(struct congreso* congreso) {
 
-    struct proyectoLey *nuevoProyecto;
+    struct proyectoLey* nuevoProyecto;
     char nombre[100], tipo[50];
     int idProyecto, urgencia, fase;
-    
-    nuevoProyecto= malloc(sizeof(struct proyectoLey));
-    
+
+    nuevoProyecto = malloc(sizeof(struct proyectoLey));
+
     printf("Ingrese el nombre del proyecto de ley: ");
     if (fgets(nombre, sizeof(nombre), stdin) == NULL) {
         printf("Error al leer el nombre del proyecto de ley.\n");
@@ -291,7 +291,7 @@ struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
 
     nuevoProyecto->nombre = malloc(strlen(nombre) + 1);
     nuevoProyecto->tipo = malloc(strlen(tipo) + 1);
-    
+
     strcpy(nuevoProyecto->nombre, nombre);
     strcpy(nuevoProyecto->tipo, tipo);
     nuevoProyecto->idProyecto = idProyecto;
@@ -305,27 +305,27 @@ struct proyectoLey *crearProyectoLey(struct congreso *congreso) {
 }
 
 
-void agregarNodoProyectoLey(struct congreso *congreso) {
-    struct proyectoLey *datos;
-    struct nodoProyectoLey *nuevoNodo, *actual, *padre;
-    
+void agregarNodoProyectoLey(struct congreso* congreso) {
+    struct proyectoLey* datos;
+    struct nodoProyectoLey* nuevoNodo, * actual, * padre;
+
     datos = crearProyectoLey(congreso); // Crear proyecto de ley
     nuevoNodo = crearNodoProyectoLey(datos); // Crear nodo para el proyecto de ley
 
     if (congreso->raiz == NULL) {
         congreso->raiz = nuevoNodo;
-    } 
+    }
     else
     {
         actual = congreso->raiz;
         padre = NULL;
 
-        while (actual != NULL) 
+        while (actual != NULL)
         {
             padre = actual;
             if (datos->idProyecto < actual->datos->idProyecto) {
                 actual = actual->izq;
-            } 
+            }
             else {
                 actual = actual->der;
             }
@@ -333,7 +333,7 @@ void agregarNodoProyectoLey(struct congreso *congreso) {
 
         if (datos->idProyecto < padre->datos->idProyecto) {
             padre->izq = nuevoNodo;
-        } 
+        }
         else {
             padre->der = nuevoNodo;
         }
@@ -341,27 +341,29 @@ void agregarNodoProyectoLey(struct congreso *congreso) {
 }
 
 // Función para buscar un proyecto de ley por ID
-struct proyectoLey *buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id) {
+struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey* raiz, int id) {
     if (raiz == NULL) {
         return NULL;
     }
 
     if (raiz->datos->idProyecto == id) {
         return raiz->datos;
-    } else if (id < raiz->datos->idProyecto) {
+    }
+    else if (id < raiz->datos->idProyecto) {
         // Buscamos en el subárbol izquierdo si el ID es menor
         return buscarProyectoLeyPorID(raiz->izq, id);
-    } else {
+    }
+    else {
         // Buscamos en el subárbol derecho si el ID es mayor
         return buscarProyectoLeyPorID(raiz->der, id);
     }
 }
 
 // Encuentra el nodo mínimo en el árbol (usado para encontrar el sucesor en caso de eliminación)
-struct nodoProyectoLey *minValorNodo(struct nodoProyectoLey *nodo) {
-    struct nodoProyectoLey *actual;
-    
-    actual= nodo;
+struct nodoProyectoLey* minValorNodo(struct nodoProyectoLey* nodo) {
+    struct nodoProyectoLey* actual;
+
+    actual = nodo;
 
     /* Recorre el subárbol hacia la izquierda para encontrar el nodo mínimo */
     while (actual != NULL && actual->izq != NULL) {
@@ -371,8 +373,8 @@ struct nodoProyectoLey *minValorNodo(struct nodoProyectoLey *nodo) {
 }
 
 // Función para borrar un nodo en el árbol binario de búsqueda
-struct nodoProyectoLey *borrarNodoProyectoLey(struct congreso *congreso, struct nodoProyectoLey *raiz, int id) {
-    struct nodoProyectoLey *temp;
+struct nodoProyectoLey* borrarNodoProyectoLey(struct congreso* congreso, struct nodoProyectoLey* raiz, int id) {
+    struct nodoProyectoLey* temp;
 
     /* Caso base */
     if (raiz == NULL) return raiz;
@@ -391,7 +393,8 @@ struct nodoProyectoLey *borrarNodoProyectoLey(struct congreso *congreso, struct 
         if (raiz->izq == NULL) {
             temp = raiz->der;
             return temp;
-        } else if (raiz->der == NULL) {
+        }
+        else if (raiz->der == NULL) {
             temp = raiz->izq;
             return temp;
         }
@@ -420,15 +423,15 @@ struct nodoProyectoLey *borrarNodoProyectoLey(struct congreso *congreso, struct 
 }
 
 // Función para borrar un proyecto de ley
-void borrarProyectoLey(struct congreso *congreso, int id) {
+void borrarProyectoLey(struct congreso* congreso, int id) {
     congreso->raiz = borrarNodoProyectoLey(congreso, congreso->raiz, id);
 }
 
 // Función auxiliar para contar y mostrar los congresistas en una lista de votación
-void mostrarCongresistasVotacion(struct nodoCongresista *lista, const char *categoria) {
+void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* categoria) {
     int contador = 0;
-    struct nodoCongresista *actual;
-    
+    struct nodoCongresista* actual;
+
     actual = lista;
 
     printf("Votos %s:\n", categoria);
@@ -441,10 +444,10 @@ void mostrarCongresistasVotacion(struct nodoCongresista *lista, const char *cate
 }
 
 // Función para buscar y mostrar un proyecto de ley por ID en el árbol binario de búsqueda
-void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
-    struct proyectoLey *proyecto;
-    struct nodoArticulo *rec;
-    struct nodoVotacion *nodoVot;
+void buscarYMostrarProyectoLey(struct congreso* congreso, int id) {
+    struct proyectoLey* proyecto;
+    struct nodoArticulo* rec;
+    struct nodoVotacion* nodoVot;
 
     proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
 
@@ -457,33 +460,33 @@ void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
 
         // Descripción de la fase dependiendo del caso
         switch (proyecto->fase) {
-            case 1:
-                printf("Descripción de la fase: Iniciativa Legislativa\n");
-                break;
-            case 2:
-                printf("Descripción de la fase: Cámara de Origen\n");
-                break;
-            case 3:
-                printf("Descripción de la fase: Cámara Revisora\n");
-                break;
-            case 4:
-                printf("Descripción de la fase: Comisión Mixta\n");
-                break;
-            case 5:
-                printf("Descripción de la fase: Promulgación\n");
-                break;
-            case 6:
-                printf("Descripción de la fase: Veto presidencial\n");
-                break;
-            case 7:
-                printf("Descripción de la fase: Publicación y vigencia\n");
-                break;
-            case 8:
-                printf("Descripción de la fase: Control constitucional\n");
-                break;
-            default:
-                printf("Fase desconocida.\n");
-                break;
+        case 1:
+            printf("Descripción de la fase: Iniciativa Legislativa\n");
+            break;
+        case 2:
+            printf("Descripción de la fase: Cámara de Origen\n");
+            break;
+        case 3:
+            printf("Descripción de la fase: Cámara Revisora\n");
+            break;
+        case 4:
+            printf("Descripción de la fase: Comisión Mixta\n");
+            break;
+        case 5:
+            printf("Descripción de la fase: Promulgación\n");
+            break;
+        case 6:
+            printf("Descripción de la fase: Veto presidencial\n");
+            break;
+        case 7:
+            printf("Descripción de la fase: Publicación y vigencia\n");
+            break;
+        case 8:
+            printf("Descripción de la fase: Control constitucional\n");
+            break;
+        default:
+            printf("Fase desconocida.\n");
+            break;
         }
 
         rec = proyecto->articulo;
@@ -495,10 +498,12 @@ void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
                 // Mostrar el texto del artículo si no es NULL
                 if (rec->datos->texto != NULL) {
                     printf("Texto del artículo: %s\n", rec->datos->texto);
-                } else {
+                }
+                else {
                     printf("Texto del artículo: (sin texto disponible)\n");
                 }
-            } else {
+            }
+            else {
                 printf("Artículo no disponible.\n");
             }
             rec = rec->sig; // Avanzar al siguiente nodo
@@ -520,23 +525,25 @@ void buscarYMostrarProyectoLey(struct congreso *congreso, int id) {
 
                 nodoVot = nodoVot->sig; // Avanzar a la siguiente votación
             }
-        } else {
+        }
+        else {
             printf("No hay votaciones registradas para este proyecto de ley.\n");
         }
-    } else {
+    }
+    else {
         printf("Proyecto de ley con ID %d no encontrado.\n", id);
     }
 }
 
 
 // Función para añadir congresistas a las listas de votos (a favor o en contra) en un nodo de votación
-void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *congreso) 
+void agregarCongresistaAVotacion(struct votacion* votacion, struct congreso* congreso)
 {
     int opcionLista, opcionAgregar;
     char rut[20];
-    struct congresista *congresista;
-    struct nodoCongresista *nuevoNodo;
-    struct nodoCongresista *actual;
+    struct congresista* congresista;
+    struct nodoCongresista* nuevoNodo;
+    struct nodoCongresista* actual;
 
     printf("Seleccione la lista de votación:\n");
     printf("1. A favor\n");
@@ -544,7 +551,7 @@ void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *con
     printf("Ingrese su opción: ");
 
     while (scanf("%d", &opcionLista) != 1 || (opcionLista != 1 && opcionLista != 2)) {
-        printf("Opción inválida. Seleccione 1 (A favor) o 2 (En contra): ");   
+        printf("Opción inválida. Seleccione 1 (A favor) o 2 (En contra): ");
     }
 
     while (1) {
@@ -557,72 +564,76 @@ void agregarCongresistaAVotacion(struct votacion *votacion, struct congreso *con
             printf("Opción inválida. Intente de nuevo.\n");
         }
         switch (opcionAgregar) {
-            case 1: // Agregar congresista
-                while(1){
-                    printf("¿Qué congresista añadiremos a la lista? Ingrese el RUT(sin puntos ni guion, con digito verificador): ");
-                    scanf(" %s", rut);
-                    if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9) {
-                        break;  // Si es válido, salir del bucle
-                    }else {
-                        printf("RUT no válido. Debe tener 9 dígitos numéricos. Intente nuevamente.\n");
-                    }
+        case 1: // Agregar congresista
+            while (1) {
+                printf("¿Qué congresista añadiremos a la lista? Ingrese el RUT(sin puntos ni guion, con digito verificador): ");
+                scanf(" %s", rut);
+                if (strlen(rut) == 9 && strspn(rut, "0123456789") == 9) {
+                    break;  // Si es válido, salir del bucle
                 }
-                // Buscar el congresista en el congreso
-                congresista = comprobarCongresistaEnCongreso(congreso, rut);
-                if (congresista == NULL) {
-                    printf("Error: Congresista con RUT %s no encontrado.\n", rut);
-                    continue;
+                else {
+                    printf("RUT no válido. Debe tener 9 dígitos numéricos. Intente nuevamente.\n");
                 }
+            }
+            // Buscar el congresista en el congreso
+            congresista = comprobarCongresistaEnCongreso(congreso, rut);
+            if (congresista == NULL) {
+                printf("Error: Congresista con RUT %s no encontrado.\n", rut);
+                continue;
+            }
 
-                // Crear un nuevo nodoCongresista
-                nuevoNodo = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
-                if (nuevoNodo == NULL) {
-                    printf("Error: No se pudo asignar memoria para el nuevo nodo de congresista.\n");
-                    return;
-                }
-                nuevoNodo->datos = congresista;
-                nuevoNodo->sig = NULL;
-
-                // Añadir el nuevo nodo a la lista seleccionada
-                if (opcionLista == 1) { // Lista de votos a favor
-                    if (votacion->favor == NULL) {
-                        votacion->favor = nuevoNodo;
-                    } else {
-                        actual = votacion->favor;
-                        while (actual->sig != NULL) {
-                            actual = actual->sig;
-                        }
-                        actual->sig = nuevoNodo;
-                    }
-                    printf("Congresista con RUT %s añadido correctamente a la lista de votos a favor.\n", rut);
-                } else if (opcionLista == 2) { // Lista de votos en contra
-                    if (votacion->contra == NULL) {
-                        votacion->contra = nuevoNodo;
-                    } else {
-                        actual = votacion->contra;
-                        while (actual->sig != NULL) {
-                            actual = actual->sig;
-                        }
-                        actual->sig = nuevoNodo;
-                    }
-                    printf("Congresista con RUT %s añadido correctamente a la lista de votos en contra.\n", rut);
-                }
-                break;
-
-            case 2: // Terminar
-                printf("Finalizando el agregado de congresistas.\n");
+            // Crear un nuevo nodoCongresista
+            nuevoNodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
+            if (nuevoNodo == NULL) {
+                printf("Error: No se pudo asignar memoria para el nuevo nodo de congresista.\n");
                 return;
+            }
+            nuevoNodo->datos = congresista;
+            nuevoNodo->sig = NULL;
 
-            default:
-                printf("Opción inválida. Intente de nuevo.\n");
-                break;
+            // Añadir el nuevo nodo a la lista seleccionada
+            if (opcionLista == 1) { // Lista de votos a favor
+                if (votacion->favor == NULL) {
+                    votacion->favor = nuevoNodo;
+                }
+                else {
+                    actual = votacion->favor;
+                    while (actual->sig != NULL) {
+                        actual = actual->sig;
+                    }
+                    actual->sig = nuevoNodo;
+                }
+                printf("Congresista con RUT %s añadido correctamente a la lista de votos a favor.\n", rut);
+            }
+            else if (opcionLista == 2) { // Lista de votos en contra
+                if (votacion->contra == NULL) {
+                    votacion->contra = nuevoNodo;
+                }
+                else {
+                    actual = votacion->contra;
+                    while (actual->sig != NULL) {
+                        actual = actual->sig;
+                    }
+                    actual->sig = nuevoNodo;
+                }
+                printf("Congresista con RUT %s añadido correctamente a la lista de votos en contra.\n", rut);
+            }
+            break;
+
+        case 2: // Terminar
+            printf("Finalizando el agregado de congresistas.\n");
+            return;
+
+        default:
+            printf("Opción inválida. Intente de nuevo.\n");
+            break;
         }
     }
 }
 
-void agregarVotacion(struct congreso *congreso, int idProyecto) {
-    struct proyectoLey *proyecto;
-    struct nodoVotacion *nuevoNodoVotacion, *actual;
+void agregarVotacion(struct congreso* congreso, int idProyecto) {
+    struct proyectoLey* proyecto;
+    struct nodoVotacion* nuevoNodoVotacion, * actual;
     int fase;
 
     // Buscar el proyecto de ley por ID
@@ -636,14 +647,14 @@ void agregarVotacion(struct congreso *congreso, int idProyecto) {
     fase = leerEnteroConLimite("Ingrese la fase de la votación", 1, 4);
 
     // Crear nuevo nodoVotacion
-    nuevoNodoVotacion = (struct nodoVotacion *)malloc(sizeof(struct nodoVotacion));
+    nuevoNodoVotacion = (struct nodoVotacion*)malloc(sizeof(struct nodoVotacion));
     if (nuevoNodoVotacion == NULL) {
         printf("Error: No se pudo asignar memoria para la nueva votación.\n");
         return;
     }
 
     // Crear el struct votacion y asignar datos
-    nuevoNodoVotacion->datos = (struct votacion *)malloc(sizeof(struct votacion));
+    nuevoNodoVotacion->datos = (struct votacion*)malloc(sizeof(struct votacion));
     nuevoNodoVotacion->datos->fase = fase;
     nuevoNodoVotacion->datos->favor = NULL;   // Inicializar lista de votantes a favor
     nuevoNodoVotacion->datos->contra = NULL;  // Inicializar lista de votantes en contra
@@ -656,7 +667,8 @@ void agregarVotacion(struct congreso *congreso, int idProyecto) {
     if (proyecto->votacion == NULL) {
         // Caso 1: Primera votación para este proyecto
         proyecto->votacion = nuevoNodoVotacion;
-    } else {
+    }
+    else {
         // Caso 2: Ya existen votaciones, recorrer hasta el final de la lista
         actual = proyecto->votacion;
         while (actual->sig != NULL) {
@@ -669,7 +681,7 @@ void agregarVotacion(struct congreso *congreso, int idProyecto) {
 }
 
 // Función auxiliar para imprimir un proyecto de ley
-void imprimirProyectoLey(struct proyectoLey *proyecto) {
+void imprimirProyectoLey(struct proyectoLey* proyecto) {
     if (proyecto == NULL) {
         return;
     }
@@ -686,19 +698,22 @@ void imprimirProyectoLey(struct proyectoLey *proyecto) {
         // Aquí podrías imprimir detalles específicos del artículo
         // printf("Sección: %d\n", proyecto->articulo->seccion);
         // printf("Texto: %s\n", proyecto->articulo->texto ? proyecto->articulo->texto : "N/A");
-    } else {
+    }
+    else {
         printf("Artículo: N/A\n");
     }
 
     if (proyecto->votacion != NULL) {
         printf("Votación: (existe votación)\n"); // Detallar según la estructura
-    } else {
+    }
+    else {
         printf("Votación: N/A\n");
     }
 
     if (proyecto->comision != NULL) {
         printf("Comisión: (existe comisión)\n"); // Detallar según la estructura
-    } else {
+    }
+    else {
         printf("Comisión: N/A\n");
     }
 
@@ -706,7 +721,7 @@ void imprimirProyectoLey(struct proyectoLey *proyecto) {
 }
 
 // Función recursiva para recorrer e imprimir los proyectos de ley en el árbol
-void recorrerYImprimirProyectos(struct nodoProyectoLey *nodo) {
+void recorrerYImprimirProyectos(struct nodoProyectoLey* nodo) {
     if (nodo == NULL) {
         return;
     }
@@ -722,7 +737,7 @@ void recorrerYImprimirProyectos(struct nodoProyectoLey *nodo) {
 }
 
 // Función principal para imprimir todos los proyectos de ley del árbol
-void imprimirProyectosLey(struct congreso *congreso) {
+void imprimirProyectosLey(struct congreso* congreso) {
     if (congreso == NULL || congreso->raiz == NULL) {
         printf("No hay proyectos de ley para mostrar.\n");
         return;
@@ -732,13 +747,13 @@ void imprimirProyectosLey(struct congreso *congreso) {
     recorrerYImprimirProyectos(congreso->raiz);
 }
 
-void agregarProyecto(struct proyectoLey *proyecto, struct proyectoLey ***proyectosArray, int *proyectosCount, int *proyectosCapacidad) {
-    struct proyectoLey **tempArray;
+void agregarProyecto(struct proyectoLey* proyecto, struct proyectoLey*** proyectosArray, int* proyectosCount, int* proyectosCapacidad) {
+    struct proyectoLey** tempArray;
 
     // Verificar si se necesita redimensionar el array
     if (*proyectosCount >= *proyectosCapacidad) {
         *proyectosCapacidad *= 2; // Duplicar la capacidad
-        tempArray = (struct proyectoLey **) realloc(*proyectosArray, (*proyectosCapacidad) * sizeof(struct proyectoLey *));
+        tempArray = (struct proyectoLey**)realloc(*proyectosArray, (*proyectosCapacidad) * sizeof(struct proyectoLey*));
         if (tempArray == NULL) {
             printf("Error al redimensionar la memoria.\n");
             exit(1); // Terminar el programa en caso de fallo en realloc
@@ -751,7 +766,7 @@ void agregarProyecto(struct proyectoLey *proyecto, struct proyectoLey ***proyect
 }
 
 // Recorrido en orden del árbol binario para agregar los proyectos a la lista
-void recorrerArbolEnOrden(struct nodoProyectoLey *nodo, struct proyectoLey ***proyectosArray, int *proyectosCount, int *proyectosCapacidad) {
+void recorrerArbolEnOrden(struct nodoProyectoLey* nodo, struct proyectoLey*** proyectosArray, int* proyectosCount, int* proyectosCapacidad) {
     if (nodo == NULL) {
         return; // Caso base: si el nodo es NULL, salir de la función
     }
@@ -767,24 +782,24 @@ void recorrerArbolEnOrden(struct nodoProyectoLey *nodo, struct proyectoLey ***pr
 }
 
 // Función de comparación para ordenar los proyectos por urgencia (mayor a menor)
-int compararPorUrgencia(const void *a, const void *b) {
-    struct proyectoLey *proyectoA, *proyectoB;
-    
-    proyectoA = *(struct proyectoLey **)a; // Convertir el primer argumento
-    proyectoB = *(struct proyectoLey **)b; // Convertir el segundo argumento
+int compararPorUrgencia(const void* a, const void* b) {
+    struct proyectoLey* proyectoA, * proyectoB;
+
+    proyectoA = *(struct proyectoLey**)a; // Convertir el primer argumento
+    proyectoB = *(struct proyectoLey**)b; // Convertir el segundo argumento
     return proyectoB->urgencia - proyectoA->urgencia; // Comparar por urgencia
 }
 
 // Función principal para mostrar los proyectos en orden de urgencia
-void mostrarProyectosOrdenDeUrgencia(struct congreso *congreso) {
-    struct proyectoLey **proyectosArray;
+void mostrarProyectosOrdenDeUrgencia(struct congreso* congreso) {
+    struct proyectoLey** proyectosArray;
     int proyectosCount = 0;
     int proyectosCapacidad = 10;
     int i;
-    struct proyectoLey *proyecto;
+    struct proyectoLey* proyecto;
 
     // Inicializar el array dinámico de proyectos
-    proyectosArray = (struct proyectoLey **) malloc(proyectosCapacidad * sizeof(struct proyectoLey *));
+    proyectosArray = (struct proyectoLey**)malloc(proyectosCapacidad * sizeof(struct proyectoLey*));
     if (proyectosArray == NULL) {
         printf("Error al asignar memoria.\n");
         exit(1); // Terminar el programa en caso de fallo en malloc
@@ -794,7 +809,7 @@ void mostrarProyectosOrdenDeUrgencia(struct congreso *congreso) {
     recorrerArbolEnOrden(congreso->raiz, &proyectosArray, &proyectosCount, &proyectosCapacidad);
 
     // Ordenar los proyectos por urgencia de mayor a menor
-    qsort(proyectosArray, proyectosCount, sizeof(struct proyectoLey *), compararPorUrgencia);
+    qsort(proyectosArray, proyectosCount, sizeof(struct proyectoLey*), compararPorUrgencia);
 
     // Imprimir los proyectos en el orden de urgencia
     printf("Proyectos de ley en orden de urgencia (de mayor a menor):\n");
@@ -808,10 +823,10 @@ void mostrarProyectosOrdenDeUrgencia(struct congreso *congreso) {
     }
 }
 
-void modificarProyectoLey(struct congreso *congreso, int idProyecto) {
-    struct proyectoLey *proyecto;
+void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
+    struct proyectoLey* proyecto;
     char nombreComision[100]; // Para el nombre de la comisión
-    struct comision *comisionEncontrada = NULL; // Para el puntero de comisión
+    struct comision* comisionEncontrada = NULL; // Para el puntero de comisión
     char opcion;
 
     // Buscar el proyecto de ley por ID
@@ -842,93 +857,96 @@ void modificarProyectoLey(struct congreso *congreso, int idProyecto) {
         }
 
         switch (opcion) {
-            case 'a': {
-                char nuevoNombre[100];
-                printf("Ingrese nuevo nombre: ");
-                if (fgets(nuevoNombre, sizeof(nuevoNombre), stdin) == NULL) {
-                    printf("Error al leer el nombre.\n");
-                    break;
-                }
-                nuevoNombre[strcspn(nuevoNombre, "\n")] = '\0'; // Remover salto de línea
-                proyecto->nombre = (char *)malloc(strlen(nuevoNombre) + 1);
-                if (proyecto->nombre) {
-                    strcpy(proyecto->nombre, nuevoNombre);
-                } else {
-                    printf("Error: No se pudo asignar memoria para el nuevo nombre.\n");
-                }
+        case 'a': {
+            char nuevoNombre[100];
+            printf("Ingrese nuevo nombre: ");
+            if (fgets(nuevoNombre, sizeof(nuevoNombre), stdin) == NULL) {
+                printf("Error al leer el nombre.\n");
                 break;
             }
-            case 'b': {
-                char nuevoTipo[50];
-                printf("Ingrese nuevo tipo: ");
-                if (fgets(nuevoTipo, sizeof(nuevoTipo), stdin) == NULL) {
-                    printf("Error al leer el tipo.\n");
-                    break;
-                }
-                nuevoTipo[strcspn(nuevoTipo, "\n")] = '\0'; // Remover salto de línea
-                proyecto->tipo = (char *)malloc(strlen(nuevoTipo) + 1);
-                if (proyecto->tipo) {
-                    strcpy(proyecto->tipo, nuevoTipo);
-                } else {
-                    printf("Error: No se pudo asignar memoria para el nuevo tipo.\n");
-                }
+            nuevoNombre[strcspn(nuevoNombre, "\n")] = '\0'; // Remover salto de línea
+            proyecto->nombre = (char*)malloc(strlen(nuevoNombre) + 1);
+            if (proyecto->nombre) {
+                strcpy(proyecto->nombre, nuevoNombre);
+            }
+            else {
+                printf("Error: No se pudo asignar memoria para el nuevo nombre.\n");
+            }
+            break;
+        }
+        case 'b': {
+            char nuevoTipo[50];
+            printf("Ingrese nuevo tipo: ");
+            if (fgets(nuevoTipo, sizeof(nuevoTipo), stdin) == NULL) {
+                printf("Error al leer el tipo.\n");
                 break;
             }
-            case 'c': {
-                int nuevoID = leerEnteroConLimite("Ingrese nuevo ID de proyecto", 10000000, 99999999);
-                proyecto->idProyecto = nuevoID;
+            nuevoTipo[strcspn(nuevoTipo, "\n")] = '\0'; // Remover salto de línea
+            proyecto->tipo = (char*)malloc(strlen(nuevoTipo) + 1);
+            if (proyecto->tipo) {
+                strcpy(proyecto->tipo, nuevoTipo);
+            }
+            else {
+                printf("Error: No se pudo asignar memoria para el nuevo tipo.\n");
+            }
+            break;
+        }
+        case 'c': {
+            int nuevoID = leerEnteroConLimite("Ingrese nuevo ID de proyecto", 10000000, 99999999);
+            proyecto->idProyecto = nuevoID;
+            break;
+        }
+        case 'd': {
+            int nuevaUrgencia = leerEnteroConLimite("Ingrese nueva urgencia", 1, 5);
+            proyecto->urgencia = nuevaUrgencia;
+            break;
+        }
+        case 'e': {
+            int nuevaFase = leerEnteroConLimite("Ingrese nueva fase", 1, 8);
+            proyecto->fase = nuevaFase;
+            break;
+        }
+        case 'f':
+            // Llamar a la función para agregar votación al proyecto de ley
+            agregarVotacion(congreso, idProyecto);
+            break;
+        case 'g':
+            // Llamar al menú de artículos
+            menuArticulos(congreso, proyecto);
+            break;
+        case 'h':
+            printf("Ingrese el nombre de la comisión a asignar: ");
+            if (fgets(nombreComision, sizeof(nombreComision), stdin) == NULL) {
+                printf("Error al leer el nombre de la comisión.\n");
                 break;
             }
-            case 'd': {
-                int nuevaUrgencia = leerEnteroConLimite("Ingrese nueva urgencia", 1, 5);
-                proyecto->urgencia = nuevaUrgencia;
-                break;
+            nombreComision[strcspn(nombreComision, "\n")] = '\0'; // Remover salto de línea
+            comisionEncontrada = buscarComision(congreso, nombreComision); // IMPORTANTE INICIALIZAR FUNCION BUSCARCOMISION
+            if (comisionEncontrada) {
+                proyecto->comision = comisionEncontrada;
+                printf("Comisión asignada correctamente\n");
             }
-            case 'e': {
-                int nuevaFase = leerEnteroConLimite("Ingrese nueva fase", 1, 8);
-                proyecto->fase = nuevaFase;
-                break;
+            else {
+                printf("Error: Comisión no asignada\n");
             }
-            case 'f':
-                // Llamar a la función para agregar votación al proyecto de ley
-                agregarVotacion(congreso, idProyecto);
-                break;
-            case 'g':
-                // Llamar al menú de artículos
-                menuArticulos(congreso, proyecto);
-                break;
-            case 'h':
-                printf("Ingrese el nombre de la comisión a asignar: ");
-                if (fgets(nombreComision, sizeof(nombreComision), stdin) == NULL) {
-                    printf("Error al leer el nombre de la comisión.\n");
-                    break;
-                }
-                nombreComision[strcspn(nombreComision, "\n")] = '\0'; // Remover salto de línea
-                comisionEncontrada = buscarComision(congreso, nombreComision); // IMPORTANTE INICIALIZAR FUNCION BUSCARCOMISION
-                if (comisionEncontrada) {
-                    proyecto->comision = comisionEncontrada;
-                    printf("Comisión asignada correctamente\n");
-                } else {
-                    printf("Error: Comisión no asignada\n");
-                }
-                break;
-            case 'i':
-                printf("Saliendo de la modificación del proyecto de ley.\n");
-                break;
-            default:
-                printf("Opción inválida. Intente nuevamente.\n");
+            break;
+        case 'i':
+            printf("Saliendo de la modificación del proyecto de ley.\n");
+            break;
+        default:
+            printf("Opción inválida. Intente nuevamente.\n");
         }
     } while (opcion != 'i');
 }
 
 /*TODO: FUNCIONES DE CONGRESISTAS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-struct nodoCongresista *crearNodoCongresista(struct nodoCongresista *head, struct congresista *datos) {
-    struct nodoCongresista *nodo = NULL;
+struct nodoCongresista* crearNodoCongresista(struct nodoCongresista* head, struct congresista* datos) {
+    struct nodoCongresista* nodo = NULL;
 
     // Pregunto primero que los datos recibidos no sean NULL
     if (datos != NULL) {
-        nodo = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
+        nodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
 
         if (nodo == NULL) {
             // Si esto ocurre, hay un error al asignar la memoria
@@ -951,8 +969,8 @@ recordar que es circular con fantasma, por lo tanto tengo que iniciar el head->s
 
 */
 
-int comprobarCongresistaEnComision(struct nodoCongresista *head, char *rutBuscado) {
-    struct nodoCongresista *rec = head; // Iniciamos en el nodo fantasma
+int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado) {
+    struct nodoCongresista* rec = head; // Iniciamos en el nodo fantasma
 
     rec = head->sig; // Saltar el nodo fantasma
     do {
@@ -967,9 +985,9 @@ int comprobarCongresistaEnComision(struct nodoCongresista *head, char *rutBuscad
 }
 
 //funcion para recorrer los arreglos, el de diputados o el de senadores correspondientemente
-struct congresista* comprobarCongresistaEnCongreso(struct congreso *congreso, char *rutBuscado) {
-    struct nodoCongresista *head = congreso->congresistasMixtos;
-    struct nodoCongresista *rec = NULL;
+struct congresista* comprobarCongresistaEnCongreso(struct congreso* congreso, char* rutBuscado) {
+    struct nodoCongresista* head = congreso->congresistasMixtos;
+    struct nodoCongresista* rec = NULL;
     int i;
 
     if (rutBuscado != NULL) {
@@ -1014,11 +1032,11 @@ aunque no estoy seguro si la ocupacion fuese el diputado/senador o si es la espe
 
 */
 
-struct congresista *crearCongresista(struct congreso *congreso) {
-    struct congresista *nuevoCongresista; // Para guardar los datos del congresista
+struct congresista* crearCongresista(struct congreso* congreso) {
+    struct congresista* nuevoCongresista; // Para guardar los datos del congresista
     char nombre[100], rut[20], ocupacion[20], especializacion[100]; // Datos que se reciben
 
-    nuevoCongresista = (struct congresista *) malloc(sizeof(struct congresista));
+    nuevoCongresista = (struct congresista*)malloc(sizeof(struct congresista));
     if (nuevoCongresista == NULL) {
         return NULL; // Error al asignar memoria
     }
@@ -1050,10 +1068,10 @@ struct congresista *crearCongresista(struct congreso *congreso) {
     }
 
     // Asignación de memoria para los campos de texto
-    nuevoCongresista->nombre = (char *)malloc(sizeof(char) * (strlen(nombre) + 1));
-    nuevoCongresista->rut = (char *)malloc(sizeof(char) * (strlen(rut) + 1));
-    nuevoCongresista->ocupacion = (char *)malloc(sizeof(char) * (strlen(ocupacion) + 1));
-    nuevoCongresista->especializacion = (char *)malloc(sizeof(char) * (strlen(especializacion) + 1));
+    nuevoCongresista->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
+    nuevoCongresista->rut = (char*)malloc(sizeof(char) * (strlen(rut) + 1));
+    nuevoCongresista->ocupacion = (char*)malloc(sizeof(char) * (strlen(ocupacion) + 1));
+    nuevoCongresista->especializacion = (char*)malloc(sizeof(char) * (strlen(especializacion) + 1));
 
     // Copiar los datos a los campos
     strcpy(nuevoCongresista->nombre, nombre);
@@ -1077,19 +1095,21 @@ era esta solución o configurar el struct congreso para agregar un plibre de cad
 */
 
 //este agrega un NUEVO congresista al arreglo correspondiente
-void agregarCongresistaEnCongreso(struct congreso *congreso) {
-    struct congresista *nuevoCongresista = crearCongresista(congreso); // Se crea el congresista para insertarlo
-    struct nodoCongresista *nuevoNodoCongresista = NULL; // Nodo para congresistas mixtos
-    struct congresista **arreglo = NULL; // Decidirá a qué arreglo pertenece
+void agregarCongresistaEnCongreso(struct congreso* congreso) {
+    struct congresista* nuevoCongresista = crearCongresista(congreso); // Se crea el congresista para insertarlo
+    struct nodoCongresista* nuevoNodoCongresista = NULL; // Nodo para congresistas mixtos
+    struct congresista** arreglo = NULL; // Decidirá a qué arreglo pertenece
     int i = 0;
 
     // Preguntar si el congresista es válido
     if (nuevoCongresista != NULL) {
         if (strcmp(nuevoCongresista->ocupacion, "senador") == 0) {
             arreglo = congreso->senadores; // El congresista es un senador
-        } else if (strcmp(nuevoCongresista->ocupacion, "diputado") == 0) {
+        }
+        else if (strcmp(nuevoCongresista->ocupacion, "diputado") == 0) {
             arreglo = congreso->diputados; // El congresista es un diputado
-        } else {
+        }
+        else {
             nuevoNodoCongresista = crearNodoCongresista(congreso->congresistasMixtos, nuevoCongresista);
             if (nuevoNodoCongresista == NULL) {
                 printf("Error al asignar memoria\n");
@@ -1111,7 +1131,8 @@ void agregarCongresistaEnCongreso(struct congreso *congreso) {
                 if (i < MAX_SENADORES) {
                     arreglo[i] = nuevoCongresista; // Añade el nuevo congresista
                     return; // Se logra asignar sin problema
-                } else {
+                }
+                else {
                     printf("El arreglo está lleno, no se ha agregado\n");
                     return;
                 }
@@ -1124,7 +1145,8 @@ void agregarCongresistaEnCongreso(struct congreso *congreso) {
                 if (i < MAX_DIPUTADOS) {
                     arreglo[i] = nuevoCongresista; // Añade el nuevo congresista
                     return; // Se logra asignar sin problema
-                } else {
+                }
+                else {
                     printf("El arreglo está lleno, no se ha agregado\n");
                     return;
                 }
@@ -1141,9 +1163,9 @@ voy a darle la comision, pues para acceder a la lista simplemente hago comision-
 esto puede cambiar por int para los print
 */
 
-void agregarCongresistaEnComision(struct comision *comision, char *rut, struct congresista *congresista) {
-    struct nodoCongresista *nuevoNodo = NULL;
-    struct nodoCongresista *rec = NULL;
+void agregarCongresistaEnComision(struct comision* comision, char* rut, struct congresista* congresista) {
+    struct nodoCongresista* nuevoNodo = NULL;
+    struct nodoCongresista* rec = NULL;
 
     // Preguntar que ni uno de los dos sea NULL
     if (comision != NULL && congresista != NULL) {
@@ -1162,7 +1184,8 @@ void agregarCongresistaEnComision(struct comision *comision, char *rut, struct c
                 }
                 rec->sig = nuevoNodo;         // Enlaza el nuevo nodo al final de la lista
                 nuevoNodo->sig = comision->headIntegrantes; // Enlaza el nuevo nodo al nodo fantasma
-            } else {
+            }
+            else {
                 // Si headIntegrantes es NULL, significa que es el primer nodo
                 nuevoNodo->sig = nuevoNodo; // Enlaza a sí mismo
                 comision->headIntegrantes = nuevoNodo; // Establece el nuevo nodo como head
@@ -1180,9 +1203,9 @@ igualmente que en funciones anteriores, se puede cambiar el char que recibe por 
 lo haré int para retornar 0 si hubo un fallo en la eliminacion o 1 si se eliminó bien
 */
 
-void eliminarCongresistaDeComision(struct comision *comision, char *rutQuitado) {
-    struct nodoCongresista *rec;          // Nodo actual para recorrer la lista
-    struct nodoCongresista *anterior = NULL; // Nodo anterior para el manejo de la lista circular
+void eliminarCongresistaDeComision(struct comision* comision, char* rutQuitado) {
+    struct nodoCongresista* rec;          // Nodo actual para recorrer la lista
+    struct nodoCongresista* anterior = NULL; // Nodo anterior para el manejo de la lista circular
 
     // Verifico si la lista está vacía o solo contiene el nodo fantasma
     if (comision == NULL || comision->headIntegrantes == NULL || comision->headIntegrantes->sig == comision->headIntegrantes) {
@@ -1206,12 +1229,12 @@ void eliminarCongresistaDeComision(struct comision *comision, char *rutQuitado) 
     // No se encontró el congresista en la lista
 }
 
-void eliminarCongresistaDeCongreso(struct congreso *congreso, char *rutQuitado) {
-    struct comision **arreglo = NULL;
+void eliminarCongresistaDeCongreso(struct congreso* congreso, char* rutQuitado) {
+    struct comision** arreglo = NULL;
     int i, flag = 0;
-    struct congresista *congresista;
-    struct nodoCongresista *rec;
-    struct nodoCongresista *recExterno, *ant;
+    struct congresista* congresista;
+    struct nodoCongresista* rec;
+    struct nodoCongresista* recExterno, * ant;
 
     // Verifico que el RUT no sea NULL
     if (rutQuitado != NULL) {
@@ -1246,7 +1269,8 @@ void eliminarCongresistaDeCongreso(struct congreso *congreso, char *rutQuitado) 
                 if (recExterno != NULL) {
                     if (ant == NULL) {
                         congreso->congresistasMixtos = recExterno->sig; // Eliminar el primer nodo
-                    } else {
+                    }
+                    else {
                         ant->sig = recExterno->sig; // Eliminar nodo intermedio o final
                     }
                     flag = 1;
@@ -1276,7 +1300,8 @@ void eliminarCongresistaDeCongreso(struct congreso *congreso, char *rutQuitado) 
 
     if (flag == 1) {
         printf("El congresista fue eliminado\n");
-    } else {
+    }
+    else {
         printf("El congresista no fue encontrado\n");
     }
 }
@@ -1288,9 +1313,9 @@ en este caso no incluí la modificacion de la ocupación
 ya que al cambiar la ocupacion es mejor eliminarlo del arreglo y agregarlo al otro simplemente
 */
 
-void modificarCongresista(struct congreso *congreso, char *rutBuscado) {
+void modificarCongresista(struct congreso* congreso, char* rutBuscado) {
     char nombre[100], especializacion[100], rut[20];
-    struct congresista *congresista = comprobarCongresistaEnCongreso(congreso, rutBuscado);
+    struct congresista* congresista = comprobarCongresistaEnCongreso(congreso, rutBuscado);
 
     if (congresista != NULL) {
         // Escaneo los datos nuevos
@@ -1304,9 +1329,9 @@ void modificarCongresista(struct congreso *congreso, char *rutBuscado) {
         scanf(" %19[^\n]", rut); // Ingrese nuevo rut
 
         // Asignación de memoria para los nuevos datos
-        congresista->rut = (char *)malloc(sizeof(char) * (strlen(rut) + 1));
-        congresista->nombre = (char *)malloc(sizeof(char) * (strlen(nombre) + 1));
-        congresista->especializacion = (char *)malloc(sizeof(char) * (strlen(especializacion) + 1));
+        congresista->rut = (char*)malloc(sizeof(char) * (strlen(rut) + 1));
+        congresista->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
+        congresista->especializacion = (char*)malloc(sizeof(char) * (strlen(especializacion) + 1));
 
         // Verificación de asignación de memoria
         if (congresista->rut == NULL || congresista->nombre == NULL || congresista->especializacion == NULL) {
@@ -1325,8 +1350,8 @@ void modificarCongresista(struct congreso *congreso, char *rutBuscado) {
     printf("Hubo un problema al modificar al congresista\n");
 }
 
-void mostrarCongresista(struct congreso *congreso, char *rutBuscado) {
-    struct congresista *congresistaBuscado = NULL;
+void mostrarCongresista(struct congreso* congreso, char* rutBuscado) {
+    struct congresista* congresistaBuscado = NULL;
 
     // Busco el congresista
     congresistaBuscado = comprobarCongresistaEnCongreso(congreso, rutBuscado);
@@ -1346,10 +1371,10 @@ void mostrarCongresista(struct congreso *congreso, char *rutBuscado) {
 funcion listar congresista:
 esta funcion es un poco redundante, pues llama al mostrarCongresista y esta lo busca de nuevo pero cumple con el requisito de listar
 */
-void listarCongresistas(struct congreso *congreso) {
-    struct congresista **arregloDiputados = congreso->diputados;
-    struct congresista **arregloSenadores = congreso->senadores;
-    struct nodoCongresista *rec;
+void listarCongresistas(struct congreso* congreso) {
+    struct congresista** arregloDiputados = congreso->diputados;
+    struct congresista** arregloSenadores = congreso->senadores;
+    struct nodoCongresista* rec;
     int i, flagDiputados = 0, flagSenadores = 0, flagExternos = 0;
 
     // Verifica que el congreso no sea NULL
@@ -1402,9 +1427,9 @@ void listarCongresistas(struct congreso *congreso) {
 /*TODO: FUNCIONES DE COMISIONES------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-struct nodoComision* crearNodoComision(struct comision *datos) {
+struct nodoComision* crearNodoComision(struct comision* datos) {
     // Asignar memoria para el nuevo nodo
-    struct nodoComision *nuevoNodo = (struct nodoComision *)malloc(sizeof(struct nodoComision));
+    struct nodoComision* nuevoNodo = (struct nodoComision*)malloc(sizeof(struct nodoComision));
     if (nuevoNodo == NULL) {
         // Manejo de error en caso de que malloc falle
         return NULL;
@@ -1417,10 +1442,10 @@ struct nodoComision* crearNodoComision(struct comision *datos) {
     return nuevoNodo; // Retornar el nuevo nodo
 }
 
-struct comision *buscarComision(struct congreso *congreso, char *nombre) {
+struct comision* buscarComision(struct congreso* congreso, char* nombre) {
     int i;
-    struct nodoComision *rec = NULL;
-    struct comision *buscado = NULL;
+    struct nodoComision* rec = NULL;
+    struct comision* buscado = NULL;
 
     for (i = 0; i < MAX_COMISIONES; i++) {
         if (congreso->comisiones[i] != NULL && strcmp(congreso->comisiones[i]->nombre, nombre) == 0) {
@@ -1441,11 +1466,11 @@ struct comision *buscarComision(struct congreso *congreso, char *nombre) {
     return buscado; // Retorna NULL si no se encuentra
 }
 
-struct comision *crearComision(struct congreso *congreso) {
-    struct comision *nuevaComision;
-    struct nodoCongresista *fantasma;
+struct comision* crearComision(struct congreso* congreso) {
+    struct comision* nuevaComision;
+    struct nodoCongresista* fantasma;
     char nombre[100], tipo[50], descripcion[256];
-    
+
     nuevaComision = (struct comision*)malloc(sizeof(struct comision));
 
     printf("Ingresa el nombre de la comision:\n");
@@ -1468,7 +1493,7 @@ struct comision *crearComision(struct congreso *congreso) {
     strcpy(nuevaComision->tipo, tipo);
 
     // Crear el nodo fantasma
-    fantasma = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
+    fantasma = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
     fantasma->datos = NULL;
     fantasma->sig = fantasma; // Apunta a sí mismo, indicando que es un nodo fantasma
     nuevaComision->headIntegrantes = fantasma;
@@ -1476,9 +1501,9 @@ struct comision *crearComision(struct congreso *congreso) {
     return nuevaComision;
 }
 
-void agregarComision(struct congreso *congreso) {
-    struct comision *nuevaComision = crearComision(congreso);
-    struct nodoComision *nuevoNodo = NULL;
+void agregarComision(struct congreso* congreso) {
+    struct comision* nuevaComision = crearComision(congreso);
+    struct nodoComision* nuevoNodo = NULL;
     int i;
 
     if (strcmp(nuevaComision->tipo, "senadores") == 0 || strcmp(nuevaComision->tipo, "diputados") == 0) {
@@ -1492,8 +1517,8 @@ void agregarComision(struct congreso *congreso) {
         }
         // Si se alcanza el límite del arreglo
         printf("Error al asignar en el arreglo: se ha alcanzado el máximo de comisiones\n");
-    } 
-    else 
+    }
+    else
     {
         // Agregar como comisión mixta
         nuevoNodo = crearNodoComision(nuevaComision);
@@ -1503,9 +1528,9 @@ void agregarComision(struct congreso *congreso) {
     }
 }
 
-void eliminarComision(struct congreso *congreso, char *nombre) {
-    struct comision *buscada = buscarComision(congreso, nombre);
-    struct nodoComision *rec, *ant;
+void eliminarComision(struct congreso* congreso, char* nombre) {
+    struct comision* buscada = buscarComision(congreso, nombre);
+    struct nodoComision* rec, * ant;
     int i;
 
     if (buscada == NULL) {
@@ -1514,7 +1539,7 @@ void eliminarComision(struct congreso *congreso, char *nombre) {
     }
 
     for (i = 0; i < MAX_COMISIONES; i++) {
-        if (congreso->comisiones[i] == buscada) 
+        if (congreso->comisiones[i] == buscada)
         {
             congreso->comisiones[i] = NULL; // Marcar como vacío
             printf("Comision eliminada correctamente del arreglo\n");
@@ -1530,8 +1555,8 @@ void eliminarComision(struct congreso *congreso, char *nombre) {
         {
             // Caso del primer nodo
             if (ant == NULL) {
-                congreso->comisionesMixtas = rec->sig; 
-            } 
+                congreso->comisionesMixtas = rec->sig;
+            }
             else {
                 ant->sig = rec->sig; // Desvincular el nodo
             }
@@ -1546,9 +1571,9 @@ void eliminarComision(struct congreso *congreso, char *nombre) {
     printf("Error al eliminar la comision: no se encontró en la lista de comisiones mixtas\n");
 }
 
-void modificarComision(struct congreso *congreso, char *nombre) {
-    struct congresista *nuevoCongresista = NULL;
-    struct comision *comisionAModificar = buscarComision(congreso, nombre);
+void modificarComision(struct congreso* congreso, char* nombre) {
+    struct congresista* nuevoCongresista = NULL;
+    struct comision* comisionAModificar = buscarComision(congreso, nombre);
     int opcion, subOpcion;
     char nuevoNombre[100], nuevoTipo[50], nuevaDescripcion[256], rut[20];
 
@@ -1566,98 +1591,101 @@ void modificarComision(struct congreso *congreso, char *nombre) {
     scanf("%d", &opcion);
 
     switch (opcion) {
-        case 1: // Modificar nombre
-            printf("Ingrese el nuevo nombre de la comision:\n");
-            scanf("%99[^\n]", nuevoNombre);
-            if (buscarComision(congreso, nuevoNombre) != NULL) {
-                printf("El nombre ya está en uso. Modificación cancelada.\n");
-                return;
+    case 1: // Modificar nombre
+        printf("Ingrese el nuevo nombre de la comision:\n");
+        scanf("%99[^\n]", nuevoNombre);
+        if (buscarComision(congreso, nuevoNombre) != NULL) {
+            printf("El nombre ya está en uso. Modificación cancelada.\n");
+            return;
+        }
+        comisionAModificar->nombre = (char*)malloc(strlen(nuevoNombre) + 1);
+        if (comisionAModificar->nombre == NULL) {
+            printf("Error al asignar memoria para el nuevo nombre.\n");
+            return;
+        }
+        strcpy(comisionAModificar->nombre, nuevoNombre);
+        printf("Nombre de la comisión actualizado correctamente.\n");
+        break;
+
+    case 2: // Modificar tipo
+        printf("Ingrese el nuevo tipo de la comisión (senadores/diputados/otros):\n");
+        scanf("%49[^\n]", nuevoTipo);
+
+        comisionAModificar->tipo = (char*)malloc(strlen(nuevoTipo) + 1);
+        if (comisionAModificar->tipo == NULL) {
+            printf("Error al asignar memoria para el nuevo tipo.\n");
+            return;
+        }
+        strcpy(comisionAModificar->tipo, nuevoTipo);
+        printf("Tipo de la comisión actualizado correctamente.\n");
+        break;
+
+    case 3: // Modificar descripción
+        printf("Ingrese la nueva descripción de la comisión:\n");
+        scanf("%255[^\n]", nuevaDescripcion);
+
+        comisionAModificar->descripcion = (char*)malloc(strlen(nuevaDescripcion) + 1);
+        if (comisionAModificar->descripcion == NULL) {
+            printf("Error al asignar memoria para la nueva descripción.\n");
+            return;
+        }
+        strcpy(comisionAModificar->descripcion, nuevaDescripcion);
+        printf("Descripción de la comisión actualizada correctamente.\n");
+        break;
+
+    case 4: // Modificar miembros
+        printf("Menú de modificar congresistas en la comisión\n");
+        printf("Elija una opción:\n");
+        printf("1. Agregar Congresista a la comisión\n");
+        printf("2. Eliminar Congresista de la comisión\n");
+        scanf("%d", &subOpcion);
+
+        switch (subOpcion) {
+        case 1: // Agregar congresista
+            printf("Ingrese el RUT del congresista a agregar\n");
+            scanf("%19s", rut);
+            nuevoCongresista = comprobarCongresistaEnCongreso(congreso, rut);
+            if (nuevoCongresista != NULL) {
+                if (comprobarCongresistaEnComision(comisionAModificar->headIntegrantes, rut) == 1) {
+                    printf("Este congresista ya se encuentra en la lista\n");
+                }
+                else {
+                    agregarCongresistaEnComision(comisionAModificar, rut, nuevoCongresista);
+                    printf("Congresista agregado correctamente\n");
+                }
             }
-            comisionAModificar->nombre = (char*)malloc(strlen(nuevoNombre) + 1);
-            if (comisionAModificar->nombre == NULL) {
-                printf("Error al asignar memoria para el nuevo nombre.\n");
-                return;
+            else {
+                printf("Congresista no encontrado en el sistema\n");
             }
-            strcpy(comisionAModificar->nombre, nuevoNombre);
-            printf("Nombre de la comisión actualizado correctamente.\n");
             break;
 
-        case 2: // Modificar tipo
-            printf("Ingrese el nuevo tipo de la comisión (senadores/diputados/otros):\n");
-            scanf("%49[^\n]", nuevoTipo);
-
-            comisionAModificar->tipo = (char*)malloc(strlen(nuevoTipo) + 1);
-            if (comisionAModificar->tipo == NULL) {
-                printf("Error al asignar memoria para el nuevo tipo.\n");
-                return;
+        case 2: // Eliminar congresista
+            printf("Ingrese el RUT del congresista a eliminar\n");
+            scanf("%19s", rut);
+            if (comprobarCongresistaEnComision(comisionAModificar->headIntegrantes, rut) == 1) {
+                eliminarCongresistaDeComision(comisionAModificar, rut);
+                printf("Congresista eliminado correctamente\n");
             }
-            strcpy(comisionAModificar->tipo, nuevoTipo);
-            printf("Tipo de la comisión actualizado correctamente.\n");
-            break;
-
-        case 3: // Modificar descripción
-            printf("Ingrese la nueva descripción de la comisión:\n");
-            scanf("%255[^\n]", nuevaDescripcion);
-
-            comisionAModificar->descripcion = (char*)malloc(strlen(nuevaDescripcion) + 1);
-            if (comisionAModificar->descripcion == NULL) {
-                printf("Error al asignar memoria para la nueva descripción.\n");
-                return;
-            }
-            strcpy(comisionAModificar->descripcion, nuevaDescripcion);
-            printf("Descripción de la comisión actualizada correctamente.\n");
-            break;
-
-        case 4: // Modificar miembros
-            printf("Menú de modificar congresistas en la comisión\n");
-            printf("Elija una opción:\n");
-            printf("1. Agregar Congresista a la comisión\n");
-            printf("2. Eliminar Congresista de la comisión\n");
-            scanf("%d", &subOpcion);
-
-            switch (subOpcion) {
-                case 1: // Agregar congresista
-                    printf("Ingrese el RUT del congresista a agregar\n");
-                    scanf("%19s", rut);
-                    nuevoCongresista = comprobarCongresistaEnCongreso(congreso, rut);
-                    if (nuevoCongresista != NULL) {
-                        if (comprobarCongresistaEnComision(comisionAModificar->headIntegrantes, rut) == 1) {
-                            printf("Este congresista ya se encuentra en la lista\n");
-                        } else {
-                            agregarCongresistaEnComision(comisionAModificar, rut, nuevoCongresista);
-                            printf("Congresista agregado correctamente\n");
-                        }
-                    } else {
-                        printf("Congresista no encontrado en el sistema\n");
-                    }
-                    break;
-
-                case 2: // Eliminar congresista
-                    printf("Ingrese el RUT del congresista a eliminar\n");
-                    scanf("%19s", rut);
-                    if (comprobarCongresistaEnComision(comisionAModificar->headIntegrantes, rut) == 1) {
-                        eliminarCongresistaDeComision(comisionAModificar, rut);
-                        printf("Congresista eliminado correctamente\n");
-                    } else {
-                        printf("No se encontró al congresista en la comisión\n");
-                    }
-                    break;
-
-                default:
-                    printf("Opción no válida\n");
-                    break;
+            else {
+                printf("No se encontró al congresista en la comisión\n");
             }
             break;
 
         default:
-            printf("Opción no válida.\n");
+            printf("Opción no válida\n");
             break;
+        }
+        break;
+
+    default:
+        printf("Opción no válida.\n");
+        break;
     }
 }
 
-void mostrarComisionPorNombre(struct congreso *congreso, char *nombre) {
-    struct comision *buscada = buscarComision(congreso, nombre);
-    struct nodoCongresista *rec;
+void mostrarComisionPorNombre(struct congreso* congreso, char* nombre) {
+    struct comision* buscada = buscarComision(congreso, nombre);
+    struct nodoCongresista* rec;
 
     if (buscada == NULL) {
         printf("No existe una comision con este nombre\n");
@@ -1672,7 +1700,8 @@ void mostrarComisionPorNombre(struct congreso *congreso, char *nombre) {
     rec = buscada->headIntegrantes;
     if (rec == NULL || rec->sig == rec) { // Chequeo si no hay integrantes
         printf("No hay integrantes en la comision\n");
-    } else {
+    }
+    else {
         printf("Integrantes de la comision:\n\n");
         rec = rec->sig; // Saltar el nodo fantasma
         do {
@@ -1685,9 +1714,9 @@ void mostrarComisionPorNombre(struct congreso *congreso, char *nombre) {
     }
 }
 
-void listarComisiones(struct congreso *congreso) {
+void listarComisiones(struct congreso* congreso) {
     int i;
-    struct nodoComision *rec;
+    struct nodoComision* rec;
 
     // Verificar si el congreso es NULL
     if (congreso == NULL) {
@@ -1721,9 +1750,9 @@ void listarComisiones(struct congreso *congreso) {
 /*TODO: FUNCIONES DE ARTICULOS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void copiarCambioATexto(struct nodoArticulo *articulos) {
+void copiarCambioATexto(struct nodoArticulo* articulos) {
     int seccionBuscada;
-    struct nodoArticulo *rec = articulos;
+    struct nodoArticulo* rec = articulos;
 
     // Pedir al usuario la sección a modificar
     printf("Ingrese la sección del artículo a modificar: ");
@@ -1740,10 +1769,12 @@ void copiarCambioATexto(struct nodoArticulo *articulos) {
                 if (rec->datos->texto != NULL) {
                     strcpy(rec->datos->texto, rec->datos->cambio);
                     printf("El texto de la sección %d ha sido actualizado correctamente.\n", seccionBuscada);
-                } else {
+                }
+                else {
                     printf("Error al asignar memoria para el texto.\n");
                 }
-            } else {
+            }
+            else {
                 printf("No hay contenido en 'cambio' para copiar.\n");
             }
             return; // Salir de la función después de la modificación
@@ -1753,17 +1784,17 @@ void copiarCambioATexto(struct nodoArticulo *articulos) {
     printf("No se encontró un artículo con la sección %d.\n", seccionBuscada);
 }
 
-struct nodoArticulo *crearNodoArticulo(struct articulo *datos) {
+struct nodoArticulo* crearNodoArticulo(struct articulo* datos) {
 
-    struct nodoArticulo *nodo;
-    if (datos == NULL) return NULL; 
+    struct nodoArticulo* nodo;
+    if (datos == NULL) return NULL;
 
-    nodo = (struct nodoArticulo *)malloc(sizeof(struct nodoArticulo));
+    nodo = (struct nodoArticulo*)malloc(sizeof(struct nodoArticulo));
     nodo->datos = datos;
     nodo->sig = NULL;
     nodo->ant = NULL;
 
-    return nodo; 
+    return nodo;
 }
 /*
 
@@ -1772,13 +1803,13 @@ la idea es que la seccion sea el buscado, por lo tanto las otras funciones que l
 aunque esto puede estar sujeto a cambios si se desea, quizas recibir el nodo entero para comodidad
 
 */
-int comprobarArticulo(struct nodoArticulo *head, int buscado) {
+int comprobarArticulo(struct nodoArticulo* head, int buscado) {
     // Verificar si la lista está vacía
     if (head == NULL) {
         return 0; // La lista está vacía, no se encuentra el artículo
     }
 
-    struct nodoArticulo *rec = head; // Inicializar el nodo de recorrido
+    struct nodoArticulo* rec = head; // Inicializar el nodo de recorrido
 
     // Recorrer la lista en busca del artículo
     while (rec != NULL) {
@@ -1799,12 +1830,12 @@ recibirá los datos de la función crear articulo
 PD: todos los prints serán eliminados posterior a la creacion del main
 */
 
-struct articulo *crearArticulo(struct nodoArticulo *lista) {
-    struct articulo *nuevoArticulo;
+struct articulo* crearArticulo(struct nodoArticulo* lista) {
+    struct articulo* nuevoArticulo;
     char nombre[100], texto[4096], cambio[4096];
     int seccion;
-    
-    nuevoArticulo = (struct articulo *)malloc(sizeof(struct articulo));
+
+    nuevoArticulo = (struct articulo*)malloc(sizeof(struct articulo));
 
 
     // Verificar si la asignación de memoria fue exitosa
@@ -1821,7 +1852,7 @@ struct articulo *crearArticulo(struct nodoArticulo *lista) {
     // Recibir el nombre del artículo
     printf("Ingrese el nombre: ");
     scanf(" %[^\n]", nombre);
-    
+
     // Recibir la descripción del artículo
     printf("Ingrese la descripción del artículo: ");
     scanf(" %[^\n]", texto);
@@ -1837,9 +1868,9 @@ struct articulo *crearArticulo(struct nodoArticulo *lista) {
     }
 
     // Asignar memoria para los campos de texto
-    nuevoArticulo->nombre = (char *)malloc(strlen(nombre) + 1);
-    nuevoArticulo->texto = (char *)malloc(strlen(texto) + 1);
-    nuevoArticulo->cambio = (char *)malloc(strlen(cambio) + 1);
+    nuevoArticulo->nombre = (char*)malloc(strlen(nombre) + 1);
+    nuevoArticulo->texto = (char*)malloc(strlen(texto) + 1);
+    nuevoArticulo->cambio = (char*)malloc(strlen(cambio) + 1);
 
     // Verificar si la asignación de memoria fue exitosa
     if (nuevoArticulo->nombre == NULL || nuevoArticulo->texto == NULL || nuevoArticulo->cambio == NULL) {
@@ -1855,24 +1886,24 @@ struct articulo *crearArticulo(struct nodoArticulo *lista) {
     return nuevoArticulo; // Retornar el nuevo artículo creado
 }
 
-void agregarArticulo(struct congreso *congreso, struct nodoArticulo **lista) {
-    struct nodoArticulo *NuevoArticulo;
-    struct nodoArticulo *rec;
-    struct articulo *datos;
+void agregarArticulo(struct congreso* congreso, struct nodoArticulo** lista) {
+    struct nodoArticulo* NuevoArticulo;
+    struct nodoArticulo* rec;
+    struct articulo* datos;
 
-    printf("Depuración: Valor de *lista al entrar en agregarArticulo: %p\n", (void *)*lista);
+    printf("Depuración: Valor de *lista al entrar en agregarArticulo: %p\n", (void*)*lista);
 
     datos = crearArticulo(*lista);
     NuevoArticulo = crearNodoArticulo(datos);
-    
+
     if (NuevoArticulo != NULL)
     {
         if (*lista == NULL)
         {
             (*lista) = NuevoArticulo; // La lista estaba vacía, se agrega sin problemas
             return;
-        } 
-        else 
+        }
+        else
         {
             if (comprobarArticulo(*lista, datos->seccion) == 0)
             {
@@ -1886,7 +1917,7 @@ void agregarArticulo(struct congreso *congreso, struct nodoArticulo **lista) {
                 NuevoArticulo->ant = rec;
                 printf("Agregado correctamente.\n");
                 return; // Agregado correctamente
-            } 
+            }
             else {
                 printf("El artículo ya existe en la lista.\n");
             }
@@ -1901,9 +1932,9 @@ la funcion recibe la lista de articulos, la idea es que se seleccione la ley y a
 */
 
 
-int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada) {
-    struct nodoArticulo *rec;
-    struct nodoArticulo *nodoAEliminar;
+int eliminarArticulo(struct nodoArticulo** lista, int seccionEliminada) {
+    struct nodoArticulo* rec;
+    struct nodoArticulo* nodoAEliminar;
 
     // Verificamos si la lista existe
     if (*lista != NULL) {
@@ -1934,9 +1965,9 @@ int eliminarArticulo(struct nodoArticulo **lista, int seccionEliminada) {
     return 0; // No se encontró el artículo
 }
 
-int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
-    struct nodoArticulo *rec;
-    struct articulo *articuloBuscado = NULL;
+int modificarArticulo(struct nodoArticulo* articulos, int seccionModificada) {
+    struct nodoArticulo* rec;
+    struct articulo* articuloBuscado = NULL;
     char nombre[100];
     char texto[4096];
     char cambio[4096];
@@ -1966,20 +1997,20 @@ int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
                 articuloBuscado = rec->datos; // Se copia la info del artículo encontrado
 
                 // Asignar nueva memoria para los campos
-                articuloBuscado->nombre = (char *)malloc(sizeof(char) * (strlen(nombre) + 1));
+                articuloBuscado->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
                 if (articuloBuscado->nombre == NULL) {
                     printf("Error al asignar memoria para el nombre.\n");
                     return 0;
                 }
 
                 // Asignar memoria para texto y cambio
-                articuloBuscado->texto = (char *)malloc(sizeof(char) * 4096);
+                articuloBuscado->texto = (char*)malloc(sizeof(char) * 4096);
                 if (articuloBuscado->texto == NULL) {
                     printf("Error al asignar memoria para el texto.\n");
                     return 0;
                 }
 
-                articuloBuscado->cambio = (char *)malloc(sizeof(char) * 4096);
+                articuloBuscado->cambio = (char*)malloc(sizeof(char) * 4096);
                 if (articuloBuscado->cambio == NULL) {
                     printf("Error al asignar memoria para el cambio.\n");
                     return 0;
@@ -2001,34 +2032,34 @@ int modificarArticulo(struct nodoArticulo *articulos, int seccionModificada) {
 /*TODO: FUNCIONES CON LOS SWITCH (MENUS)----------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void funcionSwitch(char opcion, struct congreso *congreso, void (*submenu)(struct congreso *)) {
+void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struct congreso*)) {
     switch (opcion) {
-        case 'A':
-            printf("Seleccionaste la opcion A. Accediendo al menu...\n");
+    case 'A':
+        printf("Seleccionaste la opcion A. Accediendo al menu...\n");
         submenu(congreso);
         break;
-        case 'B':
-            printf("Seleccionaste la opcion B. Accediendo al menu...\n");
+    case 'B':
+        printf("Seleccionaste la opcion B. Accediendo al menu...\n");
         submenu(congreso);
         break;
-        case 'C':
-            printf("Seleccionaste la opcion C. Accediendo al menu...\n");
+    case 'C':
+        printf("Seleccionaste la opcion C. Accediendo al menu...\n");
         submenu(congreso);
         break;
-        case 'D':
-            printf("Seleccionaste la opcion D. Accediendo al menu...\n");
+    case 'D':
+        printf("Seleccionaste la opcion D. Accediendo al menu...\n");
         submenu(congreso);
         break;
-        case 'E':
-            printf("Seleccionaste la opcion E. Cerrando el menu.\n");
+    case 'E':
+        printf("Seleccionaste la opcion E. Cerrando el menu.\n");
         break;
-        default:
-            printf("Opcion invalida, por favor intente otra vez.\n");
+    default:
+        printf("Opcion invalida, por favor intente otra vez.\n");
         break;
     }
 }
 
-void menuProyectosLey(struct congreso *congreso) {
+void menuProyectosLey(struct congreso* congreso) {
     char opcion[2];
     int id, fase;
     while (1) {
@@ -2048,51 +2079,51 @@ void menuProyectosLey(struct congreso *congreso) {
         opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
 
         switch (opcion[0]) {
-            case 'A':
-                printf("Funcion: Agregar nuevo Proyecto de Ley\n");
-                agregarNodoProyectoLey(congreso);
-                break;
-            case 'B':
-                printf("Funcion: Borrar Proyecto de Ley\n");
-                id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere borrar", 10000000, 99999999);
-                borrarProyectoLey(congreso, id);
-                break;
-            case 'C':
-                printf("Funcion: Mostrar Proyecto de Ley\n");
-                id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere buscar", 10000000, 99999999);
-                buscarYMostrarProyectoLey(congreso, id);
-                break;
-            case 'D':
-                printf("Funcion: Modificar Proyecto de Ley\n");
-                id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere modificar", 10000000, 99999999);
-                modificarProyectoLey(congreso, id);
-                break;
-            case 'E':
-                printf("Funcion: Listar Proyectos de Ley\n");
-                imprimirProyectosLey(congreso);
-                break;
-            case 'F':
-                printf("Funcion: Mostrar Proyectos en Orden de Urgencia\n");
-                mostrarProyectosOrdenDeUrgencia(congreso);
-                break;
-            case 'G':
-                printf("Funcion: Mostrar Proyectos por fase\n");
-                fase = leerEnteroConLimite("Ingrese la fase de los proyectos que quiere mostrar", 1, 8);
-                mostrarLeyesPorFase(congreso->raiz, fase);
-                break; // Se añadió break aquí para evitar caer en el caso 'H'
-            case 'H':
-                return; // Salir del menú
-            default:
-                printf("Opcion invalida, por favor intente otra vez.\n");
-                break;
+        case 'A':
+            printf("Funcion: Agregar nuevo Proyecto de Ley\n");
+            agregarNodoProyectoLey(congreso);
+            break;
+        case 'B':
+            printf("Funcion: Borrar Proyecto de Ley\n");
+            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere borrar", 10000000, 99999999);
+            borrarProyectoLey(congreso, id);
+            break;
+        case 'C':
+            printf("Funcion: Mostrar Proyecto de Ley\n");
+            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere buscar", 10000000, 99999999);
+            buscarYMostrarProyectoLey(congreso, id);
+            break;
+        case 'D':
+            printf("Funcion: Modificar Proyecto de Ley\n");
+            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere modificar", 10000000, 99999999);
+            modificarProyectoLey(congreso, id);
+            break;
+        case 'E':
+            printf("Funcion: Listar Proyectos de Ley\n");
+            imprimirProyectosLey(congreso);
+            break;
+        case 'F':
+            printf("Funcion: Mostrar Proyectos en Orden de Urgencia\n");
+            mostrarProyectosOrdenDeUrgencia(congreso);
+            break;
+        case 'G':
+            printf("Funcion: Mostrar Proyectos por fase\n");
+            fase = leerEnteroConLimite("Ingrese la fase de los proyectos que quiere mostrar", 1, 8);
+            mostrarLeyesPorFase(congreso->raiz, fase);
+            break; // Se añadió break aquí para evitar caer en el caso 'H'
+        case 'H':
+            return; // Salir del menú
+        default:
+            printf("Opcion invalida, por favor intente otra vez.\n");
+            break;
         }
     }
 }
 
-void menuCongresistas(struct congreso *congreso) {
+void menuCongresistas(struct congreso* congreso) {
     char opcion[2];
     char rut[20];
-    struct nodoCongresista *actual;
+    struct nodoCongresista*actual = NULL;
 
     while (1) {
         printf("Menu Congresistas.\n"
@@ -2109,47 +2140,49 @@ void menuCongresistas(struct congreso *congreso) {
         opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
 
         switch (opcion[0]) {
-            case 'A':
-                printf("Funcion: Agregar Congresista\n");
-                agregarCongresistaEnCongreso(congreso);
-                break; // Se añadió break aquí
-            case 'B':
-                printf("Funcion: Borrar Congresista\n Ingrese el rut del congresista a eliminar: ");
-                scanf("%19[^\n]", rut);
-                eliminarCongresistaDeCongreso(congreso, rut);
-                break; // Se añadió break aquí
-            case 'C':
-                printf("Funcion: Buscar Congresista\n");
-                printf("Ingrese el rut del congresista a buscar: ");
-                scanf("%19[^\n]", rut);
-                mostrarCongresista(congreso, rut);
-                break; // Se añadió break aquí
-            case 'D':
-                printf("Funcion: Modificar Congresista\n");
-                printf("Ingrese el rut del congresista a modificar:\n");
-                scanf(" %19[^\n]", rut);
-                modificarCongresista(congreso, rut);
-                break; // Se añadió break aquí
-            case 'E':
-                printf("Funcion: Listar Congresistas\n");
-                listarCongresistas(congreso);
-                break; // Se añadió break aquí
-            case 'F':
-                return; // Salir del menú
-            default:
-                printf("Opcion invalida, por favor intente otra vez.\n");
-                break; // Se añadió break aquí
+        case 'A':
+            printf("Funcion: Agregar Congresista\n");
+            agregarCongresistaEnCongreso(congreso);
+            break; // Se añadió break aquí
+        case 'B':
+            printf("Funcion: Borrar Congresista\n Ingrese el rut del congresista a eliminar: ");
+            scanf("%19[^\n]", rut);
+            eliminarCongresistaDeCongreso(congreso, rut);
+            break; // Se añadió break aquí
+        case 'C':
+            printf("Funcion: Buscar Congresista\n");
+            printf("Ingrese el rut del congresista a buscar: ");
+            scanf("%19[^\n]", rut);
+            mostrarCongresista(congreso, rut);
+            break; // Se añadió break aquí
+        case 'D':
+            printf("Funcion: Modificar Congresista\n");
+            printf("Ingrese el rut del congresista a modificar:\n");
+            scanf(" %19[^\n]", rut);
+            modificarCongresista(congreso, rut);
+            break; // Se añadió break aquí
+        case 'E':
+            printf("Funcion: Listar Congresistas\n");
+            listarCongresistas(congreso);
+            break; // Se añadió break aquí
+        case 'F':
+            return; // Salir del menú
+        default:
+            printf("Opcion invalida, por favor intente otra vez.\n");
+            break; // Se añadió break aquí
         }
     }
 }
 
-void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *articulos) {
+void gestionarVotacionArticulo(struct congreso* congreso, struct nodoArticulo* articulos)
+{
+
     int seccionBuscada;
     char opcionVoto;
     char rut[20]; // RUT en formato 12.345.678-K
-    struct nodoArticulo *rec = articulos;
-    struct congresista *congresista;
-    struct nodoCongresista *nuevoNodo,*actual;
+    struct nodoArticulo* rec = articulos;
+    struct congresista* congresista;
+    struct nodoCongresista *nuevoNodo, *actual;
 
     // Pedir al usuario la sección del artículo para agregar la votación
     printf("Ingrese la sección del artículo para añadir una votación: ");
@@ -2159,7 +2192,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
         if (rec->datos != NULL && rec->datos->seccion == seccionBuscada) {
             // Inicializar la votación si no existe
             if (rec->datos->voto == NULL) {
-                rec->datos->voto = (struct votacion *)malloc(sizeof(struct votacion));
+                rec->datos->voto = (struct votacion*)malloc(sizeof(struct votacion));
                 if (rec->datos->voto == NULL) {
                     printf("Error al asignar memoria para la votación.\n");
                     return;
@@ -2182,7 +2215,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
                 }
 
                 // Crear un nuevo nodo de congresista para añadirlo a la votación
-                nuevoNodo = (struct nodoCongresista *)malloc(sizeof(struct nodoCongresista));
+                nuevoNodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
                 if (nuevoNodo == NULL) {
                     printf("Error al asignar memoria para el nodo de congresista.\n");
                     return;
@@ -2195,18 +2228,21 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
                     actual = rec->datos->voto->favor;
                     if (actual == NULL) {
                         rec->datos->voto->favor = nuevoNodo;
-                    } else {
+                    }
+                    else {
                         while (actual->sig != NULL) {
                             actual = actual->sig;
                         }
                         actual->sig = nuevoNodo;
                     }
                     printf("Congresista añadido a la lista de votos a favor.\n");
-                } else {
+                }
+                else {
                     actual = rec->datos->voto->contra;
                     if (actual == NULL) {
                         rec->datos->voto->contra = nuevoNodo;
-                    } else {
+                    }
+                    else {
                         while (actual->sig != NULL) {
                             actual = actual->sig;
                         }
@@ -2214,7 +2250,8 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
                     }
                     printf("Congresista añadido a la lista de votos en contra.\n");
                 }
-            } else {
+            }
+            else {
                 printf("Opción de voto inválida.\n");
             }
             return; // Salir de la función después de procesar la votación
@@ -2224,10 +2261,10 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
     printf("No se encontró un artículo con la sección %d.\n", seccionBuscada);
 }
 
-void mostrarVotacionArticulos(struct proyectoLey *ley) {
-    struct nodoArticulo *articuloActual;
-    struct articulo *art;
-    struct nodoCongresista *votante;
+void mostrarVotacionArticulos(struct proyectoLey* ley) {
+    struct nodoArticulo* articuloActual;
+    struct articulo* art;
+    struct nodoCongresista* votante;
     int contadorFavor, contadorContra;
 
     articuloActual = ley->articulo;
@@ -2248,7 +2285,8 @@ void mostrarVotacionArticulos(struct proyectoLey *ley) {
                 contadorFavor++;
                 votante = votante->sig;
             }
-        } else {
+        }
+        else {
             printf("  No hay votos a favor.\n");
         }
 
@@ -2262,7 +2300,8 @@ void mostrarVotacionArticulos(struct proyectoLey *ley) {
                 contadorContra++;
                 votante = votante->sig;
             }
-        } else {
+        }
+        else {
             printf("  No hay votos en contra.\n");
         }
 
@@ -2274,7 +2313,7 @@ void mostrarVotacionArticulos(struct proyectoLey *ley) {
     }
 }
 
-void menuArticulos(struct congreso *congreso, struct proyectoLey *ley) {
+void menuArticulos(struct congreso* congreso, struct proyectoLey* ley) {
     char opcion;
     int seccionEliminar;
     int seccionModificar;
@@ -2291,53 +2330,55 @@ void menuArticulos(struct congreso *congreso, struct proyectoLey *ley) {
         printf("Opción: ");
         scanf(" %c", &opcion);
         switch (opcion) {
-            case 'A':
-            case 'a':
-                agregarArticulo(congreso, &(ley->articulo));
-                break;
-            case 'B':
-            case 'b':
-                printf("Ingrese la sección del artículo a modificar: ");
-                scanf("%d", &seccionModificar);
-                if (modificarArticulo(ley->articulo, seccionModificar)) {
-                    printf("Artículo modificado correctamente.\n");
-                } else {
-                    printf("Error: Artículo no encontrado.\n");
-                }
-                break;
-            case 'C':
-            case 'c':
-                printf("Ingrese la sección del artículo a eliminar: ");
-                scanf("%d", &seccionEliminar);
-                if (eliminarArticulo(&(ley->articulo), seccionEliminar) == 1) {
-                    printf("Artículo eliminado correctamente.\n");
-                } else {
-                    printf("Error: Artículo no encontrado.\n");
-                }
-                break;
-            case 'D':
-            case 'd':
-                copiarCambioATexto(ley->articulo);
-                break;
-            case 'F':
-            case 'f':
-                gestionarVotacionArticulo(congreso, ley->articulo);
-                break;
-            case 'G':
-            case 'g':
-                mostrarVotacionArticulos(ley);
-                break;
-            case 'E':
-            case 'e':
-                printf("Saliendo de la gestión de artículos.\n");
-                break;
-            default:
-                printf("Opción inválida. Intente nuevamente.\n");
+        case 'A':
+        case 'a':
+            agregarArticulo(congreso, &(ley->articulo));
+            break;
+        case 'B':
+        case 'b':
+            printf("Ingrese la sección del artículo a modificar: ");
+            scanf("%d", &seccionModificar);
+            if (modificarArticulo(ley->articulo, seccionModificar)) {
+                printf("Artículo modificado correctamente.\n");
+            }
+            else {
+                printf("Error: Artículo no encontrado.\n");
+            }
+            break;
+        case 'C':
+        case 'c':
+            printf("Ingrese la sección del artículo a eliminar: ");
+            scanf("%d", &seccionEliminar);
+            if (eliminarArticulo(&(ley->articulo), seccionEliminar) == 1) {
+                printf("Artículo eliminado correctamente.\n");
+            }
+            else {
+                printf("Error: Artículo no encontrado.\n");
+            }
+            break;
+        case 'D':
+        case 'd':
+            copiarCambioATexto(ley->articulo);
+            break;
+        case 'F':
+        case 'f':
+            gestionarVotacionArticulo(congreso, ley->articulo);
+            break;
+        case 'G':
+        case 'g':
+            mostrarVotacionArticulos(ley);
+            break;
+        case 'E':
+        case 'e':
+            printf("Saliendo de la gestión de artículos.\n");
+            break;
+        default:
+            printf("Opción inválida. Intente nuevamente.\n");
         }
     } while (opcion != 'E' && opcion != 'e');
 }
 
-void menuComisiones(struct congreso *congreso) {
+void menuComisiones(struct congreso* congreso) {
     char opcion[2];
     char nombre[100];
 
@@ -2354,43 +2395,43 @@ void menuComisiones(struct congreso *congreso) {
         opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
 
         switch (opcion[0]) {
-            case 'A':
-                printf("Funcion: Agregar Comision\n");
-                agregarComision(congreso);
-                break;
-            case 'B':
-                printf("Funcion: Borrar Comision\n");
-                printf("Ingrese el nombre de la comision a borrar:\n");
-                scanf("%99[^\n]", nombre);
-                eliminarComision(congreso, nombre);
-                break;
-            case 'C':
-                printf("Funcion: Buscar Comision\n");
-                printf("Ingrese el nombre de la comision buscada:\n");
-                scanf("%99[^\n]", nombre);
-                mostrarComisionPorNombre(congreso, nombre);
-                break;
-            case 'D':
-                printf("Funcion: Modificar Comision\n");
-                printf("Ingrese el nombre de la comision a modificar:\n");
-                scanf("%99[^\n]", nombre);
-                modificarComision(congreso, nombre);
-                break;
-            case 'E':
-                printf("Funcion: Listar Comisiones\n");
-                listarComisiones(congreso);
-                break;
-            case 'F':
-                return; // Salir del menú
-            default:
-                printf("Opcion invalida, por favor intente otra vez.\n");
-                break;
+        case 'A':
+            printf("Funcion: Agregar Comision\n");
+            agregarComision(congreso);
+            break;
+        case 'B':
+            printf("Funcion: Borrar Comision\n");
+            printf("Ingrese el nombre de la comision a borrar:\n");
+            scanf("%99[^\n]", nombre);
+            eliminarComision(congreso, nombre);
+            break;
+        case 'C':
+            printf("Funcion: Buscar Comision\n");
+            printf("Ingrese el nombre de la comision buscada:\n");
+            scanf("%99[^\n]", nombre);
+            mostrarComisionPorNombre(congreso, nombre);
+            break;
+        case 'D':
+            printf("Funcion: Modificar Comision\n");
+            printf("Ingrese el nombre de la comision a modificar:\n");
+            scanf("%99[^\n]", nombre);
+            modificarComision(congreso, nombre);
+            break;
+        case 'E':
+            printf("Funcion: Listar Comisiones\n");
+            listarComisiones(congreso);
+            break;
+        case 'F':
+            return; // Salir del menú
+        default:
+            printf("Opcion invalida, por favor intente otra vez.\n");
+            break;
         }
     }
 }
 
 
-void mostrarLeyesPorFase(struct nodoProyectoLey *leyes, int faseRequerida) {
+void mostrarLeyesPorFase(struct nodoProyectoLey* leyes, int faseRequerida) {
     // Verifica si el árbol no está vacío
     if (leyes != NULL) {
         // Verifica si el nodo actual está en la fase requerida
@@ -2412,7 +2453,7 @@ void mostrarLeyesPorFase(struct nodoProyectoLey *leyes, int faseRequerida) {
 int main(void) {
     int flag = 1; // Variable de control del bucle principal
     char opcion;
-    struct congreso *congreso;
+    struct congreso* congreso;
 
     // Inicialización del congreso
     congreso = inicializarCongreso();
@@ -2420,29 +2461,29 @@ int main(void) {
     // Bucle principal del menú
     while (flag == 1) {
         printf("Opciones:\n"
-               "A: Proyectos de Ley.\n"
-               "B: Congresistas.\n"
-               "C: Comisiones.\n"
-               "D: Salir.\n\n");
+            "A: Proyectos de Ley.\n"
+            "B: Congresistas.\n"
+            "C: Comisiones.\n"
+            "D: Salir.\n\n");
 
         opcion = leerOpcion(); // Lee solo un carácter y limpia el buffer
 
         // Manejo de las opciones seleccionadas
         switch (opcion) {
-            case 'A':
-                funcionSwitch(opcion, congreso, menuProyectosLey);
+        case 'A':
+            funcionSwitch(opcion, congreso, menuProyectosLey);
             break;
-            case 'B':
-                funcionSwitch(opcion, congreso, menuCongresistas);
+        case 'B':
+            funcionSwitch(opcion, congreso, menuCongresistas);
             break;
-            case 'C':
-                funcionSwitch(opcion, congreso, menuComisiones);
+        case 'C':
+            funcionSwitch(opcion, congreso, menuComisiones);
             break;
-            case 'D':
-                flag = 0; // Cambiar la bandera para salir del bucle
+        case 'D':
+            flag = 0; // Cambiar la bandera para salir del bucle
             break;
-            default:
-                printf("Opción inválida, por favor intente otra vez.\n");
+        default:
+            printf("Opción inválida, por favor intente otra vez.\n");
             break;
         }
     }
