@@ -9,7 +9,7 @@
 struct congresista {
     char* nombre;
     char* rut;
-    char* ocupacion;
+    int ocupacion;        // (1) DIPUTADOS  (2) SENADORES
     char* especializacion;
 };
 
@@ -848,35 +848,21 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
 
 /*TODO: FUNCIONES DE CONGRESISTAS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-struct nodoCongresista* crearNodoCongresista(struct nodoCongresista* head, struct congresista* datos) {
-    struct nodoCongresista* nodo = NULL;
+struct nodoCongresista* crearNodoCongresista(struct nodoCongresista*head, struct congresista*nuevoCongresista)
+{
+    struct nodoCongresista *nodoNuevo = NULL;
 
-    // Pregunto primero que los datos recibidos no sean NULL
-    if (datos != NULL) {
-        nodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
-
-        if (nodo == NULL) {
-            // Si esto ocurre, hay un error al asignar la memoria
-            return NULL;
-        }
-
-        nodo->datos = datos; // Copio los datos que recibí
-        nodo->sig = NULL; // Asigno NULL al siguiente nodo
+    if (nuevoCongresista != NULL) 
+    {
+        nodoNuevo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
+        nodo->datos = nuevoCongresista; 
+        nodo->sig = NULL;
     }
-
-    return nodo; // Retorno el nuevo nodo (o NULL si no se creó)
+    return nodoNuevo;
 }
 
-/*
-
-comprobar que exista congresista, lo haré de manera que retorne 0 si NO existe el RUT, o que retorne 1 si existe
-la idea es que el RUT sea el buscado, por lo tanto las otras funciones que la llamen deben ingresar el RUT
-aunque esto puede estar sujeto a cambios si se desea, quizas recibir el nodo entero para comodidad
-recordar que es circular con fantasma, por lo tanto tengo que iniciar el head->sig para el rec y usar do while
-
-*/
-
-int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado) {
+int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado) 
+{
     struct nodoCongresista* rec = head; // Iniciamos en el nodo fantasma
 
     rec = head->sig; // Saltar el nodo fantasma
@@ -929,104 +915,39 @@ struct congresista* comprobarCongresistaEnCongreso(struct congreso* congreso, ch
     }
     return NULL; // RUT no encontrado
 }
-/*
-El crearCongresista va a ser un poco distinto, esta funcion tiene que recibir(scanf) el rut y la ocupacion
-al saber la ocupacion eligirá que arreglo recorrer si el de senadores o el de diputados
-ahí en ese momento buscará comparando el rut en cada pos del arreglo, si lo encuentra retornará 1
-si no es así retornará 0 y dará paso a la copia de datos para ingresarlos en el arreglo
 
-aunque no estoy seguro si la ocupacion fuese el diputado/senador o si es la especializacion
-
-*/
-
-struct congresista* crearCongresista(struct congreso* congreso) {
-    struct congresista* nuevoCongresista; // Para guardar los datos del congresista
-    char nombre[100], rut[20], ocupacion[20], especializacion[100]; // Datos que se reciben
-
+struct congresista* crearCongresista(char *nombre, char *rut, int ocupacion, char *especializacion)
+{
+    struct congresista* nuevoCongresista = NULL;
     nuevoCongresista = (struct congresista*)malloc(sizeof(struct congresista));
-    if (nuevoCongresista == NULL) {
-        return NULL; // Error al asignar memoria
-    }
 
-    // Tomar el RUT del congresista
-    printf("Ingresa el RUT del congresista (12.345.678-9): ");
-    scanf("%19[^\n]", rut);
-    if (strlen(rut) > 20) {
-        printf("El RUT ingresado es muy largo, inténtelo de nuevo\n");
-        return NULL;
-    }
+    nuevoCongresista->nombre = (char*)malloc(siezof(char) * strlen(nombre));
+    nuevoCongresista->rut = (char*)malloc(siezof(char) * strlen(rut));
+    nuevoCongresista->especializacion = (char*)malloc(siezof(char) * strlen(especializacion));
 
-    // Ingresar la ocupación
-    printf("Ingrese la ocupación (senador/diputado): ");
-    scanf("%19s", ocupacion);
-    if (comprobarCongresistaEnCongreso(congreso, rut) != NULL) {
-        printf("Este congresista ya se encuentra en el sistema\n");
-        return NULL; // El congresista ya existe
-    }
-
-    // Escanear los últimos datos
-    printf("Ingrese su especialización: ");
-    scanf("%[^\n]", especializacion);
-    printf("Ingrese su Nombre: ");
-    scanf("%[^\n]", nombre);
-    if (strlen(rut) > 20 || strlen(especializacion) > 100 || strlen(nombre) > 100) {
-        printf("Uno de los valores ingresados es muy largo, inténtelo otra vez\n");
-        return NULL;
-    }
-
-    // Asignación de memoria para los campos de texto
-    nuevoCongresista->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
-    nuevoCongresista->rut = (char*)malloc(sizeof(char) * (strlen(rut) + 1));
-    nuevoCongresista->ocupacion = (char*)malloc(sizeof(char) * (strlen(ocupacion) + 1));
-    nuevoCongresista->especializacion = (char*)malloc(sizeof(char) * (strlen(especializacion) + 1));
-
-    // Copiar los datos a los campos
     strcpy(nuevoCongresista->nombre, nombre);
     strcpy(nuevoCongresista->rut, rut);
-    strcpy(nuevoCongresista->ocupacion, ocupacion);
+    nuevoCongresista->ocupacion = ocupacion;
     strcpy(nuevoCongresista->especializacion, especializacion);
 
-    printf("Se ha agregado con éxito\n");
     return nuevoCongresista;
 }
 
-/*
-primero hago la funcion para insertar el nuevo congresista en el arreglo correspondiente
-
-agregue un MAX_CONGRESISTAS = 200 por que son arreglos separados
-al ver la historia de chile te das cuenta que nunca han habido mas de 150 diputados
-y tampoco han habido mas de 50 senadores en periodos de mas de 200 años
-por lo tanto dudo que en otros 100 años se superen los 200
-era esta solución o configurar el struct congreso para agregar un plibre de cada arreglo
-
-*/
-
-//este agrega un NUEVO congresista al arreglo correspondiente
-void agregarCongresistaEnCongreso(struct congreso* congreso) {
+void agregarCongresistaEnCongreso(struct congreso* congreso)
+{
     struct congresista* nuevoCongresista = crearCongresista(congreso); // Se crea el congresista para insertarlo
-    struct nodoCongresista* nuevoNodoCongresista = NULL; // Nodo para congresistas mixtos
     struct congresista** arreglo = NULL; // Decidirá a qué arreglo pertenece
     int i = 0;
 
     // Preguntar si el congresista es válido
     if (nuevoCongresista != NULL) {
-        if (strcmp(nuevoCongresista->ocupacion, "senador") == 0) {
-            arreglo = congreso->senadores; // El congresista es un senador
-        }
-        else if (strcmp(nuevoCongresista->ocupacion, "diputado") == 0) {
+        if (nuevoCongresista->ocupacion == 1) {
             arreglo = congreso->diputados; // El congresista es un diputado
         }
-        else {
-            nuevoNodoCongresista = crearNodoCongresista(congreso->congresistasMixtos, nuevoCongresista);
-            if (nuevoNodoCongresista == NULL) {
-                printf("Error al asignar memoria\n");
-                return; // Error al asignar memoria
-            }
-            nuevoNodoCongresista->datos = nuevoCongresista;
-            nuevoNodoCongresista->sig = congreso->congresistasMixtos;
-            congreso->congresistasMixtos = nuevoNodoCongresista;
-
-            return; // Se agrega correctamente
+        else
+        {
+            (nuevoCongresista->ocupacion == 2) {
+            arreglo = congreso->senadores; // El congresista es un senador
         }
 
         // Se recorre el arreglo elegido validando que se haya elegido uno
@@ -1060,7 +981,6 @@ void agregarCongresistaEnCongreso(struct congreso* congreso) {
             }
         }
     }
-    // El nuevo congresista era NULL
     printf("Error: No se pudo crear el nuevo congresista.\n");
 }
 
