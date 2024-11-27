@@ -37,7 +37,6 @@ struct proyectoLey {
     char* tipo;
     int idProyecto;
     int urgencia;
-    struct nodoArticulo* articulo;
     struct nodoVotacion* votacion;
     struct comision* comision;
     int fase;
@@ -54,21 +53,6 @@ struct comision {
     char* tipo;
     char* descripcion;
 };
-
-
-struct nodoArticulo {
-    struct articulo* datos;
-    struct nodoArticulo* sig, * ant;
-};
-
-struct articulo {
-    char* nombre;
-    int seccion;
-    char* texto;
-    char* cambio;
-    struct votacion* voto;
-};
-
 
 struct nodoVotacion {
     struct votacion* datos;
@@ -124,19 +108,9 @@ void eliminarComision(struct congreso* congreso, char* nombre);
 void modificarComision(struct congreso* congreso, char* nombre);
 void mostrarComisionPorNombre(struct congreso* congreso, char* nombre);
 void listarComisiones(struct congreso* congreso);
-void copiarCambioATexto(struct nodoArticulo* articulos);
-struct nodoArticulo* crearNodoArticulo(struct articulo* datos);
-int comprobarArticulo(struct nodoArticulo* head, int buscado);
-struct articulo* crearArticulo(struct nodoArticulo* lista);
-void agregarArticulo(struct congreso* congreso, struct nodoArticulo** lista);
-int eliminarArticulo(struct nodoArticulo** lista, int seccionEliminada);
-int modificarArticulo(struct nodoArticulo* articulos, int seccionModificada);
 void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struct congreso*));
 void menuProyectosLey(struct congreso* congreso);
 void menuCongresistas(struct congreso* congreso);
-void gestionarVotacionArticulo(struct congreso* congreso, struct nodoArticulo* articulos);
-void mostrarVotacionArticulos(struct proyectoLey* ley);
-void menuArticulos(struct congreso* congreso, struct proyectoLey* ley);
 void menuComisiones(struct congreso* congreso);
 void mostrarLeyesPorFase(struct nodoProyectoLey* leyes, int faseRequerida);
 /*NOTA: LAS FUNCIONES DE VOTACIÓN SE ENCUENTRAN EN EL APARTADO DE LAS FUNCIONES DE PROYECTO DE LEY.*/
@@ -297,7 +271,6 @@ struct proyectoLey* crearProyectoLey(struct congreso* congreso) {
     nuevoProyecto->idProyecto = idProyecto;
     nuevoProyecto->urgencia = urgencia;
     nuevoProyecto->fase = fase;
-    nuevoProyecto->articulo = NULL;
     nuevoProyecto->votacion = NULL;
     nuevoProyecto->comision = NULL;
 
@@ -446,7 +419,6 @@ void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* cate
 // Función para buscar y mostrar un proyecto de ley por ID en el árbol binario de búsqueda
 void buscarYMostrarProyectoLey(struct congreso* congreso, int id) {
     struct proyectoLey* proyecto;
-    struct nodoArticulo* rec;
     struct nodoVotacion* nodoVot;
 
     proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
@@ -488,27 +460,6 @@ void buscarYMostrarProyectoLey(struct congreso* congreso, int id) {
             printf("Fase desconocida.\n");
             break;
         }
-
-        rec = proyecto->articulo;
-        while (rec != NULL) {
-            // Verificar que los datos del artículo no sean NULL antes de acceder
-            if (rec->datos != NULL) {
-                printf("Sección de artículo: %d\n", rec->datos->seccion);
-
-                // Mostrar el texto del artículo si no es NULL
-                if (rec->datos->texto != NULL) {
-                    printf("Texto del artículo: %s\n", rec->datos->texto);
-                }
-                else {
-                    printf("Texto del artículo: (sin texto disponible)\n");
-                }
-            }
-            else {
-                printf("Artículo no disponible.\n");
-            }
-            rec = rec->sig; // Avanzar al siguiente nodo
-        }
-
         // Verificar si hay votaciones y mostrarlas
         if (proyecto->votacion != NULL) {
             nodoVot = proyecto->votacion;
@@ -692,17 +643,6 @@ void imprimirProyectoLey(struct proyectoLey* proyecto) {
     printf("Urgencia: %d\n", proyecto->urgencia);
     printf("Fase: %d\n", proyecto->fase);
 
-    // Verificar e imprimir campos opcionales
-    if (proyecto->articulo != NULL) {
-        printf("Artículo: (existe artículo)\n"); // Puedes detallar más si tienes la estructura
-        // Aquí podrías imprimir detalles específicos del artículo
-        // printf("Sección: %d\n", proyecto->articulo->seccion);
-        // printf("Texto: %s\n", proyecto->articulo->texto ? proyecto->articulo->texto : "N/A");
-    }
-    else {
-        printf("Artículo: N/A\n");
-    }
-
     if (proyecto->votacion != NULL) {
         printf("Votación: (existe votación)\n"); // Detallar según la estructura
     }
@@ -844,9 +784,8 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
         printf("d. Urgencia\n");
         printf("e. Fase\n");
         printf("f. Agregar votación\n");
-        printf("g. Gestionar Artículos\n");
-        printf("h. Asignar Comisión\n");
-        printf("i. Salir\n");
+        printf("g. Asignar Comisión\n");
+        printf("h. Salir\n");
         printf("Opción: ");
 
         // Leer opción y limpiar buffer de entrada
@@ -911,10 +850,6 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
             agregarVotacion(congreso, idProyecto);
             break;
         case 'g':
-            // Llamar al menú de artículos
-            menuArticulos(congreso, proyecto);
-            break;
-        case 'h':
             printf("Ingrese el nombre de la comisión a asignar: ");
             if (fgets(nombreComision, sizeof(nombreComision), stdin) == NULL) {
                 printf("Error al leer el nombre de la comisión.\n");
@@ -930,7 +865,8 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
                 printf("Error: Comisión no asignada\n");
             }
             break;
-        case 'i':
+        
+        case 'h':
             printf("Saliendo de la modificación del proyecto de ley.\n");
             break;
         default:
@@ -1747,289 +1683,6 @@ void listarComisiones(struct congreso* congreso) {
     }
 }
 
-/*TODO: FUNCIONES DE ARTICULOS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-/*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-void copiarCambioATexto(struct nodoArticulo* articulos) {
-    int seccionBuscada;
-    struct nodoArticulo* rec = articulos;
-
-    // Pedir al usuario la sección a modificar
-    printf("Ingrese la sección del artículo a modificar: ");
-    scanf("%d", &seccionBuscada);
-
-    // Buscar el artículo con la sección correspondiente
-    while (rec != NULL) {
-        if (rec->datos != NULL && rec->datos->seccion == seccionBuscada) {
-            // Verificar que "cambio" no sea NULL antes de copiar
-            if (rec->datos->cambio != NULL) {
-
-                // Asignar memoria para "texto" y copiar el contenido de "cambio"
-                rec->datos->texto = malloc(strlen(rec->datos->cambio) + 1); // +1 para el terminador nulo
-                if (rec->datos->texto != NULL) {
-                    strcpy(rec->datos->texto, rec->datos->cambio);
-                    printf("El texto de la sección %d ha sido actualizado correctamente.\n", seccionBuscada);
-                }
-                else {
-                    printf("Error al asignar memoria para el texto.\n");
-                }
-            }
-            else {
-                printf("No hay contenido en 'cambio' para copiar.\n");
-            }
-            return; // Salir de la función después de la modificación
-        }
-        rec = rec->sig; // Avanzar al siguiente nodo
-    }
-    printf("No se encontró un artículo con la sección %d.\n", seccionBuscada);
-}
-
-struct nodoArticulo* crearNodoArticulo(struct articulo* datos) {
-
-    struct nodoArticulo* nodo;
-    if (datos == NULL) return NULL;
-
-    nodo = (struct nodoArticulo*)malloc(sizeof(struct nodoArticulo));
-    nodo->datos = datos;
-    nodo->sig = NULL;
-    nodo->ant = NULL;
-
-    return nodo;
-}
-/*
-
-comprobar que exista articulo, lo haré de manera que retorne 0 si NO existe el articulo, o que retorne 1 si existe
-la idea es que la seccion sea el buscado, por lo tanto las otras funciones que la llamen deben ingresar la seccion
-aunque esto puede estar sujeto a cambios si se desea, quizas recibir el nodo entero para comodidad
-
-*/
-int comprobarArticulo(struct nodoArticulo* head, int buscado) {
-    
-    struct nodoArticulo*rec;
-    // Verificar si la lista está vacía
-    if (head == NULL) {
-        return 0; // La lista está vacía, no se encuentra el artículo
-    }
-    rec = head;
-
-    // Recorrer la lista en busca del artículo
-    while (rec != NULL) {
-        if (rec->datos != NULL && rec->datos->seccion == buscado) {
-            return 1; // Se encontró el artículo en la lista
-        }
-        rec = rec->sig; // Avanzar al siguiente nodo
-    }
-
-    return 0; // No se encontró el artículo en la lista
-}
-
-/*
-Agregar el nuevo articulo, llamará a 2 funciones, la de crear el nodo y la de crear el nuevo articulo
-la idea es que primero se creen los datos del articulo y luego se cree el nodo, la funcion crear nodo articulo
-recibirá los datos de la función crear articulo
-
-PD: todos los prints serán eliminados posterior a la creacion del main
-*/
-
-struct articulo* crearArticulo(struct nodoArticulo* lista) {
-    struct articulo* nuevoArticulo;
-    char nombre[100], texto[4096], cambio[4096];
-    int seccion;
-
-    nuevoArticulo = (struct articulo*)malloc(sizeof(struct articulo));
-
-
-    // Verificar si la asignación de memoria fue exitosa
-    if (nuevoArticulo == NULL) {
-        printf("Error al asignar memoria para el nuevo artículo.\n");
-        return NULL;
-    }
-
-    printf("Ingresa el número de sección del artículo: ");
-    scanf("%d", &seccion); // Recibir el número de sección
-    nuevoArticulo->seccion = seccion;
-    nuevoArticulo->voto = NULL; // Inicializar voto como NULL
-
-    // Recibir el nombre del artículo
-    printf("Ingrese el nombre: ");
-    scanf(" %[^\n]", nombre);
-
-    // Recibir la descripción del artículo
-    printf("Ingrese la descripción del artículo: ");
-    scanf(" %[^\n]", texto);
-
-    // Recibir los cambios del artículo
-    printf("Ingrese los cambios: ");
-    scanf(" %[^\n]", cambio);
-
-    // Validar la longitud de las cadenas
-    if (strlen(nombre) > 100 || strlen(texto) > 256 || strlen(cambio) > 256) {
-        printf("Uno de los valores ingresados es demasiado largo.\n");
-        return NULL;
-    }
-
-    // Asignar memoria para los campos de texto
-    nuevoArticulo->nombre = (char*)malloc(strlen(nombre) + 1);
-    nuevoArticulo->texto = (char*)malloc(strlen(texto) + 1);
-    nuevoArticulo->cambio = (char*)malloc(strlen(cambio) + 1);
-
-    // Verificar si la asignación de memoria fue exitosa
-    if (nuevoArticulo->nombre == NULL || nuevoArticulo->texto == NULL || nuevoArticulo->cambio == NULL) {
-        printf("Error al asignar memoria para uno de los campos del artículo.\n");
-        return NULL; // Retornar NULL en caso de error
-    }
-
-    // Copiar los valores a los campos del artículo
-    strcpy(nuevoArticulo->nombre, nombre);
-    strcpy(nuevoArticulo->texto, texto);
-    strcpy(nuevoArticulo->cambio, cambio);
-
-    return nuevoArticulo; // Retornar el nuevo artículo creado
-}
-
-void agregarArticulo(struct congreso* congreso, struct nodoArticulo** lista) {
-    struct nodoArticulo* NuevoArticulo;
-    struct nodoArticulo* rec;
-    struct articulo* datos;
-
-    printf("Depuración: Valor de *lista al entrar en agregarArticulo: %p\n", (void*)*lista);
-
-    datos = crearArticulo(*lista);
-    NuevoArticulo = crearNodoArticulo(datos);
-
-    if (NuevoArticulo != NULL)
-    {
-        if (*lista == NULL)
-        {
-            (*lista) = NuevoArticulo; // La lista estaba vacía, se agrega sin problemas
-            return;
-        }
-        else
-        {
-            if (comprobarArticulo(*lista, datos->seccion) == 0)
-            {
-                rec = *lista;
-                printf("se cae antes de llegar a la ultima pos");
-                // Llego a la última posición de la lista
-                while (rec->sig != NULL) {
-                    rec = rec->sig;
-                }
-                rec->sig = NuevoArticulo; // Llego al final y lo agrego
-                NuevoArticulo->ant = rec;
-                printf("Agregado correctamente.\n");
-                return; // Agregado correctamente
-            }
-            else {
-                printf("El artículo ya existe en la lista.\n");
-            }
-        }
-    }
-}
-
-/*
-El eliminar articulo tambien será int para que en la consola sea mas facil poner algo como: articulo eliminado, o error
-si devuelve 1, ha sido un exito la eliminacion, si retorna 0, no se encontró en la lista
-la funcion recibe la lista de articulos, la idea es que se seleccione la ley y a partir de ahi se elimine el articulo
-*/
-
-
-int eliminarArticulo(struct nodoArticulo** lista, int seccionEliminada) {
-    struct nodoArticulo* rec;
-    struct nodoArticulo* nodoAEliminar;
-
-    // Verificamos si la lista existe
-    if (*lista != NULL) {
-        rec = *lista;
-
-        // Caso 1: El artículo está en la primera posición
-        if (seccionEliminada == rec->datos->seccion) {
-            *lista = rec->sig; // Mover el encabezado de la lista
-            if (*lista != NULL) {
-                (*lista)->ant = NULL; // Actualizamos el puntero anterior del nuevo encabezado, si existe
-            }
-            return 1; // Se ha encontrado y eliminado el artículo
-        }
-
-        // Caso 2: Se encuentra en cualquier otra posición de la lista
-        while (rec->sig != NULL) {
-            if (seccionEliminada == rec->sig->datos->seccion) {
-                nodoAEliminar = rec->sig; // Nodo a eliminar
-                rec->sig = nodoAEliminar->sig; // Saltar el nodo a eliminar
-                if (nodoAEliminar->sig != NULL) {
-                    nodoAEliminar->sig->ant = rec; // Actualizar el puntero anterior del siguiente nodo
-                }
-                return 1; // Se ha encontrado y eliminado el artículo
-            }
-            rec = rec->sig; // Avanzar al siguiente nodo
-        }
-    }
-    return 0; // No se encontró el artículo
-}
-
-int modificarArticulo(struct nodoArticulo* articulos, int seccionModificada) {
-    struct nodoArticulo* rec;
-    struct articulo* articuloBuscado = NULL;
-    char nombre[100];
-    char texto[4096];
-    char cambio[4096];
-
-    // Se escanean los datos nuevos
-    printf("Ingrese el nuevo nombre:\n");
-    scanf(" %[^\n]", nombre); // Espacio antes de % para ignorar nuevos lineas
-    printf("Ingrese el nuevo texto:\n");
-    scanf(" %[^\n]", texto);
-    printf("Ingrese los nuevos cambios:\n");
-    scanf(" %[^\n]", cambio);
-
-    // Validar longitud de los nuevos textos
-    if (strlen(texto) > 4096 || strlen(cambio) > 4096) {
-        printf("Uno de los valores ingresados es muy largo.\n");
-        return 0;
-    }
-
-    // Verificamos que la lista no sea NULL
-    if (articulos != NULL) {
-        rec = articulos;
-
-        // Recorro y busco el artículo específico
-        while (rec != NULL) {
-            // Si se encuentra el artículo a modificar
-            if (rec->datos->seccion == seccionModificada) {
-                articuloBuscado = rec->datos; // Se copia la info del artículo encontrado
-
-                // Asignar nueva memoria para los campos
-                articuloBuscado->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
-                if (articuloBuscado->nombre == NULL) {
-                    printf("Error al asignar memoria para el nombre.\n");
-                    return 0;
-                }
-
-                // Asignar memoria para texto y cambio
-                articuloBuscado->texto = (char*)malloc(sizeof(char) * 4096);
-                if (articuloBuscado->texto == NULL) {
-                    printf("Error al asignar memoria para el texto.\n");
-                    return 0;
-                }
-
-                articuloBuscado->cambio = (char*)malloc(sizeof(char) * 4096);
-                if (articuloBuscado->cambio == NULL) {
-                    printf("Error al asignar memoria para el cambio.\n");
-                    return 0;
-                }
-
-                // Copio los datos
-                strcpy(articuloBuscado->nombre, nombre);
-                strcpy(articuloBuscado->texto, texto);
-                strcpy(articuloBuscado->cambio, cambio);
-
-                return 1; // Modificado correctamente
-            }
-            rec = rec->sig;
-        }
-    }
-    return 0; // No se logra modificar
-}
-
 /*TODO: FUNCIONES CON LOS SWITCH (MENUS)----------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -2173,210 +1826,6 @@ void menuCongresistas(struct congreso* congreso) {
             break; // Se añadió break aquí
         }
     }
-}
-
-void gestionarVotacionArticulo(struct congreso* congreso, struct nodoArticulo* articulos)
-{
-
-    int seccionBuscada;
-    char opcionVoto;
-    char rut[20]; // RUT en formato 12.345.678-K
-    struct nodoArticulo* rec = articulos;
-    struct congresista* congresista;
-    struct nodoCongresista *nuevoNodo, *actual;
-
-    // Pedir al usuario la sección del artículo para agregar la votación
-    printf("Ingrese la sección del artículo para añadir una votación: ");
-    scanf("%d", &seccionBuscada);
-    // Buscar el artículo con la sección especificada
-    while (rec != NULL) {
-        if (rec->datos != NULL && rec->datos->seccion == seccionBuscada) {
-            // Inicializar la votación si no existe
-            if (rec->datos->voto == NULL) {
-                rec->datos->voto = (struct votacion*)malloc(sizeof(struct votacion));
-                if (rec->datos->voto == NULL) {
-                    printf("Error al asignar memoria para la votación.\n");
-                    return;
-                }
-                rec->datos->voto->favor = NULL;
-                rec->datos->voto->contra = NULL;
-            }
-
-            // Preguntar al usuario si desea añadir un congresista a favor o en contra
-            printf("¿Desea añadir un voto (F)avor o (C)ontra? ");
-            scanf(" %c", &opcionVoto);
-            if (opcionVoto == 'F' || opcionVoto == 'f' || opcionVoto == 'C' || opcionVoto == 'c') {
-                printf("Ingrese el RUT del congresista (formato 12.345.678-K): ");
-                scanf("%19[^\n]", rut);
-                // Buscar al congresista en el congreso usando el RUT
-                congresista = comprobarCongresistaEnCongreso(congreso, rut);
-                if (congresista == NULL) {
-                    printf("Error: Congresista con RUT %s no encontrado.\n", rut);
-                    return;
-                }
-
-                // Crear un nuevo nodo de congresista para añadirlo a la votación
-                nuevoNodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
-                if (nuevoNodo == NULL) {
-                    printf("Error al asignar memoria para el nodo de congresista.\n");
-                    return;
-                }
-                nuevoNodo->datos = congresista;
-                nuevoNodo->sig = NULL;
-
-                // Añadir el nodo a la lista correspondiente (favor o contra)
-                if (opcionVoto == 'F' || opcionVoto == 'f') {
-                    actual = rec->datos->voto->favor;
-                    if (actual == NULL) {
-                        rec->datos->voto->favor = nuevoNodo;
-                    }
-                    else {
-                        while (actual->sig != NULL) {
-                            actual = actual->sig;
-                        }
-                        actual->sig = nuevoNodo;
-                    }
-                    printf("Congresista añadido a la lista de votos a favor.\n");
-                }
-                else {
-                    actual = rec->datos->voto->contra;
-                    if (actual == NULL) {
-                        rec->datos->voto->contra = nuevoNodo;
-                    }
-                    else {
-                        while (actual->sig != NULL) {
-                            actual = actual->sig;
-                        }
-                        actual->sig = nuevoNodo;
-                    }
-                    printf("Congresista añadido a la lista de votos en contra.\n");
-                }
-            }
-            else {
-                printf("Opción de voto inválida.\n");
-            }
-            return; // Salir de la función después de procesar la votación
-        }
-        rec = rec->sig; // Avanzar al siguiente nodo
-    }
-    printf("No se encontró un artículo con la sección %d.\n", seccionBuscada);
-}
-
-void mostrarVotacionArticulos(struct proyectoLey* ley) {
-    struct nodoArticulo* articuloActual;
-    struct articulo* art;
-    struct nodoCongresista* votante;
-    int contadorFavor, contadorContra;
-
-    articuloActual = ley->articulo;
-
-    while (articuloActual != NULL) {
-        art = articuloActual->datos;
-        printf("\nSección del Artículo: %d\n", art->seccion);
-        printf("Texto del Artículo: %s\n", art->texto);
-        printf("Cambios Pendientes: %s\n", art->cambio);
-
-        // Mostrar votación a favor
-        contadorFavor = 0;
-        printf("Votos a Favor:\n");
-        if (art->voto != NULL && art->voto->favor != NULL) {
-            votante = art->voto->favor;
-            while (votante != NULL) {
-                printf("  - RUT: %s\n", votante->datos->rut);
-                contadorFavor++;
-                votante = votante->sig;
-            }
-        }
-        else {
-            printf("  No hay votos a favor.\n");
-        }
-
-        // Mostrar votación en contra
-        contadorContra = 0;
-        printf("Votos en Contra:\n");
-        if (art->voto != NULL && art->voto->contra != NULL) {
-            votante = art->voto->contra;
-            while (votante != NULL) {
-                printf("  - RUT: %s\n", votante->datos->rut);
-                contadorContra++;
-                votante = votante->sig;
-            }
-        }
-        else {
-            printf("  No hay votos en contra.\n");
-        }
-
-        // Mostrar el recuento total de votos
-        printf("Total Votos a Favor: %d\n", contadorFavor);
-        printf("Total Votos en Contra: %d\n", contadorContra);
-
-        articuloActual = articuloActual->sig; // Avanzar al siguiente artículo
-    }
-}
-
-void menuArticulos(struct congreso* congreso, struct proyectoLey* ley) {
-    char opcion;
-    int seccionEliminar;
-    int seccionModificar;
-
-    do {
-        printf("Seleccione la acción sobre los artículos:\n");
-        printf("A. Agregar Artículo\n");
-        printf("B. Modificar Artículo\n");
-        printf("C. Eliminar Artículo\n");
-        printf("D. Aplicar cambios\n");
-        printf("F. Gestionar Votación\n");
-        printf("G. Listar Artículos\n");
-        printf("E. Salir\n");
-        printf("Opción: ");
-        scanf(" %c", &opcion);
-        switch (opcion) {
-        case 'A':
-        case 'a':
-            agregarArticulo(congreso, &(ley->articulo));
-            break;
-        case 'B':
-        case 'b':
-            printf("Ingrese la sección del artículo a modificar: ");
-            scanf("%d", &seccionModificar);
-            if (modificarArticulo(ley->articulo, seccionModificar)) {
-                printf("Artículo modificado correctamente.\n");
-            }
-            else {
-                printf("Error: Artículo no encontrado.\n");
-            }
-            break;
-        case 'C':
-        case 'c':
-            printf("Ingrese la sección del artículo a eliminar: ");
-            scanf("%d", &seccionEliminar);
-            if (eliminarArticulo(&(ley->articulo), seccionEliminar) == 1) {
-                printf("Artículo eliminado correctamente.\n");
-            }
-            else {
-                printf("Error: Artículo no encontrado.\n");
-            }
-            break;
-        case 'D':
-        case 'd':
-            copiarCambioATexto(ley->articulo);
-            break;
-        case 'F':
-        case 'f':
-            gestionarVotacionArticulo(congreso, ley->articulo);
-            break;
-        case 'G':
-        case 'g':
-            mostrarVotacionArticulos(ley);
-            break;
-        case 'E':
-        case 'e':
-            printf("Saliendo de la gestión de artículos.\n");
-            break;
-        default:
-            printf("Opción inválida. Intente nuevamente.\n");
-        }
-    } while (opcion != 'E' && opcion != 'e');
 }
 
 void menuComisiones(struct congreso* congreso) {
