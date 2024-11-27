@@ -49,7 +49,7 @@ struct nodoComision {
 struct comision {
     struct nodoCongresista* headIntegrantes;
     char* nombre;
-    char* tipo;
+    int tipo;           // (1) DIPUTADOS  (2) SENADORES
     char* descripcion;
 };
 
@@ -1064,12 +1064,6 @@ void agregarCongresistaEnCongreso(struct congreso* congreso) {
     printf("Error: No se pudo crear el nuevo congresista.\n");
 }
 
-/*
-esta funcion agrega un ya EXISTENTE congresista a la lista de comisiones
-voy a darle la comision, pues para acceder a la lista simplemente hago comision->headintegrantes
-esto puede cambiar por int para los print
-*/
-
 void agregarCongresistaEnComision(struct comision* comision, char* rut, struct congresista* congresista) {
     struct nodoCongresista* nuevoNodo = NULL;
     struct nodoCongresista* rec = NULL;
@@ -1100,15 +1094,6 @@ void agregarCongresistaEnComision(struct comision* comision, char* rut, struct c
         }
     }
 }
-
-/*
-Funciones para eliminar:
-una solo eliminará a un congresista de la comision
-la otra eliminará a un congresista del arreglo, por lo tanto se debe eliminar de todas las otras comisiones
-
-igualmente que en funciones anteriores, se puede cambiar el char que recibe por el congresista entero
-lo haré int para retornar 0 si hubo un fallo en la eliminacion o 1 si se eliminó bien
-*/
 
 void eliminarCongresistaDeComision(struct comision* comision, char* rutQuitado) {
     struct nodoCongresista* rec;          // Nodo actual para recorrer la lista
@@ -1376,7 +1361,8 @@ struct comision* buscarComision(struct congreso* congreso, char* nombre) {
 struct comision* crearComision(struct congreso* congreso) {
     struct comision* nuevaComision;
     struct nodoCongresista* fantasma;
-    char nombre[100], tipo[50], descripcion[256];
+    char nombre[100], descripcion[256];
+    int tipo;
 
     nuevaComision = (struct comision*)malloc(sizeof(struct comision));
 
@@ -1390,14 +1376,12 @@ struct comision* crearComision(struct congreso* congreso) {
     printf("Ingresa descripcion de la comision:\n");
     scanf("%255[^\n]", descripcion);
     printf("Ingresa el tipo de la comision (senadores/diputados/otros):\n");
-    scanf("%49[^\n]", tipo);
-    convertirMinusculas(tipo);
+    scanf("%d", &tipo);
     nuevaComision->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
     nuevaComision->descripcion = (char*)malloc(sizeof(char) * (strlen(descripcion) + 1));
-    nuevaComision->tipo = (char*)malloc(sizeof(char) * (strlen(tipo) + 1));
+    nuevaComision->tipo = tipo;
     strcpy(nuevaComision->nombre, nombre);
     strcpy(nuevaComision->descripcion, descripcion);
-    strcpy(nuevaComision->tipo, tipo);
 
     // Crear el nodo fantasma
     fantasma = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
@@ -1413,25 +1397,22 @@ void agregarComision(struct congreso* congreso) {
     struct nodoComision* nuevoNodo = NULL;
     int i;
 
-    if (strcmp(nuevaComision->tipo, "senadores") == 0 || strcmp(nuevaComision->tipo, "diputados") == 0) {
-        // Intentar agregar al arreglo de comisiones
-        for (i = 0; i < MAX_COMISIONES; i++) {
-            if (congreso->comisiones[i] == NULL) {
-                congreso->comisiones[i] = nuevaComision;
-                printf("Comision agregada al arreglo de comisiones\n");
-                return;
-            }
+    // Intentar agregar al arreglo de comisiones
+    for (i = 0; i < MAX_COMISIONES; i++) {
+        if (congreso->comisiones[i] == NULL) {
+            congreso->comisiones[i] = nuevaComision;
+            printf("Comision agregada al arreglo de comisiones\n");
+            return;
         }
-        // Si se alcanza el límite del arreglo
-        printf("Error al asignar en el arreglo: se ha alcanzado el máximo de comisiones\n");
     }
-    else
-    {
-        // Agregar como comisión mixta
-        nuevoNodo = crearNodoComision(nuevaComision);
-        nuevoNodo->sig = congreso->comisionesMixtas;
-        congreso->comisionesMixtas = nuevoNodo;
-        printf("Comision agregada como mixta\n");
+    // Si se alcanza el límite del arreglo
+    printf("Error al asignar en el arreglo: se ha alcanzado el máximo de comisiones\n");
+    }
+    // Agregar como comisión mixta
+    nuevoNodo = crearNodoComision(nuevaComision);
+    nuevoNodo->sig = congreso->comisionesMixtas;
+    congreso->comisionesMixtas = nuevoNodo;
+    printf("Comision agregada como mixta\n");
     }
 }
 
@@ -1482,7 +1463,8 @@ void modificarComision(struct congreso* congreso, char* nombre) {
     struct congresista* nuevoCongresista = NULL;
     struct comision* comisionAModificar = buscarComision(congreso, nombre);
     int opcion, subOpcion;
-    char nuevoNombre[100], nuevoTipo[50], nuevaDescripcion[256], rut[20];
+    char nuevoNombre[100], nuevaDescripcion[256], rut[20];
+    int tipo;
 
     if (comisionAModificar == NULL) {
         printf("No existe una comision con el nombre especificado.\n");
@@ -1516,14 +1498,9 @@ void modificarComision(struct congreso* congreso, char* nombre) {
 
     case 2: // Modificar tipo
         printf("Ingrese el nuevo tipo de la comisión (senadores/diputados/otros):\n");
-        scanf("%49[^\n]", nuevoTipo);
+        scanf("%d", &tipo);
 
-        comisionAModificar->tipo = (char*)malloc(strlen(nuevoTipo) + 1);
-        if (comisionAModificar->tipo == NULL) {
-            printf("Error al asignar memoria para el nuevo tipo.\n");
-            return;
-        }
-        strcpy(comisionAModificar->tipo, nuevoTipo);
+        comisionAModificar->tipo = tipo;
         printf("Tipo de la comisión actualizado correctamente.\n");
         break;
 
@@ -1602,7 +1579,7 @@ void mostrarComisionPorNombre(struct congreso* congreso, char* nombre) {
     printf("Comision encontrada:\n\n");
     printf("Nombre: %s\n", buscada->nombre);
     printf("Descripcion: %s\n", buscada->descripcion);
-    printf("Tipo: %s\n", buscada->tipo);
+    printf("Tipo: %d\n", buscada->tipo);
 
     rec = buscada->headIntegrantes;
     if (rec == NULL || rec->sig == rec) { // Chequeo si no hay integrantes
@@ -1636,7 +1613,7 @@ void listarComisiones(struct congreso* congreso) {
         if (congreso->comisiones[i] != NULL) {
             printf("Nombre: %s\n", congreso->comisiones[i]->nombre);
             printf("Descripcion: %s\n", congreso->comisiones[i]->descripcion);
-            printf("Tipo: %s\n", congreso->comisiones[i]->tipo);
+            printf("Tipo: %d\n", congreso->comisiones[i]->tipo);
             printf("\n");
         }
     }
@@ -1647,7 +1624,7 @@ void listarComisiones(struct congreso* congreso) {
         if (rec->datos != NULL) { // Verificar que los datos no sean NULL
             printf("Nombre: %s\n", rec->datos->nombre);
             printf("Descripcion: %s\n", rec->datos->descripcion);
-            printf("Tipo: %s\n", rec->datos->tipo);
+            printf("Tipo: %d\n", rec->datos->tipo);
             printf("\n");
         }
         rec = rec->sig;
