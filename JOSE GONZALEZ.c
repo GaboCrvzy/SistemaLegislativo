@@ -1804,12 +1804,13 @@ aunque esto puede estar sujeto a cambios si se desea, quizas recibir el nodo ent
 
 */
 int comprobarArticulo(struct nodoArticulo* head, int buscado) {
+    
+    struct nodoArticulo*rec;
     // Verificar si la lista está vacía
     if (head == NULL) {
         return 0; // La lista está vacía, no se encuentra el artículo
     }
-
-    struct nodoArticulo* rec = head; // Inicializar el nodo de recorrido
+    rec = head;
 
     // Recorrer la lista en busca del artículo
     while (rec != NULL) {
