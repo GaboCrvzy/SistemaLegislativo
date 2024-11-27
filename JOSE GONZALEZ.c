@@ -222,7 +222,7 @@ struct congreso *inicializarCongreso() {
     nuevoCongreso->comisionesMixtas = NULL;
 
     // Inicializa los arreglos para las comisiones
-    nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision *))
+    nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision *));
 
     // Inicializa la raíz de proyectos de ley
     nuevoCongreso->raiz = NULL;
@@ -2149,7 +2149,7 @@ void gestionarVotacionArticulo(struct congreso *congreso, struct nodoArticulo *a
     char rut[20]; // RUT en formato 12.345.678-K
     struct nodoArticulo *rec = articulos;
     struct congresista *congresista;
-    struct nodoCongresista *nuevoNodo;
+    struct nodoCongresista *nuevoNodo,*actual;
 
     // Pedir al usuario la sección del artículo para agregar la votación
     printf("Ingrese la sección del artículo para añadir una votación: ");
