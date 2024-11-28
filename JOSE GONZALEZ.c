@@ -19,9 +19,8 @@ struct nodoCongresista {
 };
 
 struct congreso {
-    struct congresista** senadores;
     struct congresista** diputados;
-    struct nodoCongresista* congresistasMixtos;
+    struct congresista** senadores;
     struct nodoComision* comisionesMixtas;
     struct comision** comisiones;
     struct nodoProyectoLey* raiz;
