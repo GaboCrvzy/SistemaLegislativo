@@ -20,7 +20,9 @@ struct nodoCongresista {
 
 struct congreso {
     struct congresista** diputados;
+    int maxDiputados;
     struct congresista** senadores;
+    int maxSenadores;
     struct nodoComision* comisionesMixtas;
     struct comision** comisiones;
     struct nodoProyectoLey* raiz;
@@ -66,7 +68,6 @@ struct votacion {
 // Function prototype
 void convertirMinusculas(char* cadena);
 int leerEnteroConLimite(char* mensaje, int min, int max);
-struct congresista* buscarCongresistaPorRUT(struct congreso* congreso, char* rut);
 char leerOpcion();
 struct congreso* inicializarCongreso();
 struct nodoProyectoLey* crearNodoProyectoLey(struct proyectoLey* datos);
@@ -140,28 +141,6 @@ int leerEnteroConLimite(char* mensaje, int min, int max) {
         printf("Error: Valor inválido. Debe estar entre %d y %d.\n", min, max);
     }
     return valor;
-}
-
-// Función auxiliar para buscar un congresista por RUT en el congreso
-struct congresista* buscarCongresistaPorRUT(struct congreso* congreso, char* rut) {
-    int i;
-
-    // Buscar en el arreglo de senadores
-    for (i = 0; congreso->senadores[i] != 0; i++) {
-        if (strcmp(congreso->senadores[i]->rut, rut) == 0) {
-            return congreso->senadores[i];
-        }
-    }
-
-    // Buscar en el arreglo de diputados
-    for (i = 0; congreso->diputados[i] != 0; i++) {
-        if (strcmp(congreso->diputados[i]->rut, rut) == 0) {
-            return congreso->diputados[i];
-        }
-    }
-
-    // Si no se encuentra el congresista
-    return 0;
 }
 
 char leerOpcion() {
@@ -876,45 +855,6 @@ int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscad
     return 0; // No se encontró el congresista en la lista
 }
 
-//funcion para recorrer los arreglos, el de diputados o el de senadores correspondientemente
-struct congresista* comprobarCongresistaEnCongreso(struct congreso* congreso, char* rutBuscado) {
-    struct nodoCongresista* head = congreso->congresistasMixtos;
-    struct nodoCongresista* rec = NULL;
-    int i;
-
-    if (rutBuscado != NULL) {
-        // Buscar en diputados
-        for (i = 0; i < MAX_DIPUTADOS; i++) {
-            if (congreso->diputados[i] != NULL) {
-                if (strcmp(congreso->diputados[i]->rut, rutBuscado) == 0) {
-                    return congreso->diputados[i]; // RUT encontrado
-                }
-            }
-        }
-
-        // Buscar en senadores
-        for (i = 0; i < MAX_SENADORES; i++) {
-            if (congreso->senadores[i] != NULL) {
-                if (strcmp(congreso->senadores[i]->rut, rutBuscado) == 0) {
-                    return congreso->senadores[i]; // RUT encontrado
-                }
-            }
-        }
-
-        // Buscar en la lista de congresistas mixtos
-        if (head != NULL) {
-            rec = head; // Iniciar en la cabeza de la lista
-            while (rec != NULL) {
-                if (rec->datos != NULL && strcmp(rec->datos->rut, rutBuscado) == 0) {
-                    return rec->datos; // RUT encontrado
-                }
-                rec = rec->sig; // Avanzar al siguiente nodo
-            }
-        }
-    }
-    return NULL; // RUT no encontrado
-}
-
 struct congresista* crearCongresista(char *nombre, char *rut, int ocupacion, char *especializacion)
 {
     struct congresista* nuevoCongresista = NULL;
@@ -932,234 +872,35 @@ struct congresista* crearCongresista(char *nombre, char *rut, int ocupacion, cha
     return nuevoCongresista;
 }
 
-void agregarCongresistaEnCongreso(struct congreso* congreso)
+struct congresista *buscarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, char *rutBuscado)
 {
-    struct congresista* nuevoCongresista = crearCongresista(congreso); // Se crea el congresista para insertarlo
-    struct congresista** arreglo = NULL; // Decidirá a qué arreglo pertenece
-    int i = 0;
+    struct congresista *datosCongresista = NULL;
+    int i;
 
-    // Preguntar si el congresista es válido
-    if (nuevoCongresista != NULL) {
-        if (nuevoCongresista->ocupacion == 1) {
-            arreglo = congreso->diputados; // El congresista es un diputado
-        }
-        else
+    for(i = 0; i < tamMax; i++)
+    {
+        if(strcmp(arreglo[i]->rut, rutBuscado) == 0)
         {
-            (nuevoCongresista->ocupacion == 2) {
-            arreglo = congreso->senadores; // El congresista es un senador
-        }
-
-        // Se recorre el arreglo elegido validando que se haya elegido uno
-        if (arreglo != NULL) {
-            if (arreglo == congreso->senadores) {
-                while (i < MAX_SENADORES && arreglo[i] != NULL) {
-                    i++; // Se busca la primera posición vacía
-                }
-                if (i < MAX_SENADORES) {
-                    arreglo[i] = nuevoCongresista; // Añade el nuevo congresista
-                    return; // Se logra asignar sin problema
-                }
-                else {
-                    printf("El arreglo está lleno, no se ha agregado\n");
-                    return;
-                }
-            }
-
-            if (arreglo == congreso->diputados) {
-                while (i < MAX_DIPUTADOS && arreglo[i] != NULL) {
-                    i++; // Se busca la primera posición vacía
-                }
-                if (i < MAX_DIPUTADOS) {
-                    arreglo[i] = nuevoCongresista; // Añade el nuevo congresista
-                    return; // Se logra asignar sin problema
-                }
-                else {
-                    printf("El arreglo está lleno, no se ha agregado\n");
-                    return;
-                }
-            }
+            datosCongresista = arreglo[i];
         }
     }
-    printf("Error: No se pudo crear el nuevo congresista.\n");
+    return datosCongresista;
 }
 
-void agregarCongresistaEnComision(struct comision* comision, char* rut, struct congresista* congresista) {
-    struct nodoCongresista* nuevoNodo = NULL;
-    struct nodoCongresista* rec = NULL;
-
-    // Preguntar que ni uno de los dos sea NULL
-    if (comision != NULL && congresista != NULL) {
-        // Verifico que el congresista no esté en la comisión
-        if (comprobarCongresistaEnComision(comision->headIntegrantes, rut) == 0) {
-            // Creo y enlazo el nuevo nodo
-            nuevoNodo = crearNodoCongresista(comision->headIntegrantes, congresista);
-            if (nuevoNodo == NULL) {
-                return; // Error al crear el nuevo nodo
-            }
-
-            rec = comision->headIntegrantes;
-            if (rec != NULL) {
-                while (rec->sig != comision->headIntegrantes) {
-                    rec = rec->sig; // Encuentra el último nodo
-                }
-                rec->sig = nuevoNodo;         // Enlaza el nuevo nodo al final de la lista
-                nuevoNodo->sig = comision->headIntegrantes; // Enlaza el nuevo nodo al nodo fantasma
-            }
-            else {
-                // Si headIntegrantes es NULL, significa que es el primer nodo
-                nuevoNodo->sig = nuevoNodo; // Enlaza a sí mismo
-                comision->headIntegrantes = nuevoNodo; // Establece el nuevo nodo como head
-            }
+int agregarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, struct congresista *nuevoCongresista)
+{
+    int i;
+    for(i = 0; i < tamMax; i++)
+    {
+        if(arreglo[i] == NULL && buscarCongresistaEnArreglo(arreglo, tamMax, nuevoCongresista->rut) == NULL)
+        {
+            arreglo[i] = nuevoCongresista;
+            return 1;
         }
     }
+    return 0;
 }
 
-void eliminarCongresistaDeComision(struct comision* comision, char* rutQuitado) {
-    struct nodoCongresista* rec;          // Nodo actual para recorrer la lista
-    struct nodoCongresista* anterior = NULL; // Nodo anterior para el manejo de la lista circular
-
-    // Verifico si la lista está vacía o solo contiene el nodo fantasma
-    if (comision == NULL || comision->headIntegrantes == NULL || comision->headIntegrantes->sig == comision->headIntegrantes) {
-        return; // No existe ningún congresista en la comisión, se termina el proceso
-    }
-
-    anterior = comision->headIntegrantes; // Inicializo anterior al nodo fantasma
-    rec = comision->headIntegrantes->sig;  // Inicializo rec al primer nodo real
-
-    do {
-        if (rec->datos != NULL && strcmp(rec->datos->rut, rutQuitado) == 0) {
-            // Se encontró el congresista
-            anterior->sig = rec->sig; // Desvincula el nodo encontrado de la lista
-            return; // Salgo de la función tras eliminar
-        }
-        anterior = rec; // Avanzo en la lista
-        rec = rec->sig;
-
-    } while (rec != comision->headIntegrantes); // Continúo hasta volver al nodo fantasma
-
-    // No se encontró el congresista en la lista
-}
-
-void eliminarCongresistaDeCongreso(struct congreso* congreso, char* rutQuitado) {
-    struct comision** arreglo = NULL;
-    int i, flag = 0;
-    struct congresista* congresista;
-    struct nodoCongresista* rec;
-    struct nodoCongresista* recExterno, * ant;
-
-    // Verifico que el RUT no sea NULL
-    if (rutQuitado != NULL) {
-        congresista = comprobarCongresistaEnCongreso(congreso, rutQuitado);
-
-        if (congresista != NULL) {
-            // Busco en el arreglo de senadores
-            for (i = 0; i < MAX_SENADORES; i++) {
-                if (congreso->senadores[i] != NULL && strcmp(congreso->senadores[i]->rut, rutQuitado) == 0) {
-                    congreso->senadores[i] = NULL;
-                    flag = 1;
-                }
-            }
-            // Si no se encontró en senadores, busco en diputados
-            if (flag == 0) {
-                for (i = 0; i < MAX_DIPUTADOS; i++) {
-                    if (congreso->diputados[i] != NULL && strcmp(congreso->diputados[i]->rut, rutQuitado) == 0) {
-                        congreso->diputados[i] = NULL;
-                        flag = 1;
-                    }
-                }
-            }
-            // Si aún no se ha encontrado, busco en congresistas mixtos
-            if (flag == 0 && congreso->congresistasMixtos != NULL) {
-                recExterno = congreso->congresistasMixtos;
-                ant = NULL;
-                while (recExterno != NULL && strcmp(recExterno->datos->rut, rutQuitado) != 0) {
-                    ant = recExterno;
-                    recExterno = recExterno->sig;
-                }
-
-                if (recExterno != NULL) {
-                    if (ant == NULL) {
-                        congreso->congresistasMixtos = recExterno->sig; // Eliminar el primer nodo
-                    }
-                    else {
-                        ant->sig = recExterno->sig; // Eliminar nodo intermedio o final
-                    }
-                    flag = 1;
-                }
-            }
-        }
-
-        // Ahora comienzo a borrar de las comisiones
-        if (congreso->comisiones != NULL) {
-            arreglo = congreso->comisiones;
-
-            for (i = 0; i < MAX_COMISIONES; i++) {
-                if (arreglo[i] != NULL) {
-                    rec = arreglo[i]->headIntegrantes; // Recorro el arreglo
-
-                    do {
-                        if (comprobarCongresistaEnComision(rec, rutQuitado) == 1) {
-                            // Llamo a la función para eliminar de la comisión
-                            eliminarCongresistaDeComision(arreglo[i], rutQuitado);
-                        }
-                        rec = rec->sig;
-                    } while (rec != arreglo[i]->headIntegrantes);
-                }
-            }
-        }
-    }
-
-    if (flag == 1) {
-        printf("El congresista fue eliminado\n");
-    }
-    else {
-        printf("El congresista no fue encontrado\n");
-    }
-}
-
-/*
-Funcion para modificar a un congresista
-primero tengo que elegir el arreglo en el que está o simplemente recorrer ambos arreglos
-en este caso no incluí la modificacion de la ocupación
-ya que al cambiar la ocupacion es mejor eliminarlo del arreglo y agregarlo al otro simplemente
-*/
-
-void modificarCongresista(struct congreso* congreso, char* rutBuscado) {
-    char nombre[100], especializacion[100], rut[20];
-    struct congresista* congresista = comprobarCongresistaEnCongreso(congreso, rutBuscado);
-
-    if (congresista != NULL) {
-        // Escaneo los datos nuevos
-        printf("Ingrese nuevo Nombre: ");
-        scanf(" %99[^\n]", nombre); // Ingrese nuevo nombre
-
-        printf("Ingrese nueva especializacion: ");
-        scanf(" %99[^\n]", especializacion); // Ingrese nueva especializacion
-
-        printf("Ingrese nuevo rut: ");
-        scanf(" %19[^\n]", rut); // Ingrese nuevo rut
-
-        // Asignación de memoria para los nuevos datos
-        congresista->rut = (char*)malloc(sizeof(char) * (strlen(rut) + 1));
-        congresista->nombre = (char*)malloc(sizeof(char) * (strlen(nombre) + 1));
-        congresista->especializacion = (char*)malloc(sizeof(char) * (strlen(especializacion) + 1));
-
-        // Verificación de asignación de memoria
-        if (congresista->rut == NULL || congresista->nombre == NULL || congresista->especializacion == NULL) {
-            printf("Error al asignar memoria para los datos del congresista.\n");
-            return; // Salgo si hubo error en la asignación
-        }
-
-        // Copiar los nuevos datos
-        strcpy(congresista->rut, rut);
-        strcpy(congresista->nombre, nombre);
-        strcpy(congresista->especializacion, especializacion);
-
-        printf("Fue modificado correctamente\n");
-        return;
-    }
-    printf("Hubo un problema al modificar al congresista\n");
-}
 
 void mostrarCongresista(struct congreso* congreso, char* rutBuscado) {
     struct congresista* congresistaBuscado = NULL;
