@@ -88,17 +88,6 @@ void recorrerArbolEnOrden(struct nodoProyectoLey* nodo, struct proyectoLey*** pr
 int compararPorUrgencia(const void* a, const void* b);
 void mostrarProyectosOrdenDeUrgencia(struct congreso* congreso);
 void modificarProyectoLey(struct congreso* congreso, int idProyecto);
-struct nodoCongresista* crearNodoCongresista(struct nodoCongresista* head, struct congresista* datos);
-int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado);
-struct congresista* comprobarCongresistaEnCongreso(struct congreso* congreso, char* rutBuscado);
-struct congresista* crearCongresista(struct congreso* congreso);
-void agregarCongresistaEnCongreso(struct congreso* congreso);
-void agregarCongresistaEnComision(struct comision* comision, char* rut, struct congresista* congresista);
-void eliminarCongresistaDeComision(struct comision* comision, char* rutQuitado);
-void eliminarCongresistaDeCongreso(struct congreso* congreso, char* rutQuitado);
-void modificarCongresista(struct congreso* congreso, char* rutBuscado);
-void mostrarCongresista(struct congreso* congreso, char* rutBuscado);
-void listarCongresistas(struct congreso* congreso);
 struct nodoComision* crearNodoComision(struct comision* datos);
 struct comision* buscarComision(struct congreso* congreso, char* nombre);
 struct comision* crearComision(struct congreso* congreso);
@@ -826,43 +815,15 @@ void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
 
 /*TODO: FUNCIONES DE CONGRESISTAS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-struct nodoCongresista* crearNodoCongresista(struct nodoCongresista*head, struct congresista*nuevoCongresista)
-{
-    struct nodoCongresista *nodoNuevo = NULL;
 
-    if (nuevoCongresista != NULL) 
-    {
-        nodoNuevo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
-        nodo->datos = nuevoCongresista; 
-        nodo->sig = NULL;
-    }
-    return nodoNuevo;
-}
-
-int comprobarCongresistaEnComision(struct nodoCongresista* head, char* rutBuscado) 
-{
-    struct nodoCongresista* rec = head; // Iniciamos en el nodo fantasma
-
-    rec = head->sig; // Saltar el nodo fantasma
-    do {
-        // Verificamos que rec->datos no sea NULL y comparamos el RUT
-        if (rec->datos != NULL && strcmp(rec->datos->rut, rutBuscado) == 0) {
-            return 1; // Se encontró el congresista en la lista
-        }
-        rec = rec->sig; // Avanzar al siguiente nodo
-    } while (rec != head); // Volver al nodo fantasma
-
-    return 0; // No se encontró el congresista en la lista
-}
-
-struct congresista* crearCongresista(char *nombre, char *rut, int ocupacion, char *especializacion)
+struct congresista *crearCongresista(char *nombre, char *rut, int ocupacion, char *especializacion)
 {
     struct congresista* nuevoCongresista = NULL;
     nuevoCongresista = (struct congresista*)malloc(sizeof(struct congresista));
 
-    nuevoCongresista->nombre = (char*)malloc(siezof(char) * strlen(nombre));
-    nuevoCongresista->rut = (char*)malloc(siezof(char) * strlen(rut));
-    nuevoCongresista->especializacion = (char*)malloc(siezof(char) * strlen(especializacion));
+    nuevoCongresista->nombre = (char*)malloc(sizeof(char) * strlen(nombre));
+    nuevoCongresista->rut = (char*)malloc(sizeof(char) * strlen(rut));
+    nuevoCongresista->especializacion = (char*)malloc(sizeof(char) * strlen(especializacion));
 
     strcpy(nuevoCongresista->nombre, nombre);
     strcpy(nuevoCongresista->rut, rut);
@@ -879,7 +840,7 @@ struct congresista *buscarCongresistaEnArreglo(struct congresista **arreglo, int
 
     for(i = 0; i < tamMax; i++)
     {
-        if(strcmp(arreglo[i]->rut, rutBuscado) == 0)
+        if(arreglo[i] != NULL && strcmp(arreglo[i]->rut, rutBuscado) == 0)
         {
             datosCongresista = arreglo[i];
         }
@@ -901,79 +862,142 @@ int agregarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, struct
     return 0;
 }
 
+int eliminarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, char *rutEliminar)
+{
+  int i;
 
-void mostrarCongresista(struct congreso* congreso, char* rutBuscado) {
-    struct congresista* congresistaBuscado = NULL;
-
-    // Busco el congresista
-    congresistaBuscado = comprobarCongresistaEnCongreso(congreso, rutBuscado);
-    if (congresistaBuscado == NULL) {
-        printf("No existe el congresista en el sistema\n");
-        return;
-    }
-
-    // Muestra la información del congresista
-    printf("Nombre: %s\n", congresistaBuscado->nombre);
-    printf("RUT: %s\n", congresistaBuscado->rut);
-    printf("Ocupacion: %s\n", congresistaBuscado->ocupacion);
-    printf("Especializacion: %s\n\n", congresistaBuscado->especializacion);
+  for(i = 0; i < tamMax; i++)
+  {
+    if(arreglo[i] != NULL && strcmp(arreglo[i]->rut, rutEliminar) == 0)
+    {
+      arreglo[i] = NULL;
+      return 1;
+    } 
+  }
+  return 0;
 }
 
-/*
-funcion listar congresista:
-esta funcion es un poco redundante, pues llama al mostrarCongresista y esta lo busca de nuevo pero cumple con el requisito de listar
-*/
-void listarCongresistas(struct congreso* congreso) {
-    struct congresista** arregloDiputados = congreso->diputados;
-    struct congresista** arregloSenadores = congreso->senadores;
-    struct nodoCongresista* rec;
-    int i, flagDiputados = 0, flagSenadores = 0, flagExternos = 0;
-
-    // Verifica que el congreso no sea NULL
-    if (congreso == NULL) {
-        return;
+void mostrarCongresistas(struct congresista **arreglo, int tamMax)
+{
+  int i;
+  
+  for(i = 0; i < tamMax; i++)
+  {
+    if(arreglo[i] != NULL)
+    {
+      printf("Nombre: %s\n", arreglo[i]->nombre);
+      printf("RUT: %s\n", arreglo[i]->rut);
+      printf("Ocupacion: %d\n", arreglo[i]->ocupacion);
+      printf("Especializacion: %s\n", arreglo[i]->especializacion);
+      printf("\n");
     }
+  }
+}
 
-    printf("Diputados en sistema:\n");
-    if (arregloDiputados != NULL) {
-        for (i = 0; i < MAX_DIPUTADOS; i++) {
-            if (arregloDiputados[i] != NULL) {
-                printf("Nombre: %s\n", arregloDiputados[i]->nombre);
-                printf("RUT: %s\n\n", arregloDiputados[i]->rut);
-                flagDiputados = 1;
-            }
-        }
-    }
-    printf("\n\n");
+struct nodoCongresista *enlazarCongresista(struct congresista *nuevoCongresista)
+{
+    struct nodoCongresista *nodoNuevo = NULL;
 
-    if (arregloSenadores != NULL) {
-        printf("Senadores en sistema:\n");
-        for (i = 0; i < MAX_SENADORES; i++) {
-            if (arregloSenadores[i] != NULL) {
-                printf("Nombre: %s\n", arregloSenadores[i]->nombre);
-                printf("RUT: %s\n\n", arregloSenadores[i]->rut);
-                flagSenadores = 1;
-            }
-        }
+    if (nuevoCongresista != NULL) 
+    {
+        nodoNuevo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
+        nodoNuevo->datos = nuevoCongresista; 
+        nodoNuevo->sig = NULL;
     }
-    printf("\n\n");
+    return nodoNuevo;
+}
 
-    if (congreso->congresistasMixtos != NULL) {
-        printf("Externos en sistema:\n");
-        rec = congreso->congresistasMixtos;
-        while (rec != NULL) {
-            if (rec->datos != NULL) {
-                printf("Nombre: %s\n", rec->datos->nombre);
-                printf("RUT: %s\n\n", rec->datos->rut);
-                flagExternos = 1;
-            }
-            rec = rec->sig; // Se asume que esto es correcto, aunque normalmente la lista enlazada debería tener un nodo final
-        }
-    }
+struct congresista *buscarCongresistaEnLista(struct nodoCongresista *head, char *rutBuscado)
+{
+  struct nodoCongresista *rec;
+  struct congresista *congresista = NULL;
 
-    if (flagDiputados == 0 && flagSenadores == 0 && flagExternos == 0) {
-        printf("El sistema no tiene congresistas\n");
+  rec = head;
+  if(head != NULL)
+  {
+    while(rec != NULL)
+    {
+      if(strcmp(rec->datos->rut, rutBuscado) == 0)
+      {
+        congresista = rec->datos;
+        return congresista;
+      }
+      rec = rec->sig;
     }
+  }
+  return NULL;
+}
+
+int agregarCongresistaEnComisionLista(struct nodoCongresista **head, struct congresista *nuevoCongresista)
+{
+  struct nodoCongresista *rec, *nodoNuevo = NULL;
+  
+  if (*head == NULL)
+  {
+    (*head)->datos = nuevoCongresista;
+    (*head)->sig = NULL;
+    return 1;
+  }
+
+  else
+  {
+    rec = *head;
+    
+    while(rec->sig != NULL)
+      rec = rec->sig;
+
+    if(buscarCongresistaEnLista(*head, nuevoCongresista->rut) == NULL)
+    {
+      nodoNuevo = enlazarCongresista(nuevoCongresista);
+      rec->sig = nodoNuevo;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int eliminarCongresistaEnComisionLista(struct nodoCongresista **head, char *rutEliminar)
+{
+  struct nodoCongresista *rec;
+
+  if(*head != NULL && strcmp( (*head)->datos->rut, rutEliminar) == 0)
+  {
+    *head = (*head)->sig;
+    return 1;
+  }
+
+  else
+  {
+    rec = *head;
+
+    while(rec->sig != NULL)
+    {
+      if(strcmp(rec->sig->datos->rut, rutEliminar) == 0)
+      {
+        rec->sig = rec->sig->sig;
+        return 1;
+      }
+      rec = rec->sig;
+    }
+  }
+  return 0;
+}
+
+void mostrarCongresistaEnComisionLista(struct nodoCongresista *head)
+{
+  struct nodoCongresista *rec;
+  rec = head;
+
+  while(rec != NULL)
+  {
+    printf("Nombre: %s\n", rec->datos->nombre);
+    printf("RUT: %s\n", rec->datos->rut);
+    printf("Ocupacion: %d\n", rec->datos->ocupacion);
+    printf("Especializacion: %s\n", rec->datos->especializacion);
+    printf("\n");
+
+    rec = rec->sig;
+  }
 }
 
 /*TODO: FUNCIONES DE COMISIONES------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
