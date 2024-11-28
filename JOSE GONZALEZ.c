@@ -66,16 +66,11 @@ struct votacion {
 };
 
 // Function prototype
-void convertirMinusculas(char* cadena);
-int leerEnteroConLimite(char* mensaje, int min, int max);
 char leerOpcion();
 struct congreso* inicializarCongreso();
 struct nodoProyectoLey* crearNodoProyectoLey(struct proyectoLey* datos);
 void agregarNodoProyectoLey(struct congreso* congreso);
 struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey* raiz, int id);
-struct nodoProyectoLey* minValorNodo(struct nodoProyectoLey* nodo);
-struct nodoProyectoLey* borrarNodoProyectoLey(struct congreso* congreso, struct nodoProyectoLey* raiz, int id);
-void borrarProyectoLey(struct congreso* congreso, int id);
 void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* categoria);
 void buscarYMostrarProyectoLey(struct congreso* congreso, int id);
 void agregarCongresistaAVotacion(struct votacion* votacion, struct congreso* congreso);
@@ -107,43 +102,6 @@ void mostrarLeyesPorFase(struct nodoProyectoLey* leyes, int faseRequerida);
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void convertirMinusculas(char* cadena) {
-    int i;
-    for (i = 0; cadena[i]; i++) {
-        if (cadena[i] >= 'A' && cadena[i] <= 'Z') {
-            cadena[i] += 'a' - 'A';
-        }
-    }
-}
-
-
-int leerEnteroConLimite(char* mensaje, int min, int max) {
-    int valor;
-    char input[10];
-    while (1) {
-        printf("%s (%d-%d): ", mensaje, min, max);
-        scanf("%9s", input);
-        valor = atoi(input);
-        if (valor >= min && valor <= max) {
-            break;
-        }
-        printf("Error: Valor inválido. Debe estar entre %d y %d.\n", min, max);
-    }
-    return valor;
-}
-
-char leerOpcion() {
-    char opcion;
-    scanf("%c", &opcion);
-
-    /* Convierte a mayúscula si es una letra minúscula */
-    if (opcion >= 'a' && opcion <= 'z') {
-        opcion -= 'a' - 'A';
-    }
-
-    return opcion;
-}
-
 //TODO: FUNCIÓN DE INICIALIZACIÓN DEL CONGRESO----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO: ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 /*Esta función almacena memoria para todos los datos que debe almacenar "congreso"*/
@@ -172,110 +130,24 @@ struct congreso* inicializarCongreso() {
 
 //TODO: FUNCIÓNES DEL PROYECTO DE LEY----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-struct nodoProyectoLey* crearNodoProyectoLey(struct proyectoLey* datos) {
-    struct nodoProyectoLey* nodo = NULL;
 
-    // Validar que los datos no sean NULL
-    if (datos != NULL) {
-        nodo = malloc(sizeof(struct nodoProyectoLey));
+struct proyectoLey* crearProyectoLey(int idProyecto,char *nombre, char *tipo, int urgencia, int fase ) {
 
-        if (nodo == NULL) {
-            printf("Error: No se pudo asignar memoria para el nodo de proyecto de ley.\n");
-            return NULL;
-        }
+    struct proyectoLey *nuevoProyecto;
+    nuevoProyecto = (struct proyectoLey*)malloc(sizeof(struct proyectoLey));
 
-        nodo->datos = datos; // Copiar los datos recibidos
-        nodo->izq = NULL;
-        nodo->der = NULL;
-    }
-
-    return nodo;
-}
-
-struct proyectoLey* crearProyectoLey(struct congreso* congreso) {
-
-    struct proyectoLey* nuevoProyecto;
-    char nombre[100], tipo[50];
-    int idProyecto, urgencia, fase;
-
-    nuevoProyecto = malloc(sizeof(struct proyectoLey));
-
-    printf("Ingrese el nombre del proyecto de ley: ");
-    if (fgets(nombre, sizeof(nombre), stdin) == NULL) {
-        printf("Error al leer el nombre del proyecto de ley.\n");
-        return NULL;
-    }
-    else {
-        nombre[strcspn(nombre, "\n")] = '\0';
-    }
-
-    printf("Ingrese el tipo del proyecto de ley: ");
-    if (fgets(tipo, sizeof(tipo), stdin) == NULL) {
-        printf("Error al leer el tipo del proyecto de ley.\n");
-        return NULL;
-    }
-    else {
-        tipo[strcspn(tipo, "\n")] = '\0';
-    }
-
-    // Validación y captura del ID con verificación de duplicados
-    do {
-        idProyecto = leerEnteroConLimite("Ingrese el ID del proyecto", 10000000, 99999999);
-        if (buscarProyectoLeyPorID(congreso->raiz, idProyecto)) {
-            printf("Error: El ID ya está en uso. Ingrese otro ID.\n");
-        }
-    } while (buscarProyectoLeyPorID(congreso->raiz, idProyecto));
-
-    urgencia = leerEnteroConLimite("Ingrese la urgencia del proyecto", 1, 5);
-    fase = leerEnteroConLimite("Ingrese la fase del proyecto", 1, 8);
-
-    nuevoProyecto->nombre = malloc(strlen(nombre) + 1);
-    nuevoProyecto->tipo = malloc(strlen(tipo) + 1);
-
-    strcpy(nuevoProyecto->nombre, nombre);
-    strcpy(nuevoProyecto->tipo, tipo);
     nuevoProyecto->idProyecto = idProyecto;
+
+    nuevoProyecto->nombre = (char *)malloc((strlen(nombre) + 1) * sizeof(char));
+    strcpy(nuevoProyecto->nombre, nombre);
+
+    nuevoProyecto->tipo = (char *)malloc((strlen(tipo) + 1) * sizeof(char));
+    strcpy(nuevoProyecto->tipo, tipo);
+
     nuevoProyecto->urgencia = urgencia;
     nuevoProyecto->fase = fase;
-    nuevoProyecto->votacion = NULL;
 
     return nuevoProyecto;
-}
-
-
-void agregarNodoProyectoLey(struct congreso* congreso) {
-    struct proyectoLey* datos;
-    struct nodoProyectoLey* nuevoNodo, * actual, * padre;
-
-    datos = crearProyectoLey(congreso); // Crear proyecto de ley
-    nuevoNodo = crearNodoProyectoLey(datos); // Crear nodo para el proyecto de ley
-
-    if (congreso->raiz == NULL) {
-        congreso->raiz = nuevoNodo;
-    }
-    else
-    {
-        actual = congreso->raiz;
-        padre = NULL;
-
-        while (actual != NULL)
-        {
-            padre = actual;
-            if (datos->idProyecto < actual->datos->idProyecto) {
-                actual = actual->izq;
-            }
-            else {
-                actual = actual->der;
-            }
-        }
-
-        if (datos->idProyecto < padre->datos->idProyecto) {
-            padre->izq = nuevoNodo;
-        }
-        else {
-            padre->der = nuevoNodo;
-        }
-    }
 }
 
 // Función para buscar un proyecto de ley por ID
@@ -295,74 +167,6 @@ struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey* raiz, int id)
         // Buscamos en el subárbol derecho si el ID es mayor
         return buscarProyectoLeyPorID(raiz->der, id);
     }
-}
-
-// Encuentra el nodo mínimo en el árbol (usado para encontrar el sucesor en caso de eliminación)
-struct nodoProyectoLey* minValorNodo(struct nodoProyectoLey* nodo) {
-    struct nodoProyectoLey* actual;
-
-    actual = nodo;
-
-    /* Recorre el subárbol hacia la izquierda para encontrar el nodo mínimo */
-    while (actual != NULL && actual->izq != NULL) {
-        actual = actual->izq;
-    }
-    return actual;
-}
-
-// Función para borrar un nodo en el árbol binario de búsqueda
-struct nodoProyectoLey* borrarNodoProyectoLey(struct congreso* congreso, struct nodoProyectoLey* raiz, int id) {
-    struct nodoProyectoLey* temp;
-
-    /* Caso base */
-    if (raiz == NULL) return raiz;
-
-    /* Si el id a eliminar es más pequeño que el id de la raíz, está en el subárbol izquierdo */
-    if (id < raiz->datos->idProyecto) {
-        raiz->izq = borrarNodoProyectoLey(congreso, raiz->izq, id);
-    }
-    /* Si el id a eliminar es mayor que el id de la raíz, está en el subárbol derecho */
-    else if (id > raiz->datos->idProyecto) {
-        raiz->der = borrarNodoProyectoLey(congreso, raiz->der, id);
-    }
-    /* Si el id es el mismo que el id de la raíz, este es el nodo a eliminar */
-    else {
-        /* Nodo con solo un hijo o sin hijos */
-        if (raiz->izq == NULL) {
-            temp = raiz->der;
-            return temp;
-        }
-        else if (raiz->der == NULL) {
-            temp = raiz->izq;
-            return temp;
-        }
-
-        /* Nodo con dos hijos: obtener el sucesor en el orden (el más pequeño en el subárbol derecho) */
-        temp = minValorNodo(raiz->der);
-
-        /* Copiar el contenido del sucesor al nodo actual */
-        raiz->datos->idProyecto = temp->datos->idProyecto;
-
-        /* Asegurarse de que haya suficiente memoria para copiar los campos */
-        raiz->datos->nombre = realloc(raiz->datos->nombre, strlen(temp->datos->nombre) + 1);
-        raiz->datos->tipo = realloc(raiz->datos->tipo, strlen(temp->datos->tipo) + 1);
-        if (raiz->datos->nombre != NULL && raiz->datos->tipo != NULL) {
-            strcpy(raiz->datos->nombre, temp->datos->nombre);
-            strcpy(raiz->datos->tipo, temp->datos->tipo);
-        }
-        raiz->datos->urgencia = temp->datos->urgencia;
-        raiz->datos->fase = temp->datos->fase;
-
-        /* Borrar el sucesor */
-        raiz->der = borrarNodoProyectoLey(congreso, raiz->der, temp->datos->idProyecto);
-    }
-
-    return raiz;
-}
-
-// Función para borrar un proyecto de ley
-void borrarProyectoLey(struct congreso* congreso, int id) {
-    congreso->raiz = borrarNodoProyectoLey(congreso, congreso->raiz, id);
 }
 
 // Función auxiliar para contar y mostrar los congresistas en una lista de votación
@@ -1405,58 +1209,61 @@ void menuProyectosLey(struct congreso* congreso) {
     }
 }
 
-void menuCongresistas(struct congreso* congreso) {
-    char opcion[2];
+void menuCongresistas(struct congreso* congreso,struct congresista **arreglo) {
+    struct congresista* nuevoCongresista = NULL;
+    int tipo;
     char rut[20];
-    struct nodoCongresista* actual = NULL;
+    int opcion;
+    do {
+        printf("\n=== Menu de Congresistas ===\n");
+        printf("1. Agregar Diputado\n");
+        printf("2. Eliminar Diputado\n");
+        printf("3. Buscar Politico\n");
+        printf("4. Mostrar Diputados\n");
+        printf("5. Agregar Senador\n");
+        printf("6. Eliminar Senador\n");
+        printf("7. Mostrar Senadores\n");
+        printf("8. Volver al Menu Principal\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
 
-    while (1) {
-        printf("Menu Congresistas.\n"
-            "Opcion A: Agregar Congresista\n"
-            "Opcion B: Borrar Congresista\n"
-            "Opcion C: Buscar Congresista\n"
-            "Opcion D: Modificar Congresista\n"
-            "Opcion E: Listar Congresistas\n"
-            "Opcion F: Volver al menu principal\n");
-
-        scanf("%1s", opcion);
-
-        // Convierte la opción a mayúscula si está en minúscula
-        opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
-
-        switch (opcion[0]) {
-        case 'A':
-            printf("Funcion: Agregar Congresista\n");
-            agregarCongresistaEnCongreso(congreso);
-            break; // Se añadió break aquí
-        case 'B':
-            printf("Funcion: Borrar Congresista\n Ingrese el rut del congresista a eliminar: ");
-            scanf("%19[^\n]", rut);
-            eliminarCongresistaDeCongreso(congreso, rut);
-            break; // Se añadió break aquí
-        case 'C':
-            printf("Funcion: Buscar Congresista\n");
-            printf("Ingrese el rut del congresista a buscar: ");
-            scanf("%19[^\n]", rut);
-            mostrarCongresista(congreso, rut);
-            break; // Se añadió break aquí
-        case 'D':
-            printf("Funcion: Modificar Congresista\n");
-            printf("Ingrese el rut del congresista a modificar:\n");
-            scanf(" %19[^\n]", rut);
-            modificarCongresista(congreso, rut);
-            break; // Se añadió break aquí
-        case 'E':
-            printf("Funcion: Listar Congresistas\n");
-            listarCongresistas(congreso);
-            break; // Se añadió break aquí
-        case 'F':
-            return; // Salir del menú
-        default:
-            printf("Opcion invalida, por favor intente otra vez.\n");
-            break; // Se añadió break aquí
+        switch(opcion) {
+            case 1:
+                agregarCongresistaEnArreglo(arreglo,congreso->maxDiputados,nuevoCongresista);
+                break;
+            case 2:
+                eliminarCongresistaEnArreglo(arreglo,congreso->maxDiputados,rut);
+                break;
+            case 3:
+                printf("Ingrese 1 para diputado o 2 para senador\n");
+                scanf("%s",&tipo);
+                if(tipo ==1) {
+                    buscarCongresistaEnArreglo(arreglo,congreso->maxDiputados,rut);
+                }else {
+                    buscarCongresistaEnArreglo(arreglo,congreso->maxSenadores,rut);
+                }
+                break;
+            case 4:
+                mostrarCongresistas(arreglo,congreso->maxDiputados);
+                break;
+            case 5:
+                agregarCongresistaEnArreglo(arreglo,congreso->maxSenadores,nuevoCongresista);
+                break;
+            case 6:
+                eliminarCongresistaEnArreglo(arreglo,congreso->maxSenadores,rut);
+                break;
+            case 7:
+                mostrarCongresistas(arreglo,congreso->maxSenadores);
+                break;
+            case 8:
+                printf("Volviendo al Menu Principal...\n");
+                return;
+            default:
+                printf("Opcion no valida. Por favor, intente nuevamente.\n");
+                break;
         }
-    }
+
+    } while(opcion != 7);
 }
 
 void menuComisiones(struct congreso* congreso) {
