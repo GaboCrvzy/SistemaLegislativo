@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,9 +67,6 @@ struct votacion {
 };
 
 // Function prototype
-void convertirMinusculas(char* cadena);
-int leerEnteroConLimite(char* mensaje, int min, int max);
-char leerOpcion();
 struct congreso* inicializarCongreso();
 void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* categoria);
 void agregarCongresistaAVotacion(struct votacion* votacion, struct congreso* congreso);
@@ -92,41 +90,36 @@ void menuComisiones(struct congreso* congreso);
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void convertirMinusculas(char* cadena) {
-    int i;
-    for (i = 0; cadena[i]; i++) {
-        if (cadena[i] >= 'A' && cadena[i] <= 'Z') {
-            cadena[i] += 'a' - 'A';
-        }
+int validarRUTSinFormato(const char *rut) {
+    int largo = strlen(rut);
+
+    // El RUT debe tener al menos 2 caracteres (números + dígito verificador)
+    if (largo < 2 || largo > 10) return 0;
+
+    // Verifica que todos los caracteres menos el último sean dígitos
+    for (int i = 0; i < largo - 1; i++) {
+        if (!isdigit(rut[i])) return 0;
     }
+
+    // Verifica que el último carácter sea un número o 'K/k'
+    char verificador = rut[largo - 1];
+    if (!isdigit(verificador) && tolower(verificador) != 'k') return 0;
+
+    return 1; // RUT válido
 }
 
-
-int leerEnteroConLimite(char* mensaje, int min, int max) {
-    int valor;
-    char input[10];
+void solicitarRUT(char *rut) {
     while (1) {
-        printf("%s (%d-%d): ", mensaje, min, max);
-        scanf("%9s", input);
-        valor = atoi(input);
-        if (valor >= min && valor <= max) {
+        printf("Ingrese el RUT (sin puntos ni guion, con digito verificador): ");
+        scanf(" %s", rut);
+
+        if (validarRUTSinFormato(rut)) {
+            printf("RUT valido: %s\n", rut);
             break;
+        } else {
+            printf("RUT no valido. Intente nuevamente.\n");
         }
-        printf("Error: Valor inválido. Debe estar entre %d y %d.\n", min, max);
     }
-    return valor;
-}
-
-char leerOpcion() {
-    char opcion;
-    scanf("%c", &opcion);
-
-    /* Convierte a mayúscula si es una letra minúscula */
-    if (opcion >= 'a' && opcion <= 'z') {
-        opcion -= 'a' - 'A';
-    }
-
-    return opcion;
 }
 
 //TODO: FUNCIÓN DE INICIALIZACIÓN DEL CONGRESO----------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -156,20 +149,19 @@ struct congreso* inicializarCongreso() {
 
 //TODO: FUNCIÓNES DEL PROYECTO DE LEY----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-struct proyectoLey* crearProyectoLey(int idProyecto, char* nombre, char* tipo, int urgencia, int fase) 
+struct proyectoLey* crearProyectoLey(int idProyecto, char* nombre, char* tipo, int urgencia, int fase)
 {
   struct proyectoLey *nuevoProyecto = NULL;
 
   nuevoProyecto = (struct proyectoLey*)malloc(sizeof(struct proyectoLey));
 
   nuevoProyecto->idProyecto = idProyecto;
-  
-  nuevoProyecto->nombre = (char*)malloc(sizeof(char) * strlen(nombre));
+  nuevoProyecto->nombre = (char*)malloc(strlen(nombre)+1);
   strcpy(nuevoProyecto->nombre, nombre);
-  
-  nuevoProyecto->tipo = (char*)malloc(sizeof(char) * strlen(tipo));
+
+  nuevoProyecto->tipo = (char*)malloc(strlen(tipo)+1);
   strcpy(nuevoProyecto->tipo, tipo);
-  
+
   nuevoProyecto->urgencia = urgencia;
   nuevoProyecto->fase = fase;
   nuevoProyecto->votacion = NULL;
@@ -180,7 +172,7 @@ struct proyectoLey* crearProyectoLey(int idProyecto, char* nombre, char* tipo, i
 struct nodoProyectoLey* insertarProyectoLey(struct nodoProyectoLey *raiz, struct proyectoLey *proyecto)
 {
   struct nodoProyectoLey *nuevoNodo = NULL;
-  
+
   if (raiz == NULL)
   {
     nuevoNodo = (struct nodoProyectoLey*)malloc(sizeof(struct nodoProyectoLey));
@@ -198,10 +190,12 @@ struct nodoProyectoLey* insertarProyectoLey(struct nodoProyectoLey *raiz, struct
   {
     raiz->der = insertarProyectoLey(raiz->der, proyecto);
   }
-  else return raiz;
+  else {
+      return raiz;
+  }
 }
 
-struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id) 
+struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id)
 {
     if (raiz == NULL) {
         return NULL;
@@ -221,7 +215,7 @@ struct proyectoLey* buscarProyectoLeyPorID(struct nodoProyectoLey *raiz, int id)
 int modificarProyectoLey(struct nodoProyectoLey *raiz, int idBuscado, int faseNueva)
 {
   struct proyectoLey *proyecto = NULL;
-  
+
   proyecto = buscarProyectoLeyPorID(raiz, idBuscado);
 
   if (proyecto == NULL) return 0;
@@ -519,98 +513,6 @@ void mostrarProyectosOrdenDeUrgencia(struct congreso* congreso) {
     }
 }
 
-void modificarProyectoLey(struct congreso* congreso, int idProyecto) {
-    struct proyectoLey* proyecto;
-    char opcion;
-
-    // Buscar el proyecto de ley por ID
-    proyecto = buscarProyectoLeyPorID(congreso->raiz, idProyecto);
-    if (!proyecto) {
-        printf("Error: Proyecto de ley no encontrado.\n");
-        return;
-    }
-
-    do {
-        printf("Seleccione el campo a modificar:\n");
-        printf("a. Nombre\n");
-        printf("b. Tipo\n");
-        printf("c. ID Proyecto\n");
-        printf("d. Urgencia\n");
-        printf("e. Fase\n");
-        printf("f. Agregar votación\n");
-        printf("g. Salir\n");
-        printf("Opción: ");
-
-        // Leer opción y limpiar buffer de entrada
-        scanf(" %c", &opcion);
-        // Convertir a minúscula si es una letra mayúscula
-        if (opcion >= 'A' && opcion <= 'Z') {
-            opcion += 'a' - 'A';
-        }
-
-        switch (opcion) {
-        case 'a': {
-            char nuevoNombre[100];
-            printf("Ingrese nuevo nombre: ");
-            if (fgets(nuevoNombre, sizeof(nuevoNombre), stdin) == NULL) {
-                printf("Error al leer el nombre.\n");
-                break;
-            }
-            nuevoNombre[strcspn(nuevoNombre, "\n")] = '\0'; // Remover salto de línea
-            proyecto->nombre = (char*)malloc(strlen(nuevoNombre) + 1);
-            if (proyecto->nombre) {
-                strcpy(proyecto->nombre, nuevoNombre);
-            }
-            else {
-                printf("Error: No se pudo asignar memoria para el nuevo nombre.\n");
-            }
-            break;
-        }
-        case 'b': {
-            char nuevoTipo[50];
-            printf("Ingrese nuevo tipo: ");
-            if (fgets(nuevoTipo, sizeof(nuevoTipo), stdin) == NULL) {
-                printf("Error al leer el tipo.\n");
-                break;
-            }
-            nuevoTipo[strcspn(nuevoTipo, "\n")] = '\0'; // Remover salto de línea
-            proyecto->tipo = (char*)malloc(strlen(nuevoTipo) + 1);
-            if (proyecto->tipo) {
-                strcpy(proyecto->tipo, nuevoTipo);
-            }
-            else {
-                printf("Error: No se pudo asignar memoria para el nuevo tipo.\n");
-            }
-            break;
-        }
-        case 'c': {
-            int nuevoID = leerEnteroConLimite("Ingrese nuevo ID de proyecto", 10000000, 99999999);
-            proyecto->idProyecto = nuevoID;
-            break;
-        }
-        case 'd': {
-            int nuevaUrgencia = leerEnteroConLimite("Ingrese nueva urgencia", 1, 5);
-            proyecto->urgencia = nuevaUrgencia;
-            break;
-        }
-        case 'e': {
-            int nuevaFase = leerEnteroConLimite("Ingrese nueva fase", 1, 8);
-            proyecto->fase = nuevaFase;
-            break;
-        }
-        case 'f':
-            // Llamar a la función para agregar votación al proyecto de ley
-            agregarVotacion(congreso, idProyecto);
-            break;
-        case 'g':
-            printf("Saliendo de la modificación del proyecto de ley.\n");
-            break;
-        default:
-            printf("Opción inválida. Intente nuevamente.\n");
-        }
-    } while (opcion != 'i');
-}
-
 /*TODO: FUNCIONES DE CONGRESISTAS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -619,9 +521,9 @@ struct congresista *crearCongresista(char *nombre, char *rut, int ocupacion, cha
     struct congresista* nuevoCongresista = NULL;
     nuevoCongresista = (struct congresista*)malloc(sizeof(struct congresista));
 
-    nuevoCongresista->nombre = (char*)malloc(sizeof(char) * strlen(nombre));
-    nuevoCongresista->rut = (char*)malloc(sizeof(char) * strlen(rut));
-    nuevoCongresista->especializacion = (char*)malloc(sizeof(char) * strlen(especializacion));
+    nuevoCongresista->nombre = (char *)malloc(strlen(nombre) + 1);
+    nuevoCongresista->rut = (char *)malloc(strlen(rut) + 1);
+    nuevoCongresista->especializacion = (char *)malloc(strlen(especializacion) + 1);
 
     strcpy(nuevoCongresista->nombre, nombre);
     strcpy(nuevoCongresista->rut, rut);
@@ -670,7 +572,7 @@ int eliminarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, char 
     {
       arreglo[i] = NULL;
       return 1;
-    } 
+    }
   }
   return 0;
 }
@@ -678,7 +580,7 @@ int eliminarCongresistaEnArreglo(struct congresista **arreglo, int tamMax, char 
 void mostrarCongresistas(struct congresista **arreglo, int tamMax)
 {
   int i;
-  
+
   for(i = 0; i < tamMax; i++)
   {
     if(arreglo[i] != NULL)
@@ -696,10 +598,10 @@ struct nodoCongresista *enlazarCongresista(struct congresista *nuevoCongresista)
 {
     struct nodoCongresista *nodoNuevo = NULL;
 
-    if (nuevoCongresista != NULL) 
+    if (nuevoCongresista != NULL)
     {
         nodoNuevo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
-        nodoNuevo->datos = nuevoCongresista; 
+        nodoNuevo->datos = nuevoCongresista;
         nodoNuevo->sig = NULL;
     }
     return nodoNuevo;
@@ -729,7 +631,7 @@ struct congresista *buscarCongresistaEnLista(struct nodoCongresista *head, char 
 int agregarCongresistaEnComisionLista(struct nodoCongresista **head, struct congresista *nuevoCongresista)
 {
   struct nodoCongresista *rec, *nodoNuevo = NULL;
-  
+
   if (*head == NULL)
   {
     (*head)->datos = nuevoCongresista;
@@ -740,7 +642,7 @@ int agregarCongresistaEnComisionLista(struct nodoCongresista **head, struct cong
   else
   {
     rec = *head;
-    
+
     while(rec->sig != NULL)
       rec = rec->sig;
 
@@ -1072,7 +974,7 @@ void mostrarComisionPorNombre(struct congreso* congreso, char* nombre) {
         do {
             if (rec->datos != NULL) {
                 printf("- Nombre: %s\n", rec->datos->nombre);
-                printf("- Ocupacion: %s\n\n", rec->datos->ocupacion);
+                printf("- Ocupacion: %dn\n", rec->datos->ocupacion);
             }
             rec = rec->sig;
         } while (rec != buscada->headIntegrantes); // Termina cuando regresa al nodo fantasma
@@ -1141,118 +1043,223 @@ void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struc
         break;
     }
 }
+void mostrarProyectoLeyMenu(struct congreso *congreso) {
+    int id;
 
-void menuProyectosLey(struct congreso* congreso) {
-    char opcion[2];
-    int id, fase;
+    printf("\nIngrese el ID del Proyecto de Ley a mostrar: ");
+    scanf("%d", &id);
+
+    mostrarProyectoLeyPorID(congreso->raiz, id);
+}
+void modificarProyectoLeyMenu(struct congreso *congreso) {
+    int id, nuevaFase;
+
+    printf("\nIngrese el ID del Proyecto de Ley a modificar: ");
+    scanf("%d", &id);
+    do {
+        printf("Ingrese la nueva fase (1-5): ");
+        scanf("%d", &nuevaFase);
+        if (nuevaFase < 1 || nuevaFase > 5) {
+            printf("Error: la fase debe estar entre 1 y 5. Intente nuevamente.\n");
+        }
+    } while (nuevaFase < 1 || nuevaFase > 5);
+
+    if (modificarProyectoLey(congreso->raiz, id, nuevaFase)) {
+        printf("Proyecto de Ley con ID %d actualizado exitosamente.\n", id);
+    } else {
+        printf("No se pudo encontrar o modificar el Proyecto de Ley con ID %d.\n", id);
+    }
+}
+void crearEInsertarProyectoLeyMenu(struct congreso *congreso) {
+    int id, urgencia, fase;
+    char nombre[50], tipo[50];
+
+    printf("\n--- Crear e Insertar Proyecto de Ley ---\n");
+    printf("Ingrese los datos del Proyecto de Ley:\n");
+    printf("ID del Proyecto: ");
+    scanf("%d", &id);
+
+    // Verificar si ya existe un proyecto con este ID
+    if (buscarProyectoLeyPorID(congreso->raiz, id) != NULL) {
+        printf("Ya existe un Proyecto de Ley con el ID %d. Operacion cancelada.\n", id);
+        return;
+    }
+
+    printf("Nombre: ");
+    scanf(" %[^\n]", nombre);
+    printf("Tipo: ");
+    scanf(" %[^\n]", tipo);
+    printf("Urgencia (0: Baja, 1: Media, 2: Alta): ");
+    scanf("%d", &urgencia);
+    do {
+        printf("Fase (1-5): ");
+        scanf("%d", &fase);
+        if (fase < 1 || fase > 5) {
+            printf("Error: la fase debe estar entre 1 y 5. Intente nuevamente.\n");
+        }
+    } while (fase < 1 || fase > 5);
+
+    // Crear el proyecto de ley
+    struct proyectoLey *nuevoProyecto = crearProyectoLey(id, nombre, tipo, urgencia, fase);
+    congreso->raiz = insertarProyectoLey(congreso->raiz, nuevoProyecto);
+    printf("Proyecto de Ley con ID %d insertado exitosamente.\n", id);
+}
+void buscarProyectoLeyMenu(struct congreso *congreso) {
+    int id;
+
+    printf("\nIngrese el ID del Proyecto de Ley a buscar: ");
+    scanf("%d", &id);
+
+    struct proyectoLey *proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
+    if (proyecto == NULL) {
+        printf("Proyecto con ID %d no encontrado.\n", id);
+    } else {
+        printf("Proyecto encontrado:\n");
+        printf("ID: %d, Nombre: %s, Tipo: %s, Urgencia: %d, Fase: %d\n",
+               proyecto->idProyecto, proyecto->nombre, proyecto->tipo,
+               proyecto->urgencia, proyecto->fase);
+    }
+}
+void menuProyectosLey(struct congreso *congreso) {
+    int opcion;
+
     while (1) {
-        printf("Menu Proyectos de Ley.\n"
-            "Opcion A: Agregar nuevo Proyecto de Ley\n"
-            "Opcion B: Borrar Proyecto de Ley\n"
-            "Opcion C: Mostrar Proyecto de Ley\n"
-            "Opcion D: Modificar Proyecto de Ley\n"
-            "Opcion E: Listar Proyectos de Ley\n"
-            "Opcion F: Mostrar Proyectos en Orden de Urgencia\n"
-            "Opcion G: Mostrar Proyectos por fase\n"
-            "Opcion H: Volver al menu principal\n");
+        printf("\n--- Menu de Proyectos de Ley ---\n");
+        printf("1: Crear e Insertar Proyecto de Ley\n");
+        printf("2: Buscar Proyecto de Ley por ID\n");
+        printf("3: Modificar Fase de Proyecto de Ley\n");
+        printf("4: Mostrar Proyecto de Ley por ID\n");
+        printf("5: Volver al Menu Principal\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
 
-        scanf("%1s", opcion);
-
-        // Convierte la opción a mayúscula si está en minúscula
-        opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
-
-        switch (opcion[0]) {
-        case 'A':
-            printf("Funcion: Agregar nuevo Proyecto de Ley\n");
-            agregarNodoProyectoLey(congreso);
-            break;
-        case 'B':
-            printf("Funcion: Borrar Proyecto de Ley\n");
-            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere borrar", 10000000, 99999999);
-            borrarProyectoLey(congreso, id);
-            break;
-        case 'C':
-            printf("Funcion: Mostrar Proyecto de Ley\n");
-            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere buscar", 10000000, 99999999);
-            buscarYMostrarProyectoLey(congreso, id);
-            break;
-        case 'D':
-            printf("Funcion: Modificar Proyecto de Ley\n");
-            id = leerEnteroConLimite("Ingrese la ID del Proyecto que quiere modificar", 10000000, 99999999);
-            modificarProyectoLey(congreso, id);
-            break;
-        case 'E':
-            printf("Funcion: Listar Proyectos de Ley\n");
-            imprimirProyectosLey(congreso);
-            break;
-        case 'F':
-            printf("Funcion: Mostrar Proyectos en Orden de Urgencia\n");
-            mostrarProyectosOrdenDeUrgencia(congreso);
-            break;
-        case 'G':
-            printf("Funcion: Mostrar Proyectos por fase\n");
-            fase = leerEnteroConLimite("Ingrese la fase de los proyectos que quiere mostrar", 1, 8);
-            mostrarLeyesPorFase(congreso->raiz, fase);
-            break; // Se añadió break aquí para evitar caer en el caso 'H'
-        case 'H':
-            return; // Salir del menú
-        default:
-            printf("Opcion invalida, por favor intente otra vez.\n");
-            break;
+        switch (opcion) {
+            case 1:
+                crearEInsertarProyectoLeyMenu(congreso);
+                break;
+            case 2:
+                buscarProyectoLeyMenu(congreso);
+                break;
+            case 3:
+                modificarProyectoLeyMenu(congreso);
+                break;
+            case 4:
+                mostrarProyectoLeyMenu(congreso);
+                break;
+            case 5:
+                return; // Volver al menú principal
+            default:
+                printf("Opcion invalida. Intente nuevamente.\n");
         }
     }
 }
 
-void menuCongresistas(struct congreso* congreso) {
-    char opcion[2];
+// Función para listar todos los congresistas
+void listarCongresistas(struct congreso *congreso) {
+    printf("\n--- Lista de Diputados ---\n");
+    mostrarCongresistas(congreso->diputados, congreso->maxDiputados);
+    printf("\n--- Lista de Senadores ---\n");
+    mostrarCongresistas(congreso->senadores, congreso->maxSenadores);
+}
+
+// Función para buscar un congresista
+void buscarCongresista(struct congreso *congreso) {
     char rut[20];
-    struct nodoCongresista* actual = NULL;
+    solicitarRUT(rut);
+    struct congresista *resultado = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
+    if (resultado == NULL) {
+        resultado = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut);
+    }
 
+    if (resultado != NULL) {
+        printf("Congresista encontrado:\n");
+        printf("Nombre: %s\n", resultado->nombre);
+        printf("RUT: %s\n", resultado->rut);
+        printf("Ocupacion: %d\n", resultado->ocupacion);
+        printf("Especializacion: %s\n", resultado->especializacion);
+    } else {
+        printf("No existe un congresista con el RUT ingresado.\n");
+    }
+}
+// Función para agregar un congresista
+void agregarCongresista(struct congreso *congreso) {
+    struct congresista *nuevo=NULL;
+    char nombre[100], rut[20], especializacion[100];
+    int ocupacion;
+
+    printf("\nIngrese los datos del congresista:\n");
+    printf("Nombre: ");
+    scanf(" %[^\n]", nombre);
+    solicitarRUT(rut);
+    printf("Especializacion: ");
+    scanf(" %[^\n]", especializacion);
+    do {
+        printf("Ocupacion (1 = Diputado, 2 = Senador): ");
+        scanf("%d", &ocupacion);
+        if (ocupacion < 1 || ocupacion > 2) {
+            printf("Error: la ocupacion debe estar entre 1 y 2. Intente nuevamente.\n");
+        }
+    } while (ocupacion < 1 || ocupacion > 2);
+
+    nuevo = crearCongresista(nombre, rut, ocupacion, especializacion);
+    if (ocupacion == 1) {
+        if (agregarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, nuevo)) {
+            printf("Diputado agregado exitosamente.\n");
+        } else {
+            printf("No se pudo agregar el diputado.\n");
+        }
+    } else if (ocupacion == 2) {
+        if (agregarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, nuevo)) {
+            printf("Senador agregado exitosamente.\n");
+        } else {
+            printf("No se pudo agregar el senador.\n");
+        }
+    }
+}
+
+// Función para borrar un congresista
+void eliminarCongresista(struct congreso *congreso) {
+    char rut[20];
+    solicitarRUT(rut);
+
+    if (eliminarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut)) {
+        printf("Diputado eliminado exitosamente.\n");
+    } else if (eliminarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut)) {
+        printf("Senador eliminado exitosamente.\n");
+    } else {
+        printf("No existe un congresista con el RUT ingresado.\n");
+    }
+}
+
+void menuCongresistas(struct congreso* congreso) {
+    int opcion;
     while (1) {
-        printf("Menu Congresistas.\n"
-            "Opcion A: Agregar Congresista\n"
-            "Opcion B: Borrar Congresista\n"
-            "Opcion C: Buscar Congresista\n"
-            "Opcion D: Modificar Congresista\n"
-            "Opcion E: Listar Congresistas\n"
-            "Opcion F: Volver al menu principal\n");
+        printf("Menu Congresistas.\n");
+        printf("Opcion 1: Crear y Agregar Congresista\n");
+        printf("Opcion 2: Eliminar Congresista\n");
+        printf("Opcion 3: Buscar Congresista\n");
+        printf("Opcion 4: Listar Congresistas\n");
+        printf("Opcion 5: Volver al menu principal\n");
+        scanf("%s",&opcion);
 
-        scanf("%1s", opcion);
-
-        // Convierte la opción a mayúscula si está en minúscula
-        opcion[0] = (opcion[0] >= 'a' && opcion[0] <= 'z') ? opcion[0] - ('a' - 'A') : opcion[0];
-
-        switch (opcion[0]) {
-        case 'A':
-            printf("Funcion: Agregar Congresista\n");
-            agregarCongresistaEnCongreso(congreso);
-            break; // Se añadió break aquí
-        case 'B':
-            printf("Funcion: Borrar Congresista\n Ingrese el rut del congresista a eliminar: ");
-            scanf("%19[^\n]", rut);
-            eliminarCongresistaDeCongreso(congreso, rut);
-            break; // Se añadió break aquí
-        case 'C':
-            printf("Funcion: Buscar Congresista\n");
-            printf("Ingrese el rut del congresista a buscar: ");
-            scanf("%19[^\n]", rut);
-            mostrarCongresista(congreso, rut);
-            break; // Se añadió break aquí
-        case 'D':
-            printf("Funcion: Modificar Congresista\n");
-            printf("Ingrese el rut del congresista a modificar:\n");
-            scanf(" %19[^\n]", rut);
-            modificarCongresista(congreso, rut);
-            break; // Se añadió break aquí
-        case 'E':
-            printf("Funcion: Listar Congresistas\n");
+        switch (opcion) {
+        case 1:
+            agregarCongresista(congreso);
+            break;
+        case 2:
+            eliminarCongresista(congreso);
+            break;
+        case 3:
+            buscarCongresista(congreso);
+            break;
+        case 4:
             listarCongresistas(congreso);
-            break; // Se añadió break aquí
-        case 'F':
+            break;
+        case 5:
             return; // Salir del menú
         default:
             printf("Opcion invalida, por favor intente otra vez.\n");
-            break; // Se añadió break aquí
+            break;
         }
     }
 }
@@ -1324,8 +1331,6 @@ int main(void) {
             "B: Congresistas.\n"
             "C: Comisiones.\n"
             "D: Salir.\n\n");
-
-        opcion = leerOpcion(); // Lee solo un carácter y limpia el buffer
 
         // Manejo de las opciones seleccionadas
         switch (opcion) {
