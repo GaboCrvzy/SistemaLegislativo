@@ -40,7 +40,7 @@ struct proyectoLey {
     char* tipo;
     int idProyecto;
     int urgencia;
-    struct nodoVotacion* votacion;
+    struct nodoVotacion* votacion;  //Votaciones sobre el proyec en comision o camara
     int fase;
 };
 
@@ -63,11 +63,17 @@ struct nodoVotacion {
 };
 
 struct votacion {
-    struct congresista* favor;
-    struct congresista* contra;
-    struct congresista* abstenciones;
-    int totalVotos;
-    int fase;
+    int idVotacion;
+    int idProyecto;
+    int tipoVotacion;  // (1) Comision  (2) Camara
+    int tipoCamara;    // (1) Diputados (2) Senadores
+    int totalFavor;
+    int totalContra;
+    int totalAbstenciones;
+    int resultado;
+    struct nodoCongresista* favor;
+    struct nodoCongresista* contra;
+    struct nodoCongresista* abstenciones;
 };
 
 struct congreso* inicializarCongreso();
