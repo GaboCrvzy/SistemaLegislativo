@@ -5,7 +5,7 @@
 #define MAX_CONGRESISTAS 200
 #define MAX_SENADORES 50
 #define MAX_DIPUTADOS 100
-#define MAX_COMISIONES 10
+
 
 struct congresista {
     char* nombre;
@@ -129,8 +129,8 @@ struct congreso* inicializarCongreso() {
     nuevoCongreso->comisionesMixtas = NULL;
 
     // Inicializa los arreglos para las comisiones
-    nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision*));
     nuevoCongreso->maxComisiones = 20;
+    nuevoCongreso->comisiones = calloc(nuevoCongreso->maxComisiones = 20, sizeof(struct comision*));
 
     // Inicializa la raíz de proyectos de ley
     nuevoCongreso->raiz = NULL;
@@ -601,16 +601,14 @@ struct comision *buscarComisionEnArreglo(struct comision **arreglo, int maxComis
 int agregarComisionEnArreglo(struct comision **arreglo, int maxComisiones, struct comision *nuevaComision)
 {
     int i;
-
+    
     for (i = 0; i < maxComisiones; i++)
     {
         if (arreglo[i] != NULL && arreglo[i]->tipo == nuevaComision->tipo && strcmp(arreglo[i]->nombre, nuevaComision->nombre) == 0)
+        {
             return 0;
-    }
-
-    for(i = 0; i < maxComisiones; i++)
-    {
-        if(arreglo[i] == NULL)
+        }
+        else
         {
             arreglo[i] = nuevaComision;
             return 1;
@@ -932,7 +930,6 @@ void crearYAgregarComisionMenu(struct congreso *congreso) {
     printf("ID de la Comisión: ");
     scanf("%d", &id);
 
-    // Verificar si ya existe una comisión con este ID
     if (buscarComisionEnArreglo(congreso->comisiones, congreso->maxComisiones, id) != NULL) {
         printf("Ya existe una comisión con el ID %d. Operación cancelada.\n", id);
         return;
