@@ -608,10 +608,14 @@ int agregarComisionEnArreglo(struct comision **arreglo, int maxComisiones, struc
         {
             return 0;
         }
-        else
+    }
+    
+    for (i = 0; i < maxComisiones; i++)
+    {
+        if (arreglo[i] == NULL)
         {
             arreglo[i] = nuevaComision;
-            return 1;
+            return 1; 
         }
     }
     return 0;
