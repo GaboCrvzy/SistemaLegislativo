@@ -601,7 +601,7 @@ struct comision *buscarComisionEnArreglo(struct comision **arreglo, int maxComis
 int agregarComisionEnArreglo(struct comision **arreglo, int maxComisiones, struct comision *nuevaComision)
 {
     int i;
-    
+
     for (i = 0; i < maxComisiones; i++)
     {
         if (arreglo[i] != NULL && arreglo[i]->tipo == nuevaComision->tipo && strcmp(arreglo[i]->nombre, nuevaComision->nombre) == 0)
@@ -609,13 +609,13 @@ int agregarComisionEnArreglo(struct comision **arreglo, int maxComisiones, struc
             return 0;
         }
     }
-    
+
     for (i = 0; i < maxComisiones; i++)
     {
         if (arreglo[i] == NULL)
         {
             arreglo[i] = nuevaComision;
-            return 1; 
+            return 1;
         }
     }
     return 0;
@@ -742,7 +742,7 @@ void crearEInsertarProyectoLeyMenu(struct congreso *congreso)
             printf("Error: La urgencia debe estar entre 0 y 2. Intente nuevamente.\n");
         }
     } while (urgencia < 0 || urgencia > 2);
-    
+
     do {
         printf("Fase (1-5): ");
         scanf("%d", &fase);
@@ -983,16 +983,124 @@ void buscarComisionMenu(struct congreso *congreso) {
 }
 void listarComisionesMenu(struct congreso *congreso) {
     int i;
+    struct nodoCongresista *integrante;
     printf("\n--- Listar Comisiones ---\n");
 
     for (i = 0; i < congreso->maxComisiones; i++) {
         if (congreso->comisiones[i] != NULL) {
+            // Mostrar detalles de la comisión
             printf("ID: %d\n", congreso->comisiones[i]->idComision);
             printf("Nombre: %s\n", congreso->comisiones[i]->nombre);
             printf("Tipo: %d\n", congreso->comisiones[i]->tipo);
-            printf("Descripción: %s\n\n", congreso->comisiones[i]->descripcion);
+            printf("Descripcion: %s\n", congreso->comisiones[i]->descripcion);
+
+            // Mostrar los congresistas involucrados en esta comisión
+            printf("Congresistas involucrados:\n");
+            integrante = congreso->comisiones[i]->headIntegrantes;
+            if (integrante == NULL) {
+                printf("No hay congresistas en esta comision.\n");
+            } else {
+                while (integrante != NULL) {
+                    printf("Nombre: %s, RUT: %s\n", integrante->datos->nombre, integrante->datos->rut);
+                    integrante = integrante->sig; 
+                }
+            }
+            printf("\n");
         }
     }
+}
+int congresistaYaEnComision(struct comision* comision, char* rutBuscado) {
+    struct nodoCongresista* temp = comision->headIntegrantes;
+
+    while (temp != NULL) {
+        struct congresista* congresista = buscarCongresistaEnLista(temp, rutBuscado);
+        if (congresista != NULL) {
+            return 1;
+        }
+        temp = temp->sig;
+    }
+
+    return 0; // El congresista no está en la comisión
+}
+void agregarCongresistaAComision(struct comision* comision, struct congresista* congresista) {
+    struct nodoCongresista *nuevoNodo;
+    if ((comision->tipo == 1 && congresista->ocupacion != 1) || (comision->tipo == 2 && congresista->ocupacion != 2)) {
+        printf("Error: El congresista no pertenece al tipo de la comision %s.\n", comision->nombre);
+        return;
+    }
+    if (congresistaYaEnComision(comision, congresista->rut)) {
+        printf("El congresista con RUT %s ya esta en la comision %s.\n", congresista->rut, comision->nombre);
+        return;
+    }
+
+    nuevoNodo = (struct nodoCongresista*)malloc(sizeof(struct nodoCongresista));
+    nuevoNodo->datos = congresista;
+    nuevoNodo->sig = NULL;
+
+    if (comision->headIntegrantes == NULL) {
+        comision->headIntegrantes = nuevoNodo;
+    } else {
+        struct nodoCongresista* temp = comision->headIntegrantes;
+        while (temp->sig != NULL) {
+            temp = temp->sig;
+        }
+        temp->sig = nuevoNodo;
+    }
+
+    printf("Congresista con RUT %s agregado a la comision %s.\n", congresista->rut, comision->nombre);
+}
+struct congresista *buscarCongresistaEnCongreso(struct congreso *congreso, char *rutBuscado) {
+    struct congresista *congresistaBuscado = NULL;
+    int i;
+
+    // Buscar en los diputados
+    for (i = 0; i < congreso->maxDiputados; i++) {
+        if (congreso->diputados[i] != NULL && strcmp(congreso->diputados[i]->rut, rutBuscado) == 0) {
+            congresistaBuscado = congreso->diputados[i];
+            return congresistaBuscado;
+        }
+    }
+
+    // Buscar en los senadores
+    for (i = 0; i < congreso->maxSenadores; i++) {
+        if (congreso->senadores[i] != NULL && strcmp(congreso->senadores[i]->rut, rutBuscado) == 0) {
+            congresistaBuscado = congreso->senadores[i];
+            return congresistaBuscado;
+        }
+    }
+
+    return NULL;  // Si no se encuentra al congresista
+}
+void menuAgregarCongresistaAComision(struct congreso* congreso) {
+    char rutBuscado[20];
+    struct congresista* congresistaBuscado = NULL;
+    struct comision* comisionSeleccionada;
+
+    // Solicitar el RUT del congresista a agregar
+    printf("Ingrese el RUT del congresista: ");
+    scanf("%s", rutBuscado);
+
+    // Buscar al congresista por su RUT en el congreso
+    congresistaBuscado = buscarCongresistaEnCongreso(congreso, rutBuscado);
+    if (congresistaBuscado == NULL) {
+        printf("Congresista con RUT %s no encontrado en el congreso.\n", rutBuscado);
+        return;
+    }
+
+    // Solicitar el ID de la comisión a la que se desea agregar
+    int idComision;
+    printf("Ingrese el ID de la comisión: ");
+    scanf("%d", &idComision);
+
+    // Buscar la comisión por su ID
+    comisionSeleccionada = buscarComisionEnArreglo(congreso->comisiones, congreso->maxComisiones, idComision);
+    if (comisionSeleccionada == NULL) {
+        printf("Comisión con ID %d no encontrada.\n", idComision);
+        return;
+    }
+
+    // Intentar agregar el congresista a la comisión
+    agregarCongresistaAComision(comisionSeleccionada, congresistaBuscado);
 }
 void menuComisiones(struct congreso *congreso) {
     int opcion;
@@ -1000,10 +1108,11 @@ void menuComisiones(struct congreso *congreso) {
     while (1) {
         printf("\n--- Menu de Comisiones ---\n");
         printf("1. Crear y agregar comision\n");
-        printf("2. Eliminar comision\n");
-        printf("3. Buscar comision por ID\n");
-        printf("4. Listar todas las comisiones\n");
-        printf("5. Volver al menu principal\n");
+        printf("2. Agregar congresista a comision\n");
+        printf("3. Eliminar comision\n");
+        printf("4. Buscar comision por ID\n");
+        printf("5. Listar todas las comisiones\n");
+        printf("6. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
@@ -1012,15 +1121,18 @@ void menuComisiones(struct congreso *congreso) {
                 crearYAgregarComisionMenu(congreso);
                 break;
             case 2:
-                eliminarComisionMenu(congreso);
+                menuAgregarCongresistaAComision(congreso);
                 break;
             case 3:
-                buscarComisionMenu(congreso);
+                eliminarComisionMenu(congreso);
                 break;
             case 4:
-                listarComisionesMenu(congreso);
+                buscarComisionMenu(congreso);
                 break;
             case 5:
+                listarComisionesMenu(congreso);
+                break;
+            case 6:
                 return;
             default:
                 printf("Opcion invalida. Intente nuevamente.\n");
@@ -1187,18 +1299,19 @@ int main(void) {
                "D: Salir.\n\n");
 
         // Leer la opción seleccionada por el usuario
-        printf("Seleccione una opción: ");
+        printf("Seleccione una opcion: ");
         scanf(" %c", &opcion);  // Espacio antes de %c para capturar correctamente la entrada
 
         // Manejo de las opciones seleccionadas
         switch (opcion) {
         case 'A':
-            funcionSwitch(opcion, congreso, menuCongresistas);
+            funcionSwitch(opcion, congreso, menuProyectosLey);
             break;
         case 'B':
-            flag = 0; // Cambiar la bandera para salir del bucle
+            funcionSwitch(opcion, congreso, menuCongresistas);
             break;
         case 'C':
+            funcionSwitch(opcion, congreso, menuComisiones);
             // Aquí iría la función para manejar la opción C, si la tienes.
             break;
         case 'D':
