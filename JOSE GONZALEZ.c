@@ -122,12 +122,15 @@ struct congreso* inicializarCongreso() {
     }
 
     // Inicializa los arreglos para los senadores y diputados
-    nuevoCongreso->senadores = calloc(MAX_SENADORES, sizeof(struct congresista*));
     nuevoCongreso->diputados = calloc(MAX_DIPUTADOS, sizeof(struct congresista*));
+    nuevoCongreso->maxDiputados = 100;
+    nuevoCongreso->senadores = calloc(MAX_SENADORES, sizeof(struct congresista*));
+    nuevoCongreso->maxSenadores = 50;
     nuevoCongreso->comisionesMixtas = NULL;
 
     // Inicializa los arreglos para las comisiones
     nuevoCongreso->comisiones = calloc(MAX_COMISIONES, sizeof(struct comision*));
+    nuevoCongreso->maxComisiones = 20;
 
     // Inicializa la raíz de proyectos de ley
     nuevoCongreso->raiz = NULL;
@@ -425,7 +428,7 @@ struct votacion *crearVotacion(int idVotacion, int idProyecto, int tipoVotacion)
     struct votacion *nuevaVotacion = NULL;
 
     nuevaVotacion = (struct votacion*)malloc(sizeof(struct votacion));
-    
+
     nuevaVotacion->idVotacion = idVotacion;
     nuevaVotacion->idProyecto = idProyecto;
     nuevaVotacion->tipoVotacion = tipoVotacion;
@@ -446,7 +449,7 @@ struct votacion *buscarVotacionEnLista(struct nodoVotacion *head, int idVotacion
     {
         if (head->datos->idVotacion == idVotacion)
             return head->datos;
-        
+
         head = head->sig;
     }
     return NULL;
@@ -483,7 +486,7 @@ int enlazarVotacion(struct nodoVotacion **head, struct votacion *votacionNueva)
 int registrarVotoDeCongresitaEnVotacion(struct votacion *votacion, struct congresista *congresista, int tipoVoto) 
 {
     struct nodoCongresista *nuevoNodo = NULL;
-    
+
     if (buscarCongresistaEnLista(votacion->favor, congresista->rut) ||buscarCongresistaEnLista(votacion->contra, congresista->rut) ||
         buscarCongresistaEnLista(votacion->abstenciones, congresista->rut)) 
     {
@@ -964,9 +967,9 @@ void menuComisiones(struct congreso* congreso)
 }
 
 int main(void) {
-    int flag = 1; // Variable de control del bucle principal
     char opcion;
     struct congreso* congreso;
+    int flag = 1; // Variable de control del bucle principal
 
     // Inicialización del congreso
     congreso = inicializarCongreso();
@@ -974,21 +977,25 @@ int main(void) {
     // Bucle principal del menú
     while (flag == 1) {
         printf("Opciones:\n"
-            "A: Proyectos de Ley.\n"
-            "B: Congresistas.\n"
-            "C: Comisiones.\n"
-            "D: Salir.\n\n");
+               "A: Proyectos de Ley.\n"
+               "B: Congresistas.\n"
+               "C: Comisiones.\n"
+               "D: Salir.\n\n");
+
+        // Leer la opción seleccionada por el usuario
+        printf("Seleccione una opción: ");
+        scanf(" %c", &opcion);  // Espacio antes de %c para capturar correctamente la entrada
 
         // Manejo de las opciones seleccionadas
         switch (opcion) {
         case 'A':
-            funcionSwitch(opcion, congreso, menuProyectosLey);
-            break;
-        case 'B':
             funcionSwitch(opcion, congreso, menuCongresistas);
             break;
+        case 'B':
+            flag = 0; // Cambiar la bandera para salir del bucle
+            break;
         case 'C':
-            funcionSwitch(opcion, congreso, menuComisiones);
+            // Aquí iría la función para manejar la opción C, si la tienes.
             break;
         case 'D':
             flag = 0; // Cambiar la bandera para salir del bucle
@@ -998,6 +1005,5 @@ int main(void) {
             break;
         }
     }
-
     return 0;
 }
