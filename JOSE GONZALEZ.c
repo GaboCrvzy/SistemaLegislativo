@@ -841,6 +841,13 @@ void agregarCongresista(struct congreso *congreso)
     solicitarRUT(rut);
     printf("Especializacion: ");
     scanf(" %[^\n]", especializacion);
+
+    if (buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut) != NULL || 
+        buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut) != NULL) {
+        printf("Error: El RUT %s ya está registrado como congresista (diputado o senador).\n", rut);
+        return; 
+    }
+    
     do {
         printf("Ocupacion (1 = Diputado, 2 = Senador): ");
         scanf("%d", &ocupacion);
