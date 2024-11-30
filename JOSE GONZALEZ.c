@@ -737,9 +737,10 @@ void crearEInsertarProyectoLeyMenu(struct congreso *congreso)
         printf("Urgencia (0: Baja, 1: Media, 2: Alta): ");
         scanf("%d", &urgencia);
         if (urgencia < 0 || urgencia > 2) {
-            printf("Error: la urgencia debe estar entre 0 y 3. Intente nuevamente.\n");
+            printf("Error: La urgencia debe estar entre 0 y 2. Intente nuevamente.\n");
         }
     } while (urgencia < 0 || urgencia > 2);
+    
     do {
         printf("Fase (1-5): ");
         scanf("%d", &fase);
@@ -763,14 +764,12 @@ void buscarProyectoLeyMenu(struct congreso *congreso)
 
     proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
     if (proyecto == NULL) {
-        printf("Proyecto con ID %d no encontrado.\n", id);
+        printf("Proyecto con ID %d no encontrado. No existe.\n", id);
     } else {
-        printf("Proyecto encontrado:\n");
-        printf("ID: %d, Nombre: %s, Tipo: %s, Urgencia: %d, Fase: %d\n",
-               proyecto->idProyecto, proyecto->nombre, proyecto->tipo,
-               proyecto->urgencia, proyecto->fase);
+        printf("Proyecto encontrado, para ver detalles seleccione la opcion 4.\n");
     }
 }
+
 void menuProyectosLey(struct congreso *congreso)
 {
     int opcion;
