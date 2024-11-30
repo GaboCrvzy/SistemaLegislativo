@@ -66,25 +66,14 @@ struct votacion {
     int idVotacion;
     int idProyecto;
     int tipoVotacion;  // (1) Comision  (2) Camara
-    int tipoCamara;    // (1) Diputados (2) Senadores
     int totalFavor;
     int totalContra;
     int totalAbstenciones;
-    int resultado;
+    int resultado;    // (1) Aprobado (0) rechazado
     struct nodoCongresista* favor;
     struct nodoCongresista* contra;
     struct nodoCongresista* abstenciones;
 };
-
-struct congreso* inicializarCongreso();
-void mostrarCongresistasVotacion(struct nodoCongresista* lista, const char* categoria);
-void agregarCongresistaAVotacion(struct votacion* votacion, struct congreso* congreso);
-void agregarVotacion(struct congreso* congreso, int idProyecto);
-void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struct congreso*));
-void menuCongresistas(struct congreso* congreso);
-void menuComisiones(struct congreso* congreso);
-/*NOTA: LAS FUNCIONES DE VOTACIÓN SE ENCUENTRAN EN EL APARTADO DE LAS FUNCIONES DE PROYECTO DE LEY.*/
-
 
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -219,6 +208,8 @@ int modificarProyectoLey(struct nodoProyectoLey *raiz, int idBuscado, int faseNu
   proyecto->fase = faseNueva;
   return 1;
 }
+
+
 
 void mostrarProyectoLeyPorID(struct nodoProyectoLey *raiz, int idBuscado)
 {
@@ -426,6 +417,146 @@ void mostrarCongresistaEnComisionLista(struct nodoCongresista *head)
   }
 }
 
+/*TODO: FUNCIONES DE VOTACION------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+struct votacion *crearVotacion(int idVotacion, int idProyecto, int tipoVotacion)
+{
+    struct votacion *nuevaVotacion = NULL;
+
+    nuevaVotacion = (struct votacion*)malloc(sizeof(struct votacion));
+    
+    nuevaVotacion->idVotacion = idVotacion;
+    nuevaVotacion->idProyecto = idProyecto;
+    nuevaVotacion->tipoVotacion = tipoVotacion;
+    nuevaVotacion->totalFavor = 0;
+    nuevaVotacion->totalContra = 0;
+    nuevaVotacion->totalAbstenciones = 0;
+    nuevaVotacion->resultado = -1;   //Sin calculo aun
+    nuevaVotacion->favor = NULL;
+    nuevaVotacion->contra = NULL;
+    nuevaVotacion->abstenciones = NULL;
+
+    return nuevaVotacion;
+}
+
+struct votacion *buscarVotacionEnLista(struct nodoVotacion *head, int idVotacion)
+{
+    while (head != NULL)
+    {
+        if (head->datos->idVotacion == idVotacion)
+            return head->datos;
+        
+        head = head->sig;
+    }
+    return NULL;
+}
+
+int enlazarVotacion(struct nodoVotacion **head, struct votacion *votacionNueva)
+{
+    struct nodoVotacion *rec, *nuevoNodo = NULL;
+
+    nuevoNodo = (struct nodoVotacion*)malloc(sizeof(struct nodoVotacion));
+    nuevoNodo->datos = votacionNueva;
+    nuevoNodo->sig = NULL;
+
+    if(*head == NULL)
+    {
+        *head = nuevoNodo;
+        return 1;
+    }
+    else
+    {
+        if(buscarVotacionEnLista(*head, votacionNueva->idVotacion) == NULL)
+        {
+            rec = *head;
+            while(rec->sig != NULL)
+                rec = rec->sig;
+
+            rec->sig = nuevoNodo;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int registrarVotoDeCongresitaEnVotacion(struct votacion *votacion, struct congresista *congresista, int tipoVoto) 
+{
+    struct nodoCongresista *nuevoNodo = NULL;
+    
+    if (buscarCongresistaEnLista(votacion->favor, congresista->rut) ||buscarCongresistaEnLista(votacion->contra, congresista->rut) ||
+        buscarCongresistaEnLista(votacion->abstenciones, congresista->rut)) 
+    {
+        return 0; // Ya votó
+    }
+
+    nuevoNodo = enlazarCongresista(congresista);
+
+    // Determinar la lista de votos a usar
+    if (tipoVoto == 1) 
+    { // A favor
+        nuevoNodo->sig = votacion->favor;
+        votacion->favor = nuevoNodo;
+        votacion->totalFavor++;
+    } 
+    else if (tipoVoto == 2)
+    { // En contra
+        nuevoNodo->sig = votacion->contra;
+        votacion->contra = nuevoNodo;
+        votacion->totalContra++;
+    } 
+    else
+    { // Abstención
+        nuevoNodo->sig = votacion->abstenciones;
+        votacion->abstenciones = nuevoNodo;
+        votacion->totalAbstenciones++;
+    } 
+
+    return 1; // Voto registrado
+}
+
+int calcularResultadoVotacion(struct votacion *votacion) 
+{
+    if (votacion->totalFavor > votacion->totalContra)
+    {
+        votacion->resultado = 1; // Aprobado
+    } 
+    else 
+    {
+        votacion->resultado = 0; // Rechazado
+    }
+    return votacion->resultado;
+}
+
+void mostrarVotantes(struct votacion *votacion) 
+{
+    printf("Congresistas que votaron a favor:\n");
+    mostrarCongresistaEnComisionLista(votacion->favor);
+
+    printf("Congresistas que votaron en contra:\n");
+    mostrarCongresistaEnComisionLista(votacion->contra);
+
+    printf("Congresistas que se abstuvieron:\n");
+    mostrarCongresistaEnComisionLista(votacion->abstenciones);
+}
+
+void mostrarVotaciones(struct nodoVotacion *head)
+{
+    struct nodoVotacion *rec = head;
+    while (rec != NULL)
+    {
+        printf("ID Votación: %d\n", rec->datos->idVotacion);
+        printf("ID Proyecto: %d\n", rec->datos->idProyecto);
+        printf("Tipo Votación: %d\n", rec->datos->tipoVotacion);
+        printf("Total Favor: %d\n", rec->datos->totalFavor);
+        printf("Total Contra: %d\n", rec->datos->totalContra);
+        printf("Total Abstenciones: %d\n", rec->datos->totalAbstenciones);
+        printf("Resultado: %s\n", rec->datos->resultado == 1 ? "Aprobado" : "Rechazado");
+        printf("--------------------\n");
+        rec = rec->sig;
+    }
+}
+
 /*TODO: FUNCIONES DE COMISIONES------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -437,7 +568,7 @@ struct comision *crearComision(char *nombre, int tipoComision, int idComision, c
 
     nuevaComision->nombre = (char *)malloc(strlen(nombre) + 1);
     strcpy(nuevaComision->nombre, nombre);
-    
+
     nuevaComision->tipo = tipoComision;
     nuevaComision->idComision = idComision;
 
@@ -517,6 +648,7 @@ void mostrarComisionPorID(struct comision **arreglo, int maxComisiones, int idCo
     }
     printf("Comisión con ID %d no encontrada.\n", idComision);
 }
+
 
 /*TODO: FUNCIONES CON LOS SWITCH (MENUS)----------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
