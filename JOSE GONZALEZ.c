@@ -63,8 +63,10 @@ struct nodoVotacion {
 };
 
 struct votacion {
-    struct nodoCongresista* favor;
-    struct nodoCongresista* contra;
+    struct congresista* favor;
+    struct congresista* contra;
+    struct congresista* abstenciones;
+    int totalVotos;
     int fase;
 };
 
