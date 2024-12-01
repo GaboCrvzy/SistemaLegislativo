@@ -1664,7 +1664,7 @@ int main(void) {
 
     // Bucle principal del menú
     while (flag) {
-        printf("\n--- Menu Principal ---\n")
+        printf("\n--- Menu Principal ---\n");
         printf("A: Congresistas\n");
         printf("B: Proyectos de Ley\n");
         printf("C: Comisiones\n");
