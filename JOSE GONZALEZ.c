@@ -923,7 +923,6 @@ void registrarVotoEnProyectoDeLey(struct congreso *congreso) {
 
     // Registrar el voto si el congresista y el proyecto son válidos
     registrarVotoMenu(proyectoSeleccionado->votacion, congresista);
-    printf("Voto registrado exitosamente.\n");
 }
 
 void menuProyectosLey(struct congreso *congreso)
