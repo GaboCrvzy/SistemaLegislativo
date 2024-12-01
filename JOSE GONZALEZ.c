@@ -121,7 +121,7 @@ struct congreso* inicializarCongreso()
     nuevoCongreso->maxDiputados = 100;
     nuevoCongreso->diputados = calloc(nuevoCongreso->maxDiputados, sizeof(struct congresista*));
     nuevoCongreso->maxSenadores = 50;
-    nuevoCongreso->senadores = calloc(maxSenadores, sizeof(struct congresista*));
+    nuevoCongreso->senadores = calloc(nuevoCongreso->maxSenadores, sizeof(struct congresista*));
     nuevoCongreso->comisionesMixtas = NULL;
     nuevoCongreso->maxComisiones = 20;
     nuevoCongreso->comisiones = calloc(nuevoCongreso->maxComisiones = 20, sizeof(struct comision*));
@@ -1010,6 +1010,49 @@ void menuProyectosLey(struct congreso* congreso)
     }
 }
 
+void ordenarCongresistasPorRUT(struct congresista **arreglo, int tam)
+{
+    int gap, i, j;
+    struct congresista *temp;
+
+    for (gap = tam / 2; gap > 0; gap /= 2) 
+    {
+        for (i = gap; i < tam; i++)
+        {
+            if (arreglo[i] == NULL) continue;  // Salta elementos NULL
+
+            temp = arreglo[i];
+            for (j = i; j >= gap && arreglo[j - gap] != NULL &&
+                 strcmp(arreglo[j - gap]->rut, temp->rut) > 0; j -= gap) 
+            {
+                arreglo[j] = arreglo[j - gap];
+            }
+            arreglo[j] = temp;
+        }
+    }
+}
+
+void ordenarCongresistasPorNombre(struct congresista **arreglo, int tam) {
+    int gap, i, j;
+    struct congresista *temp;
+
+    for (gap = tam / 2; gap > 0; gap /= 2)
+    {
+        for (i = gap; i < tam; i++)
+        {
+            if (arreglo[i] == NULL) continue;  // Salta elementos NULL
+
+            temp = arreglo[i];
+            for (j = i; j >= gap && arreglo[j - gap] != NULL &&
+                    strcmp(arreglo[j - gap]->nombre, temp->nombre) > 0; j -= gap) 
+            {
+                arreglo[j] = arreglo[j - gap];
+            }
+            arreglo[j] = temp;
+        }
+    }
+}
+
 void listarCongresistas(struct congreso* congreso)
 {
     printf("\n--- Lista de Diputados ---\n");
@@ -1017,6 +1060,55 @@ void listarCongresistas(struct congreso* congreso)
     printf("\n--- Lista de Senadores ---\n");
     mostrarCongresistas(congreso->senadores, congreso->maxSenadores);
 }
+
+void ordenarCongresistas(struct congreso *congreso)
+{
+    int opcion, tipo;
+
+    printf("\n--- Ordenar Congresistas ---\n");
+    printf("1 : Ordenar por RUT\n");
+    printf("2 : Ordenar por Nombre\n");
+
+    do {
+        printf("Seleccione una opción (1 o 2): ");
+        scanf("%d", &opcion);
+        if (opcion < 1 || opcion > 2) {
+            printf("Opción inválida. Intente nuevamente.\n");
+        }
+    } while (opcion < 1 || opcion > 2);
+
+    printf("Seleccione el tipo de Congresista (1) Diputado (2) Senador: \n");
+
+    do {
+        printf("Seleccione un tipo válido (1 o 2): ");
+        scanf("%d", &tipo);
+        if (tipo < 1 || tipo > 2) {
+            printf("Tipo inválido. Intente nuevamente.\n");
+        }
+    } while (tipo < 1 || tipo > 2);
+
+    if (tipo == 1) 
+    {
+        if (opcion == 1) {
+            ordenarCongresistasPorRUT(congreso->diputados, congreso->maxDiputados);
+            printf("Diputados Ordenados Por Rut Correctamente\n");
+        } else {
+            ordenarCongresistasPorNombre(congreso->diputados, congreso->maxDiputados);
+            printf("Diputados Ordenados Por Nombre Correctamente\n");
+        }
+    }
+    else if (tipo == 2) 
+    {
+        if (opcion == 1) {
+            ordenarCongresistasPorRUT(congreso->senadores, congreso->maxSenadores);
+            printf("Senadores Ordenados Por Rut Correctamente\n");
+        } else {
+            ordenarCongresistasPorNombre(congreso->senadores, congreso->maxSenadores);
+            printf("Senadores Ordenados Por Nombre Correctamente\n");
+        }
+    }
+}
+
 
 void buscarCongresista(struct congreso* congreso)
 {
@@ -1109,8 +1201,9 @@ void menuCongresistas(struct congreso* congreso)
         printf("Opcion 1: Crear y Agregar Congresista\n");
         printf("Opcion 2: Eliminar Congresista\n");
         printf("Opcion 3: Buscar Congresista\n");
-        printf("Opcion 4: Listar Congresistas\n");
-        printf("Opcion 5: Volver al menu principal\n");
+        printf("Opcion 4: Ordenar Congresistas\n");
+        printf("Opcion 5: Listar Congresistas\n");
+        printf("Opcion 6: Volver al menu principal\n");
         scanf("%d", &opcion);
 
         switch (opcion) {
@@ -1124,9 +1217,12 @@ void menuCongresistas(struct congreso* congreso)
             buscarCongresista(congreso);
             break;
         case 4:
-            listarCongresistas(congreso);
+            ordenarCongresistas(congreso);
             break;
         case 5:
+            listarCongresistas(congreso);
+            break;
+        case 6:
             return; // Salir del menú
         default:
             printf("Opcion invalida, por favor intente otra vez.\n");
