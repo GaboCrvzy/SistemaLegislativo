@@ -1558,7 +1558,8 @@ void mostrarMatrizAdyacencia(struct grafoCongreso* grafo)
     }
 }
 void establecerConexionEntreCongresistasMenu(struct grafoCongreso *grafo) {
-    char rut1[20], rut2[20];
+    char rut1[20]; 
+    char rut2[20];
 
     printf("Ingrese el RUT del primer congresista: ");
     solicitarRUT(rut1); // Valida el RUT antes de continuar
@@ -1663,7 +1664,7 @@ int main(void) {
 
     // Bucle principal del menú
     while (flag) {
-        printf("\n--- Menu Principal ---\n"
+        printf("\n--- Menu Principal ---\n")
         printf("A: Congresistas\n");
         printf("B: Proyectos de Ley\n");
         printf("C: Comisiones\n");
