@@ -548,10 +548,10 @@ void mostrarVotaciones(struct nodoVotacion *head)
     struct nodoVotacion *rec = head;
     while (rec != NULL)
     {
-        printf("ID Votación: %d\n", rec->datos->idVotacion);
+        printf("ID Votacion: %d\n", rec->datos->idVotacion);
         printf("ID Proyecto: %d\n", rec->datos->idProyecto);
-        printf("Tipo Votación: %d\n", rec->datos->tipoVotacion);
-        printf("Total Favor: %d\n", rec->datos->totalFavor);
+        printf("Tipo Votacion (1: Comision, 2: Camara) : %d\n", rec->datos->tipoVotacion);
+        printf("Total A Favor: %d\n", rec->datos->totalFavor);
         printf("Total Contra: %d\n", rec->datos->totalContra);
         printf("Total Abstenciones: %d\n", rec->datos->totalAbstenciones);
         printf("Resultado: %s\n", rec->datos->resultado == 1 ? "Aprobado" : "Rechazado");
@@ -644,14 +644,14 @@ void mostrarComisionPorID(struct comision **arreglo, int maxComisiones, int idCo
     {
         if (arreglo[i] != NULL && arreglo[i]->idComision == idComision)
         {
-            printf("Comisión ID: %d\n", arreglo[i]->idComision);
+            printf("Comision ID: %d\n", arreglo[i]->idComision);
             printf("Nombre: %s\n", arreglo[i]->nombre);
             printf("Tipo: %d\n", arreglo[i]->tipo);
-            printf("Descripción: %s\n", arreglo[i]->descripcion);
+            printf("Descripcion: %s\n", arreglo[i]->descripcion);
             return;
         }
     }
-    printf("Comisión con ID %d no encontrada.\n", idComision);
+    printf("Comision con ID %d no encontrada.\n", idComision);
 }
 
 
@@ -766,7 +766,7 @@ void buscarProyectoLeyMenu(struct congreso *congreso)
 
     proyecto = buscarProyectoLeyPorID(congreso->raiz, id);
     if (proyecto == NULL) {
-        printf("Proyecto con ID %d no encontrado. No existe.\n", id);
+        printf("Proyecto con ID %d no encontrado.\n", id);
     } else {
         printf("Proyecto encontrado, para ver detalles seleccione la opcion 4.\n");
     }
@@ -783,12 +783,11 @@ void crearYAgregarVotacionMenu(struct nodoProyectoLey *raizProyectos)
     scanf("%d", &idProyecto);
     proyectoExistente = buscarProyectoLeyPorID(raizProyectos, idProyecto);
     if (proyectoExistente == NULL) {
-        printf("No se encontró un proyecto de ley con el ID %d. Operación cancelada.\n", idProyecto);
+        printf("No existe un proyecto de ley con el ID %d. Operacion cancelada.\n", idProyecto);
         return;
     }
 
-    printf("Ingrese los datos de la nueva votacion:\n");
-    printf("ID de la Votacion: ");
+    printf("Ingrese el ID de la Votacion: ");
     scanf("%d", &idVotacion);
 
     // Verificar si ya existe una votación con este ID
@@ -857,7 +856,7 @@ void calcularResultadoMenu(struct nodoVotacion *head) {
     }
 
     calcularResultadoVotacion(votacion);
-    printf("Resultado calculado: %d\n", votacion->resultado);
+    printf("Resultado calculado (1: Aprobado, 0: Rechazado) : %d\n", votacion->resultado);
 }
 
 void mostrarVotantesMenu(struct nodoVotacion *head) {
@@ -882,8 +881,8 @@ void listarVotacionesMenu(struct nodoVotacion *head) {
 }
 
 void registrarVotoEnProyectoDeLey(struct congreso *congreso) {
-    int idProyecto, tipo;
-    char rut[20];  // Suponiendo que el RUT tiene 12 caracteres (ajusta según el formato real)
+    int idProyecto, ocupacion;
+    char rut[20]; 
     struct proyectoLey *proyectoSeleccionado = NULL;
     struct congresista *congresista = NULL;
 
@@ -895,27 +894,30 @@ void registrarVotoEnProyectoDeLey(struct congreso *congreso) {
     proyectoSeleccionado = buscarProyectoLeyPorID(congreso->raiz, idProyecto);
 
     if (proyectoSeleccionado == NULL) {
-        printf("No se encontró el proyecto de ley con ID %d.\n", idProyecto);
+        printf("No existe el proyecto de ley con ID %d.\n", idProyecto);
         return;
     }
 
     // Pedir el RUT del congresista
     printf("Ingrese el RUT del Congresista para registrar su voto: ");
-    solicitarRUT(rut);  // Función para ingresar el RUT
+    solicitarRUT(rut);
 
-    // Pedir el tipo de congresista (1: Diputado, 2: Senador)
-    printf("De qué tipo es el congresista (1) Diputado (2) Senador: ");
-    scanf("%d", &tipo);
+    printf("De que tipo es el congresista (1) Diputado (2) Senador: ");
+    do {
+        scanf("%d", &ocupacion);
+        if (ocupacion != 1 && ocupacion != 2) {
+            printf("Tipo invalido. Ingrese 1 para Diputados o 2 para Senadores: ");
+        }
+    } while (ocupacion != 1 && ocupacion != 2);
 
-    // Buscar el congresista dependiendo del tipo
-    if (tipo == 1) {
+    if (ocupacion == 1) {
         congresista = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
-    } else if (tipo == 2) {
+    } else if (ocupacion == 2) {
         congresista = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut);
     }
 
     if (congresista == NULL) {
-        printf("No se encontró el congresista con RUT %s.\n", rut);
+        printf("No existe el congresista con RUT %s.\n", rut);
         return;
     }
 
@@ -929,7 +931,7 @@ void menuProyectosLey(struct congreso *congreso)
     int opcion, idProyecto;
     struct proyectoLey *proyectoSeleccionado;
 
-    while (1) 
+    while (1)
     {
         printf("\n--- Menu de Proyectos de Ley ---\n");
         printf("1: Crear e Insertar Proyecto de Ley\n");
@@ -965,6 +967,7 @@ void menuProyectosLey(struct congreso *congreso)
                 if (proyectoSeleccionado != NULL){
                     crearYAgregarVotacionMenu(congreso->raiz);
                 }
+                printf("No existe un Proyecto asociado a ese ID. Intente Nuevamente\n");
                 break;
             case 6:
                 registrarVotoEnProyectoDeLey(congreso);
@@ -975,7 +978,8 @@ void menuProyectosLey(struct congreso *congreso)
                 proyectoSeleccionado = buscarProyectoLeyPorID(congreso->raiz, idProyecto);
                 if (proyectoSeleccionado != NULL) {
                     calcularResultadoMenu(proyectoSeleccionado->votacion);
-                } 
+                }
+                printf("No existe un Proyecto asociado a ese ID. Intente Nuevamente\n");
                 break;
             case 8:
                 printf("Ingrese el ID del Proyecto de Ley para mostrar votantes: ");
@@ -984,6 +988,7 @@ void menuProyectosLey(struct congreso *congreso)
                 if (proyectoSeleccionado != NULL) {
                     mostrarVotantesMenu(proyectoSeleccionado->votacion);
                 }
+                printf("No existe un Proyecto asociado a ese ID. Intente Nuevamente\n");
                 break;
             case 9:
                 printf("Ingrese el ID del Proyecto de Ley para listar votaciones: ");
@@ -991,10 +996,11 @@ void menuProyectosLey(struct congreso *congreso)
                 proyectoSeleccionado = buscarProyectoLeyPorID(congreso->raiz, idProyecto);
                 if (proyectoSeleccionado != NULL) {
                     listarVotacionesMenu(proyectoSeleccionado->votacion);
-                } 
+                }
+                printf("No existe un Proyecto asociado a ese ID. Intente Nuevamente\n");
                 break;
             case 10:
-                return; 
+                return;
             default:
                 printf("Opcion invalida. Intente nuevamente.\n");
         }
@@ -1122,13 +1128,12 @@ void crearYAgregarComisionMenu(struct congreso *congreso) {
     struct comision *nuevaComision=NULL;
     char nombre[100], descripcion[200];
     int tipo, id;
-    printf("\n--- Crear y Agregar Comisión ---\n");
-    printf("Ingrese los datos de la nueva comisión:\n");
-    printf("ID de la Comisión: ");
+    printf("\n--- Crear y Agregar Comision ---\n");
+    printf("Ingrese el id de la Comision: ");
     scanf("%d", &id);
 
     if (buscarComisionEnArreglo(congreso->comisiones, congreso->maxComisiones, id) != NULL) {
-        printf("Ya existe una comisión con el ID %d. Operación cancelada.\n", id);
+        printf("Ya existe una comision con el ID %d. Operacion cancelada.\n", id);
         return;
     }
 
@@ -1195,7 +1200,7 @@ void listarComisionesMenu(struct congreso *congreso) {
             } else {
                 while (integrante != NULL) {
                     printf("Nombre: %s, RUT: %s\n", integrante->datos->nombre, integrante->datos->rut);
-                    integrante = integrante->sig; 
+                    integrante = integrante->sig;
                 }
             }
             printf("\n");
@@ -1266,13 +1271,12 @@ struct congresista *buscarCongresistaEnCongreso(struct congreso *congreso, char 
 }
 void menuAgregarCongresistaAComision(struct congreso* congreso) {
     char rutBuscado[20];
+    int idComision;
     struct congresista* congresistaBuscado = NULL;
     struct comision* comisionSeleccionada;
 
     // Solicitar el RUT del congresista a agregar
-    printf("Ingrese el RUT del congresista: ");
-    scanf("%s", rutBuscado);
-
+    solicitarRUT(rutBuscado);
     // Buscar al congresista por su RUT en el congreso
     congresistaBuscado = buscarCongresistaEnCongreso(congreso, rutBuscado);
     if (congresistaBuscado == NULL) {
@@ -1281,14 +1285,13 @@ void menuAgregarCongresistaAComision(struct congreso* congreso) {
     }
 
     // Solicitar el ID de la comisión a la que se desea agregar
-    int idComision;
-    printf("Ingrese el ID de la comisión: ");
+    printf("Ingrese el ID de la comision: ");
     scanf("%d", &idComision);
 
     // Buscar la comisión por su ID
     comisionSeleccionada = buscarComisionEnArreglo(congreso->comisiones, congreso->maxComisiones, idComision);
     if (comisionSeleccionada == NULL) {
-        printf("Comisión con ID %d no encontrada.\n", idComision);
+        printf("Comision con ID %d no encontrada.\n", idComision);
         return;
     }
 
@@ -1349,7 +1352,7 @@ int main(void) {
                "D: Salir.\n\n");
 
         // Leer la opción seleccionada por el usuario
-        printf("Seleccione una opción: ");
+        printf("Seleccione una opcion: ");
         scanf(" %c", &opcion);  // Espacio antes de %c para capturar correctamente la entrada
 
         // Manejo de las opciones seleccionadas
@@ -1367,7 +1370,7 @@ int main(void) {
             flag = 0;
             break;
         default:
-            printf("Opción inválida, por favor intente otra vez.\n");
+            printf("Opcion invalida, por favor intente otra vez.\n");
             break;
         }
     }
