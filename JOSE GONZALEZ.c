@@ -73,13 +73,13 @@ struct votacion {
 
 struct grafoCongreso {
     int** matrizAdyacencia;  // Matriz de adyacencia
-    int numCongresistas;     
-    struct nodoCongresista* listaCongresistas; 
+    int numCongresistas;
+    struct nodoCongresista* listaCongresistas;
 };
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-int validarRUTSinFormato(const char* rut) 
+int validarRUTSinFormato(const char* rut)
 {
     char verificador;
     int largo = strlen(rut);
@@ -96,7 +96,7 @@ int validarRUTSinFormato(const char* rut)
     verificador = rut[largo - 1];
     if (!isdigit(verificador) && tolower(verificador) != 'k') return 0;
 
-    return 1; 
+    return 1;
 }
 
 void solicitarRUT(char* rut) {
@@ -118,7 +118,7 @@ void solicitarRUT(char* rut) {
 //TODO: FUNCIÓN DE INICIALIZACIÓN DEL CONGRESO----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO: ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 /*Esta función almacena memoria para todos los datos que debe almacenar "congreso"*/
-struct congreso* inicializarCongreso() 
+struct congreso* inicializarCongreso()
 {
     struct congreso* nuevoCongreso;
     nuevoCongreso = malloc(sizeof(struct congreso));
@@ -990,7 +990,7 @@ void menuProyectosLey(struct congreso* congreso)
             }
             else{
                 printf("No existe un Proyecto asociado a ese ID. Intente Nuevamente\n");
-            }           
+            }
             break;
         case 9:
             printf("Ingrese el ID del Proyecto de Ley para listar votaciones: ");
@@ -1016,7 +1016,7 @@ void ordenarCongresistasPorRUT(struct congresista **arreglo, int tam)
     int gap, i, j;
     struct congresista *temp;
 
-    for (gap = tam / 2; gap > 0; gap /= 2) 
+    for (gap = tam / 2; gap > 0; gap /= 2)
     {
         for (i = gap; i < tam; i++)
         {
@@ -1024,7 +1024,7 @@ void ordenarCongresistasPorRUT(struct congresista **arreglo, int tam)
 
             temp = arreglo[i];
             for (j = i; j >= gap && arreglo[j - gap] != NULL &&
-                 strcmp(arreglo[j - gap]->rut, temp->rut) > 0; j -= gap) 
+                 strcmp(arreglo[j - gap]->rut, temp->rut) > 0; j -= gap)
             {
                 arreglo[j] = arreglo[j - gap];
             }
@@ -1045,7 +1045,7 @@ void ordenarCongresistasPorNombre(struct congresista **arreglo, int tam) {
 
             temp = arreglo[i];
             for (j = i; j >= gap && arreglo[j - gap] != NULL &&
-                    strcmp(arreglo[j - gap]->nombre, temp->nombre) > 0; j -= gap) 
+                    strcmp(arreglo[j - gap]->nombre, temp->nombre) > 0; j -= gap)
             {
                 arreglo[j] = arreglo[j - gap];
             }
@@ -1071,24 +1071,23 @@ void ordenarCongresistas(struct congreso *congreso)
     printf("2 : Ordenar por Nombre\n");
 
     do {
-        printf("Seleccione una opción (1 o 2): ");
+        printf("Seleccione una opcion (1 o 2): ");
         scanf("%d", &opcion);
         if (opcion < 1 || opcion > 2) {
-            printf("Opción inválida. Intente nuevamente.\n");
+            printf("Opcion invalida. Intente nuevamente.\n");
         }
     } while (opcion < 1 || opcion > 2);
 
     printf("Seleccione el tipo de Congresista (1) Diputado (2) Senador: \n");
 
     do {
-        printf("Seleccione un tipo válido (1 o 2): ");
         scanf("%d", &tipo);
         if (tipo < 1 || tipo > 2) {
-            printf("Tipo inválido. Intente nuevamente.\n");
+            printf("Tipo invalido. Intente nuevamente.\n");
         }
     } while (tipo < 1 || tipo > 2);
 
-    if (tipo == 1) 
+    if (tipo == 1)
     {
         if (opcion == 1) {
             ordenarCongresistasPorRUT(congreso->diputados, congreso->maxDiputados);
@@ -1098,7 +1097,7 @@ void ordenarCongresistas(struct congreso *congreso)
             printf("Diputados Ordenados Por Nombre Correctamente\n");
         }
     }
-    else if (tipo == 2) 
+    else if (tipo == 2)
     {
         if (opcion == 1) {
             ordenarCongresistasPorRUT(congreso->senadores, congreso->maxSenadores);
@@ -1455,26 +1454,26 @@ struct grafoCongreso* inicializarGrafo()
     nuevoGrafo = (struct grafoCongreso*)malloc(sizeof(struct grafoCongreso));
     nuevoGrafo->numCongresistas = 0;
     nuevoGrafo->listaCongresistas = NULL;
-    nuevoGrafo->matrizAdyacencia = NULL; 
+    nuevoGrafo->matrizAdyacencia = NULL;
     return nuevoGrafo;
 }
 
 void inicializarNuevasConexiones(int** matrizAdyacencia, int numCongresistas)
 {
     int i;
-    for (i = 0; i < numCongresistas; i++) 
+    for (i = 0; i < numCongresistas; i++)
     {
         matrizAdyacencia[numCongresistas - 1][i] = 0;  // Última fila
         matrizAdyacencia[i][numCongresistas - 1] = 0;  // Última columna
     }
 }
 
-int agregarCongresistaAlGrafo(struct grafoCongreso* grafo, struct congresista* nuevoCongresista) 
+int agregarCongresistaAlGrafo(struct grafoCongreso* grafo, struct congresista* nuevoCongresista)
 {
     struct nodoCongresista* nuevoNodo;
     int i;
-    
-    if (buscarCongresistaEnLista(grafo->listaCongresistas, nuevoCongresista->rut) != NULL) 
+
+    if (buscarCongresistaEnLista(grafo->listaCongresistas, nuevoCongresista->rut) != NULL)
     {
         return 0;  // El congresista ya está registrado
     }
@@ -1486,34 +1485,34 @@ int agregarCongresistaAlGrafo(struct grafoCongreso* grafo, struct congresista* n
 
     grafo->matrizAdyacencia = realloc(grafo->matrizAdyacencia, grafo->numCongresistas * sizeof(int*));
 
-    for (i = 0; i < grafo->numCongresistas; i++) 
+    for (i = 0; i < grafo->numCongresistas; i++)
     {
         grafo->matrizAdyacencia[i] = realloc(grafo->matrizAdyacencia[i], grafo->numCongresistas * sizeof(int));
         if (grafo->matrizAdyacencia[i] == NULL) {
-            return 0; 
+            return 0;
         }
     }
 
     inicializarNuevasConexiones(grafo->matrizAdyacencia, grafo->numCongresistas);
 
-    return 1;  
+    return 1;
 }
 
-void conectarCongresistas(struct grafoCongreso* grafo, int indice1, int indice2) 
+void conectarCongresistas(struct grafoCongreso* grafo, int indice1, int indice2)
 {
-    if (indice1 < grafo->numCongresistas && indice2 < grafo->numCongresistas && indice1 != indice2) 
+    if (indice1 < grafo->numCongresistas && indice2 < grafo->numCongresistas && indice1 != indice2)
     {
         grafo->matrizAdyacencia[indice1][indice2]++;
         grafo->matrizAdyacencia[indice2][indice1]++;  // Grafo no dirigido, conexión mutua
     }
 }
 
-int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut) 
+int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut)
 {
     struct nodoCongresista* actual = grafo->listaCongresistas;
     int indice = 0;
 
-    while (actual != NULL) 
+    while (actual != NULL)
     {
         if (strcmp(actual->datos->rut, rut) == 0)
         {
@@ -1522,7 +1521,7 @@ int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut)
         actual = actual->sig;
         indice++;
     }
-    return -1;  
+    return -1;
 }
 
 int establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1, char* rut2)
@@ -1530,23 +1529,39 @@ int establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1,
     int indice1 = obtenerIndiceCongresista(grafo, rut1);
     int indice2 = obtenerIndiceCongresista(grafo, rut2);
 
-    if (indice1 != -1 && indice2 != -1) 
+    if (indice1 != -1 && indice2 != -1)
     {
         conectarCongresistas(grafo, indice1, indice2);
-        return 1; 
+        return 1;
     } else {
-        return 0;  
+        return 0;
     }
 }
 
-void mostrarMatrizAdyacencia(struct grafoCongreso* grafo) 
+void mostrarMatrizAdyacencia(struct grafoCongreso* grafo)
 {
+    int i,j;
     printf("\n--- Matriz de Adyacencia ---\n");
-    for (int i = 0; i < grafo->numCongresistas; i++) {
-        for (int j = 0; j < grafo->numCongresistas; j++) {
+    for (i = 0; i < grafo->numCongresistas; i++) {
+        for (j = 0; j < grafo->numCongresistas; j++) {
             printf("%d ", grafo->matrizAdyacencia[i][j]);
         }
         printf("\n");
+    }
+}
+void establecerConexionEntreCongresistasMenu(struct grafoCongreso *grafo) {
+    char rut1[20], rut2[20];
+
+    printf("Ingrese el RUT del primer congresista: ");
+    solicitarRUT(rut1); // Valida el RUT antes de continuar
+
+    printf("Ingrese el RUT del segundo congresista: ");
+    solicitarRUT(rut2); // Valida el RUT antes de continuar
+
+    if (establecerConexionEntreCongresistas(grafo, rut1, rut2)) {
+        printf("Conexion establecida exitosamente entre %s y %s.\n", rut1, rut2);
+    } else {
+        printf("No se pudo establecer la conexion. Verifique los Ruts ingresados.\n");
     }
 }
 
@@ -1555,118 +1570,123 @@ void mostrarCongresistasGrafo(struct nodoCongresista* listaCongresistas)
     printf("\n--- Lista de Congresistas en el Grafo ---\n");
     mostrarCongresistaEnComisionLista(listaCongresistas);
 }
+void mostrarCongresistasEnGrafoMenu(struct grafoCongreso *grafo) {
+    mostrarCongresistasGrafo(grafo->listaCongresistas);
+}
 
-void menuGrafos(struct congreso *congreso, struct grafoCongreso* grafo) 
-{
-    int opcion, tipo;
-    char rut1[20], rut2[20], rut[20];
-    struct congresista* nuevoCongresista;
+void mostrarMatrizAdyacenciaMenu(struct grafoCongreso *grafo) {
+    mostrarMatrizAdyacencia(grafo);
+}
+void agregarCongresistaAlGrafoMenu(struct congreso *congreso, struct grafoCongreso *grafo) {
+    int tipo;
+    char rut[20];
+    struct congresista *nuevoCongresista;
+
+    printf("Ingrese el tipo de Congresista (1) Diputado (2) Senador: ");
+    do {
+        scanf("%d", &tipo);
+        if (tipo != 1 && tipo != 2) {
+            printf("Tipo Incorrecto. Ingrese 1 para Diputados o 2 para Senadores: ");
+        }
+    } while (tipo != 1 && tipo != 2);
+
+    solicitarRUT(rut);
+
+    if (tipo == 1) {
+        nuevoCongresista = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
+    } else {
+        nuevoCongresista = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut);
+    }
+
+    if (nuevoCongresista == NULL) {
+        printf("El congresista con RUT %s no existe.\n", rut);
+        return;
+    }
+
+    if (agregarCongresistaAlGrafo(grafo, nuevoCongresista)) {
+        printf("Congresista agregado exitosamente al grafo.\n");
+    } else {
+        printf("El congresista ya esta registrado o hubo un error.\n");
+    }
+}
+void menuGrafos(struct congreso *congreso, struct grafoCongreso *grafo) {
+    int opcion;
 
     while (1) {
-        printf("\n--- Menú de Grafos ---\n");
+        printf("\n--- Menu de Grafos ---\n");
         printf("1. Agregar congresista al grafo\n");
-        printf("2. Establecer conexión entre congresistas\n");
+        printf("2. Establecer conexion entre congresistas\n");
         printf("3. Mostrar congresistas en el grafo\n");
         printf("4. Mostrar matriz de adyacencia\n");
-        printf("5. Volver al menú principal\n");
-        printf("Seleccione una opción: ");
-        scanf("%d", &opcion);
-
+        printf("5. Volver al menu principal\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d",&opcion);
         switch (opcion) {
-        case 1:
-            printf("Ingrese el tipo de Congresita (1) Diputado (2) Senador:\n");
-            scanf("%d, &tipo");
-            printf("Ingrese el rut");
-            scanf(")"
-
-            if(tipo == 1)
-            {
-                nuevoCongresista = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
-            }
-            else
-            {
-                nuevoCongresista = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxDSenadores, rut);
-            }
-            
-            if (agregarCongresistaAlGrafo(grafo, nuevoCongresista)) {
-                printf("Congresista agregado exitosamente.\n");
-            } else {
-                printf("El congresista ya está registrado o hubo un error.\n");
-            }
-            break;
-
-        case 2:
-            printf("Ingrese el RUT del primer congresista: ");
-            scanf("%s", rut1);
-            printf("Ingrese el RUT del segundo congresista: ");
-            scanf("%s", rut2);
-            establecerConexionEntreCongresistas(grafo, rut1, rut2);
-            break;
-
-        case 3:
-            mostrarCongresistasGrafo(grafo->listaCongresistas);
-            break;
-
-        case 4:
-            mostrarMatrizAdyacencia(grafo);
-            break;
-
-        case 5:
-            return;
-
-        default:
-            printf("Opción inválida. Intente nuevamente.\n");
-            break;
+            case 1:
+                agregarCongresistaAlGrafoMenu(congreso, grafo);
+                break;
+            case 2:
+                establecerConexionEntreCongresistasMenu(grafo);
+                break;
+            case 3:
+                mostrarCongresistasEnGrafoMenu(grafo);
+                break;
+            case 4:
+                mostrarMatrizAdyacenciaMenu(grafo);
+                break;
+            case 5:
+                return; 
+            default:
+                printf("Opcion invalida. Intente nuevamente.\n");
         }
     }
 }
 
 
-int main(void)
-{
+int main(void) {
     char opcion;
     struct congreso* congreso;
-    struct grafoCongreso *grafo;
+    struct grafoCongreso* grafo;
     int flag = 1; // Variable de control del bucle principal
 
-    // Inicialización del congreso
+    // Inicialización del congreso y grafo
     congreso = inicializarCongreso();
+    grafo = inicializarGrafo();
 
     // Bucle principal del menú
-    while (flag == 1) {
-        printf("Opciones:\n"
-            "A: Congresistas.\n"
-            "B: Proyectos de Ley.\n"
-            "C: Comisiones.\n"
-            "D: Grafos.\n"
-            "E: Salir.\n\n");
+    while (flag) {
+        printf("\n--- Menu Principal ---\n"
+               "A: Congresistas\n"
+               "B: Proyectos de Ley\n"
+               "C: Comisiones\n"
+               "D: Grafos\n"
+               "E: Salir\n\n");
 
         // Leer la opción seleccionada por el usuario
-        printf("Seleccione una opcion: ");
-        scanf(" %c", &opcion);  // Espacio antes de %c para capturar correctamente la entrada
+        printf("Seleccione una opciun: ");
+        scanf(" %c", &opcion);
 
         // Manejo de las opciones seleccionadas
         switch (opcion) {
-        case 'A':
-            funcionSwitch(opcion, congreso, menuCongresistas);
-            break;
-        case 'B':
-            funcionSwitch(opcion, congreso, menuProyectosLey);
-            break;
-        case 'C':
-            funcionSwitch(opcion, congreso, menuComisiones);
-            break;
-        case 'D':
-            grafo = inicializarGrafo();
-            printf("Seleccionaste la opcion D. Accediendo al menu...\n");
-            menuGrafos(congreso, grafo);
-            break;
-        case 'E':
-            flag = 0;
-            break;
-        default:
-            printf("Opcion invalida, por favor intente otra vez.\n");
-            break;
+            case 'A':
+                funcionSwitch(opcion, congreso, menuCongresistas);
+                break;
+            case 'B':
+                funcionSwitch(opcion, congreso, menuProyectosLey);
+                break;
+            case 'C':
+                funcionSwitch(opcion, congreso, menuComisiones);
+                break;
+            case 'D':
+                menuGrafos(congreso, grafo);
+                break;
+            case 'E':
+                printf("Saliendo del programa...\n");
+                flag = 0;
+                break;
+            default:
+                printf("Opcion invalida, por favor intente nuevamente.\n");
+                break;
         }
     }
     return 0;
