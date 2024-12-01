@@ -7,7 +7,7 @@ struct congresista {
     char* nombre;
     char* rut;
     int ocupacion;        // (1) DIPUTADOS  (2) SENADORES
-    char* especializacion;
+    char* partidoPolitico;
 };
 
 struct nodoCongresista {
@@ -227,19 +227,19 @@ void mostrarProyectoLeyPorID(struct nodoProyectoLey* raiz, int idBuscado)
 /*TODO: FUNCIONES DE CONGRESISTAS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-struct congresista* crearCongresista(char* nombre, char* rut, int ocupacion, char* especializacion)
+struct congresista* crearCongresista(char* nombre, char* rut, int ocupacion, char* partidoPolitico)
 {
     struct congresista* nuevoCongresista = NULL;
     nuevoCongresista = (struct congresista*)malloc(sizeof(struct congresista));
 
     nuevoCongresista->nombre = (char*)malloc(strlen(nombre) + 1);
     nuevoCongresista->rut = (char*)malloc(strlen(rut) + 1);
-    nuevoCongresista->especializacion = (char*)malloc(strlen(especializacion) + 1);
+    nuevoCongresista->partidoPolitico = (char*)malloc(strlen(partidoPolitico) + 1);
 
     strcpy(nuevoCongresista->nombre, nombre);
     strcpy(nuevoCongresista->rut, rut);
     nuevoCongresista->ocupacion = ocupacion;
-    strcpy(nuevoCongresista->especializacion, especializacion);
+    strcpy(nuevoCongresista->partidoPolitico, partidoPolitico);
 
     return nuevoCongresista;
 }
@@ -299,7 +299,7 @@ void mostrarCongresistas(struct congresista** arreglo, int tamMax)
             printf("Nombre: %s\n", arreglo[i]->nombre);
             printf("RUT: %s\n", arreglo[i]->rut);
             printf("Ocupacion: %d\n", arreglo[i]->ocupacion);
-            printf("Especializacion: %s\n", arreglo[i]->especializacion);
+            printf("Partido Politico: %s\n", arreglo[i]->partidoPolitico);
             printf("\n");
         }
     }
@@ -404,7 +404,7 @@ void mostrarCongresistaEnComisionLista(struct nodoCongresista* head)
         printf("Nombre: %s\n", rec->datos->nombre);
         printf("RUT: %s\n", rec->datos->rut);
         printf("Ocupacion: %d\n", rec->datos->ocupacion);
-        printf("Especializacion: %s\n", rec->datos->especializacion);
+        printf("Partido Politico: %s\n", rec->datos->partidoPolitico);
         printf("\n");
 
         rec = rec->sig;
@@ -1032,7 +1032,7 @@ void buscarCongresista(struct congreso* congreso)
         printf("Nombre: %s\n", resultado->nombre);
         printf("RUT: %s\n", resultado->rut);
         printf("Ocupacion: %d\n", resultado->ocupacion);
-        printf("Especializacion: %s\n", resultado->especializacion);
+        printf("Partido Politico: %s\n", resultado->partidoPolitico);
     }
     else {
         printf("No existe un congresista con el RUT ingresado.\n");
@@ -1042,15 +1042,15 @@ void buscarCongresista(struct congreso* congreso)
 void agregarCongresista(struct congreso* congreso)
 {
     struct congresista* nuevo = NULL;
-    char nombre[100], rut[20], especializacion[100];
+    char nombre[100], rut[20], partidoPolitico[100];
     int ocupacion;
 
     printf("\nIngrese los datos del congresista:\n");
     printf("Nombre: ");
     scanf(" %[^\n]", nombre);
     solicitarRUT(rut);
-    printf("Especializacion: ");
-    scanf(" %[^\n]", especializacion);
+    printf("Partido Politico: ");
+    scanf(" %[^\n]", partidoPolitico);
 
     if (buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut) != NULL ||
         buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut) != NULL) {
@@ -1066,7 +1066,7 @@ void agregarCongresista(struct congreso* congreso)
         }
     } while (ocupacion < 1 || ocupacion > 2);
 
-    nuevo = crearCongresista(nombre, rut, ocupacion, especializacion);
+    nuevo = crearCongresista(nombre, rut, ocupacion, partidoPolitico);
     if (ocupacion == 1) {
         if (agregarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, nuevo)) {
             printf("Diputado agregado exitosamente.\n");
