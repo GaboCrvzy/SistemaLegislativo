@@ -82,19 +82,23 @@ struct grafoCongreso {
 int validarRUTSinFormato(const char* rut)
 {
     char verificador;
+    int i;
     int largo = strlen(rut);
 
     // El RUT debe tener al menos 2 caracteres (números + dígito verificador)
-    if (largo < 2 || largo > 10) return 0;
+    if (largo < 2 || largo > 10) 
+        return 0;
 
     // Verifica que todos los caracteres menos el último sean dígitos
-    for (int i = 0; i < largo - 1; i++) {
-        if (!isdigit(rut[i])) return 0;
+    for (i = 0; i < largo - 1; i++) {
+        if (!isdigit(rut[i])) 
+            return 0;
     }
 
     // Verifica que el último carácter sea un número o 'K/k'
     verificador = rut[largo - 1];
-    if (!isdigit(verificador) && tolower(verificador) != 'k') return 0;
+    if (!isdigit(verificador) && tolower(verificador) != 'k') 
+        return 0;
 
     return 1;
 }
@@ -1112,9 +1116,10 @@ void ordenarCongresistas(struct congreso *congreso)
 
 void buscarCongresista(struct congreso* congreso)
 {
+    struct congresista* resultado;
     char rut[20];
     solicitarRUT(rut);
-    struct congresista* resultado = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
+    resultado = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
     if (resultado == NULL) {
         resultado = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut);
     }
@@ -1526,8 +1531,11 @@ int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut)
 
 int establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1, char* rut2)
 {
-    int indice1 = obtenerIndiceCongresista(grafo, rut1);
-    int indice2 = obtenerIndiceCongresista(grafo, rut2);
+    int indice1;
+    int indice2;
+    
+    indice1 = obtenerIndiceCongresista(grafo, rut1);
+    indice2 = obtenerIndiceCongresista(grafo, rut2);
 
     if (indice1 != -1 && indice2 != -1)
     {
