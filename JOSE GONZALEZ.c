@@ -1656,17 +1656,14 @@ int main(void) {
     // Bucle principal del menú
     while (flag) {
         printf("\n--- Menu Principal ---\n"
-               "A: Congresistas\n"
-               "B: Proyectos de Ley\n"
-               "C: Comisiones\n"
-               "D: Grafos\n"
-               "E: Salir\n\n");
-
-        // Leer la opción seleccionada por el usuario
-        printf("Seleccione una opciun: ");
+        printf("A: Congresistas\n");
+        printf("B: Proyectos de Ley\n");
+        printf("C: Comisiones\n");
+        printf("D: Grafos\n");
+        printf("E: Salir\n");
+        printf("Seleccione una opcion: ");
         scanf(" %c", &opcion);
-
-        // Manejo de las opciones seleccionadas
+        
         switch (opcion) {
             case 'A':
                 funcionSwitch(opcion, congreso, menuCongresistas);
