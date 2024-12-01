@@ -74,7 +74,9 @@ struct votacion {
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-int validarRUTSinFormato(const char* rut) {
+int validarRUTSinFormato(const char* rut) 
+{
+    char verificador;
     int largo = strlen(rut);
 
     // El RUT debe tener al menos 2 caracteres (números + dígito verificador)
@@ -86,10 +88,10 @@ int validarRUTSinFormato(const char* rut) {
     }
 
     // Verifica que el último carácter sea un número o 'K/k'
-    char verificador = rut[largo - 1];
+    verificador = rut[largo - 1];
     if (!isdigit(verificador) && tolower(verificador) != 'k') return 0;
 
-    return 1; // RUT válido
+    return 1; 
 }
 
 void solicitarRUT(char* rut) {
