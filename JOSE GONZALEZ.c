@@ -1525,16 +1525,17 @@ int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut)
     return -1;  
 }
 
-void establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1, char* rut2) 
+int establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1, char* rut2)
 {
     int indice1 = obtenerIndiceCongresista(grafo, rut1);
     int indice2 = obtenerIndiceCongresista(grafo, rut2);
 
-    if (indice1 != -1 && indice2 != -1) {
+    if (indice1 != -1 && indice2 != -1) 
+    {
         conectarCongresistas(grafo, indice1, indice2);
-        printf("Conexión establecida entre %s y %s.\n", rut1, rut2);
+        return 1; 
     } else {
-        printf("No se pudo establecer conexión: uno o ambos congresistas no encontrados.\n");
+        return 0;  
     }
 }
 
