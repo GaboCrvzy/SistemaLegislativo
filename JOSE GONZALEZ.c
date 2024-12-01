@@ -71,6 +71,11 @@ struct votacion {
     struct nodoCongresista* abstenciones;
 };
 
+struct grafoCongreso {
+    int** matrizAdyacencia;  // Matriz de adyacencia
+    int numCongresistas;     
+    struct nodoCongresista* listaCongresistas; 
+};
 /*TODO: FUNCIONES AUXILIARES---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -663,12 +668,8 @@ void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struc
         printf("Seleccionaste la opcion C. Accediendo al menu...\n");
         submenu(congreso);
         break;
-    case 'D':
-        printf("Seleccionaste la opcion D. Accediendo al menu...\n");
-        submenu(congreso);
-        break;
-    case 'E':
-        printf("Seleccionaste la opcion E. Cerrando el menu.\n");
+    case 'd':
+        printf("Seleccionaste la opcion D. Cerrando el menu.\n");
         break;
     default:
         printf("Opcion invalida, por favor intente otra vez.\n");
@@ -1445,9 +1446,186 @@ void menuComisiones(struct congreso* congreso) {
         }
     }
 }
-int main(void) {
+
+/*TODO: FUNCIONES DE GRAFOS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+struct grafoCongreso* inicializarGrafo()
+{
+    struct grafoCongreso* nuevoGrafo;
+    nuevoGrafo = (struct grafoCongreso*)malloc(sizeof(struct grafoCongreso));
+    nuevoGrafo->numCongresistas = 0;
+    nuevoGrafo->listaCongresistas = NULL;
+    nuevoGrafo->matrizAdyacencia = NULL; 
+    return nuevoGrafo;
+}
+
+void inicializarNuevasConexiones(int** matrizAdyacencia, int numCongresistas)
+{
+    int i;
+    for (i = 0; i < numCongresistas; i++) 
+    {
+        matrizAdyacencia[numCongresistas - 1][i] = 0;  // Última fila
+        matrizAdyacencia[i][numCongresistas - 1] = 0;  // Última columna
+    }
+}
+
+int agregarCongresistaAlGrafo(struct grafoCongreso* grafo, struct congresista* nuevoCongresista) 
+{
+    struct nodoCongresista* nuevoNodo;
+    int i;
+    
+    if (buscarCongresistaEnLista(grafo->listaCongresistas, nuevoCongresista->rut) != NULL) 
+    {
+        return 0;  // El congresista ya está registrado
+    }
+
+    nuevoNodo = enlazarCongresista(nuevoCongresista);
+    nuevoNodo->sig = grafo->listaCongresistas;
+    grafo->listaCongresistas = nuevoNodo;
+    grafo->numCongresistas++;
+
+    grafo->matrizAdyacencia = realloc(grafo->matrizAdyacencia, grafo->numCongresistas * sizeof(int*));
+
+    for (i = 0; i < grafo->numCongresistas; i++) 
+    {
+        grafo->matrizAdyacencia[i] = realloc(grafo->matrizAdyacencia[i], grafo->numCongresistas * sizeof(int));
+        if (grafo->matrizAdyacencia[i] == NULL) {
+            return 0; 
+        }
+    }
+
+    inicializarNuevasConexiones(grafo->matrizAdyacencia, grafo->numCongresistas);
+
+    return 1;  
+}
+
+void conectarCongresistas(struct grafoCongreso* grafo, int indice1, int indice2) 
+{
+    if (indice1 < grafo->numCongresistas && indice2 < grafo->numCongresistas && indice1 != indice2) 
+    {
+        grafo->matrizAdyacencia[indice1][indice2]++;
+        grafo->matrizAdyacencia[indice2][indice1]++;  // Grafo no dirigido, conexión mutua
+    }
+}
+
+int obtenerIndiceCongresista(struct grafoCongreso* grafo, char* rut) 
+{
+    struct nodoCongresista* actual = grafo->listaCongresistas;
+    int indice = 0;
+
+    while (actual != NULL) 
+    {
+        if (strcmp(actual->datos->rut, rut) == 0)
+        {
+            return indice;
+        }
+        actual = actual->sig;
+        indice++;
+    }
+    return -1;  
+}
+
+void establecerConexionEntreCongresistas(struct grafoCongreso* grafo, char* rut1, char* rut2) 
+{
+    int indice1 = obtenerIndiceCongresista(grafo, rut1);
+    int indice2 = obtenerIndiceCongresista(grafo, rut2);
+
+    if (indice1 != -1 && indice2 != -1) {
+        conectarCongresistas(grafo, indice1, indice2);
+        printf("Conexión establecida entre %s y %s.\n", rut1, rut2);
+    } else {
+        printf("No se pudo establecer conexión: uno o ambos congresistas no encontrados.\n");
+    }
+}
+
+void mostrarMatrizAdyacencia(struct grafoCongreso* grafo) 
+{
+    printf("\n--- Matriz de Adyacencia ---\n");
+    for (int i = 0; i < grafo->numCongresistas; i++) {
+        for (int j = 0; j < grafo->numCongresistas; j++) {
+            printf("%d ", grafo->matrizAdyacencia[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void mostrarCongresistasGrafo(struct nodoCongresista* listaCongresistas)
+{
+    printf("\n--- Lista de Congresistas en el Grafo ---\n");
+    mostrarCongresistaEnComisionLista(listaCongresistas);
+}
+
+void menuGrafos(struct congreso *congreso, struct grafoCongreso* grafo) 
+{
+    int opcion, tipo;
+    char rut1[20], rut2[20], rut[20];
+    struct congresista* nuevoCongresista;
+
+    while (1) {
+        printf("\n--- Menú de Grafos ---\n");
+        printf("1. Agregar congresista al grafo\n");
+        printf("2. Establecer conexión entre congresistas\n");
+        printf("3. Mostrar congresistas en el grafo\n");
+        printf("4. Mostrar matriz de adyacencia\n");
+        printf("5. Volver al menú principal\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+        case 1:
+            printf("Ingrese el tipo de Congresita (1) Diputado (2) Senador:\n");
+            scanf("%d, &tipo");
+            printf("Ingrese el rut");
+            scanf(")"
+
+            if(tipo == 1)
+            {
+                nuevoCongresista = buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut);
+            }
+            else
+            {
+                nuevoCongresista = buscarCongresistaEnArreglo(congreso->senadores, congreso->maxDSenadores, rut);
+            }
+            
+            if (agregarCongresistaAlGrafo(grafo, nuevoCongresista)) {
+                printf("Congresista agregado exitosamente.\n");
+            } else {
+                printf("El congresista ya está registrado o hubo un error.\n");
+            }
+            break;
+
+        case 2:
+            printf("Ingrese el RUT del primer congresista: ");
+            scanf("%s", rut1);
+            printf("Ingrese el RUT del segundo congresista: ");
+            scanf("%s", rut2);
+            establecerConexionEntreCongresistas(grafo, rut1, rut2);
+            break;
+
+        case 3:
+            mostrarCongresistasGrafo(grafo->listaCongresistas);
+            break;
+
+        case 4:
+            mostrarMatrizAdyacencia(grafo);
+            break;
+
+        case 5:
+            return;
+
+        default:
+            printf("Opción inválida. Intente nuevamente.\n");
+            break;
+        }
+    }
+}
+
+
+int main(void)
+{
     char opcion;
     struct congreso* congreso;
+    struct grafoCongreso *grafo;
     int flag = 1; // Variable de control del bucle principal
 
     // Inicialización del congreso
@@ -1459,7 +1637,8 @@ int main(void) {
             "A: Congresistas.\n"
             "B: Proyectos de Ley.\n"
             "C: Comisiones.\n"
-            "D: Salir.\n\n");
+            "D: Grafos.\n"
+            "E: Salir.\n\n");
 
         // Leer la opción seleccionada por el usuario
         printf("Seleccione una opcion: ");
@@ -1477,6 +1656,11 @@ int main(void) {
             funcionSwitch(opcion, congreso, menuComisiones);
             break;
         case 'D':
+            grafo = inicializarGrafo();
+            printf("Seleccionaste la opcion D. Accediendo al menu...\n");
+            menuGrafos(congreso, grafo);
+            break;
+        case 'E':
             flag = 0;
             break;
         default:
