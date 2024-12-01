@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_CONGRESISTAS 200
-#define MAX_SENADORES 50
-#define MAX_DIPUTADOS 100
-
 
 struct congresista {
     char* nombre;
