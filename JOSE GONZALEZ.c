@@ -1495,7 +1495,7 @@ void conectarCongresistas(struct grafoCongreso* grafo, int indice1, int indice2)
         grafo->matrizAdyacencia[indice1][indice2]++;
         grafo->matrizAdyacencia[indice2][indice1]++;  // Grafo no dirigido, conexión mutua
     } else {
-        printf("Error: Indices fuera de rango o inválidos.\n");
+        printf("Error: Indices fuera de rango o invalidos.\n");
     }
 }
 
@@ -1540,7 +1540,7 @@ void mostrarMatrizAdyacencia(struct grafoCongreso* grafo)
 
     if (grafo->matrizAdyacencia == NULL) 
     {
-        printf("La matriz de adyacencia no está inicializada.\n");
+        printf("La matriz de adyacencia no esta inicializada.\n");
         return;
     }
     
@@ -1552,7 +1552,7 @@ void mostrarMatrizAdyacencia(struct grafoCongreso* grafo)
         printf("\n");
     }
 }
-void establecerConexionEntreCongresistasMenu(struct grafoCongreso *grafo) {
+void menuEstablecerConexion(struct grafoCongreso *grafo) {
     char rut1[20]; 
     char rut2[20];
 
@@ -1632,7 +1632,7 @@ void menuGrafos(struct congreso *congreso)
                 agregarCongresistaAlGrafoMenu(congreso, congreso->relacionesCongreso);
                 break;
             case 2:
-                establecerConexionEntreCongresistasMenu(congreso->relacionesCongreso);
+                menuEstablecerConexion(congreso->relacionesCongreso);
                 break;
             case 3:
                 mostrarCongresistasEnGrafoMenu(congreso->relacionesCongreso);
