@@ -119,7 +119,32 @@ void solicitarRUT(char* rut) {
         }
     }
 }
+void solicitarPartidoPolitico(char* partido) {
+    do {
+        printf("Ingrese el nombre del partido politico (solo caracteres alfabeticos): ");
+        
+        // Leemos la entrada como una cadena de caracteres
+        scanf(" %s", partido);  // El espacio antes de %s asegura que se ignore cualquier salto de línea previo
+        
+        // Verificamos que todos los caracteres sean alfabéticos
+        int esValido = 1;
+        for (int i = 0; i < strlen(partido); i++) {
+            if (!isalpha(partido[i])) {
+                esValido = 0;  // Si encontramos un carácter no alfabético, la entrada es inválida
+                break;
+            }
+        }
 
+        // Si la entrada es válida (solo contiene letras), salimos del bucle
+        if (esValido) {
+            break;  // Salimos del bucle si la palabra es válida
+        } else {
+            printf("Error: Ingrese solo caracteres alfabeticos, no se permiten numeros ni caracteres especiales.\n");
+            while (getchar() != '\n'); // Limpiar el buffer de entrada
+        }
+
+    } while (1);  // El bucle continúa hasta que se ingrese una palabra válida
+}
 //TODO: FUNCIÓN DE INICIALIZACIÓN DEL CONGRESO----------------------------------------------------------------------------------------------------------------------------------------------------//
 //TODO: ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 /*Esta función almacena memoria para todos los datos que debe almacenar "congreso"*/
@@ -1120,14 +1145,13 @@ void agregarCongresista(struct congreso* congreso)
     struct congresista* nuevo = NULL;
     char nombre[100], rut[20], partidoPolitico[100];
     int ocupacion;
-
     printf("\nIngrese los datos del congresista:\n");
+
     printf("Nombre: ");
     scanf(" %[^\n]", nombre);
     solicitarRUT(rut);
     printf("Partido Politico: ");
-    scanf(" %[^\n]", partidoPolitico);
-
+    solicitarPartidoPolitico(partidoPolitico);
     if (buscarCongresistaEnArreglo(congreso->diputados, congreso->maxDiputados, rut) != NULL ||
         buscarCongresistaEnArreglo(congreso->senadores, congreso->maxSenadores, rut) != NULL) {
         printf("Error: El RUT %s ya esta registrado como congresista (diputado o senador).\n", rut);
