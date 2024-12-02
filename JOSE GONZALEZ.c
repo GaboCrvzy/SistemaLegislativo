@@ -659,29 +659,6 @@ void mostrarComisionPorID(struct comision** arreglo, int maxComisiones, int idCo
 
 /*TODO: FUNCIONES CON LOS SWITCH (MENUS)----------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-void funcionSwitch(char opcion, struct congreso* congreso, void (*submenu)(struct congreso*)) {
-    switch (opcion) {
-    case 'A':
-        printf("Seleccionaste la opcion A. Accediendo al menu...\n");
-        submenu(congreso);
-        break;
-    case 'B':
-        printf("Seleccionaste la opcion B. Accediendo al menu...\n");
-        submenu(congreso);
-        break;
-    case 'C':
-        printf("Seleccionaste la opcion C. Accediendo al menu...\n");
-        submenu(congreso);
-        break;
-    case 'd':
-        printf("Seleccionaste la opcion D. Cerrando el menu.\n");
-        break;
-    default:
-        printf("Opcion invalida, por favor intente otra vez.\n");
-        break;
-    }
-}
 void mostrarProyectoLeyMenu(struct congreso* congreso)
 {
     int id;
@@ -1672,47 +1649,58 @@ void menuGrafos(struct congreso *congreso)
 }
 
 
-int main(void) {
-    char opcion;
+int main() {
+    int opcion;
     struct congreso* congreso;
-    int flag = 1; // Variable de control del bucle principal
 
     // Inicialización del congreso y grafo
     congreso = inicializarCongreso();
     inicializarGrafo(congreso);
 
-    // Bucle principal del menú
-    while (flag) {
+    do {
+        // Menú principal
         printf("\n--- Menu Principal ---\n");
-        printf("A: Congresistas\n");
-        printf("B: Proyectos de Ley\n");
-        printf("C: Comisiones\n");
-        printf("D: Grafos\n");
-        printf("E: Salir\n");
-        printf("Seleccione una opcion: ");
-        scanf(" %c", &opcion);
-        
+        printf("1. Menu Congresistas\n");
+        printf("2. Menu Proyectos de Ley\n");
+        printf("3. Menu Comisiones\n");
+        printf("4. Menu Grafos\n");
+        printf("0. Salir\n");
+        printf("Ingrese opcion: ");
+        scanf("%d", &opcion);
+
         switch (opcion) {
-            case 'A':
-                funcionSwitch(opcion, congreso, menuCongresistas);
+            case 0: {
+                printf("Saliendo del programa...\n");
                 break;
-            case 'B':
-                funcionSwitch(opcion, congreso, menuProyectosLey);
+            }
+
+            case 1: {
+                menuCongresistas(congreso);
                 break;
-            case 'C':
-                funcionSwitch(opcion, congreso, menuComisiones);
+            }
+
+            case 2: {
+                menuProyectosLey(congreso);
                 break;
-            case 'D':
+            }
+
+            case 3: {
+                menuComisiones(congreso);
+                break;
+            }
+
+            case 4: {
                 menuGrafos(congreso);
                 break;
-            case 'E':
-                printf("Saliendo del programa...\n");
-                flag = 0;
-                break;
-            default:
+            }
+
+            default: {
                 printf("Opcion invalida, por favor intente nuevamente.\n");
                 break;
+            }
         }
-    }
+
+    } while (opcion != 0);
+
     return 0;
 }
