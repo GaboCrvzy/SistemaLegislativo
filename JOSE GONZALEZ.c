@@ -1455,7 +1455,7 @@ void menuComisiones(struct congreso* congreso) {
 
 /*TODO: FUNCIONES DE GRAFOS------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*TODO------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void inicializarGrafo(struct congreso *congreso):
+void inicializarGrafo(struct congreso *congreso)
 {
     struct grafoCongreso* nuevoGrafo;
     nuevoGrafo = (struct grafoCongreso*)malloc(sizeof(struct grafoCongreso));
